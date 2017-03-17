@@ -23,5 +23,8 @@ module.exports = {
   deleteAfterReply: {
     enabled: false,
     time: 30000, // In milliseconds
-  }
+  },
+
+  httpport: 3030,
+  nedb: './stt.json'
 };
