@@ -45,7 +45,9 @@
     "discord.js": "^11.0.0",
     "express": "^4.15.2",
     "jsonfile": "^2.4.0",
+    "longjohn": "^0.2.12",
     "nedb": "^1.8.0",
+    "request-json": "^0.6.1",
     "underscore": "^1.8.3"
   }
 }
