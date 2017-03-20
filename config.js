@@ -1,18 +1,24 @@
-module.exports = {
+const node_env = process.env.NODE_ENV || 'development';
+const isProd = node_env === 'production';
 
-  // Your bot name. Typically, this is your bot's username without the discriminator.
-  // i.e: if your bot's username is MemeBot#0420, then this option would be MemeBot.
-  name: "Got Bot",
+module.exports = {
 
   // The bot's command prefix. The bot will recognize as command any message that begins with it.
   // i.e: "-got bot foo" will trigger the command "foo",
   //      whereas "Got Bot foo" will do nothing at all.
-  prefix:  "-got bot",
+  prefix:  isProd ? "-got bot" : '-dev bot',
+
+
+  // Your bot name. Typically, this is your bot's username without the discriminator.
+  // i.e: if your bot's username is MemeBot#0420, then this option would be MemeBot.
+  name: isProd ? "Got Bot" : 'Proto Bot',
 
   // Your bot's user token. If you don't know what that is, go here:
   // https://discordapp.com/developers/applications/me
   // Then create a new application and grab your token.
-  token: "Mjg3ODI4NzE0OTQ5OTY3ODcy.C50_zQ.kYciwKYeUQgPqmruFoBIiVgihO0",
+  token: isProd
+    ? "Mjg3ODI4NzE0OTQ5OTY3ODcy.C50_zQ.kYciwKYeUQgPqmruFoBIiVgihO0"
+    : "MjkyMzAwOTAwMjA5NTI0NzQ2.C62B8g.3pztd6QerlZO717lsPHE49dnCWc",
 
   // If this option is enabled, the bot will delete the message that triggered it, and its own
   // response, after the specified amount of time has passed.
