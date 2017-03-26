@@ -32,5 +32,5 @@ module.exports = {
   },
 
   httpport: 3030,
-  nedb: './stt.json'
+  nedbpath: isProd ? '/home/kevin/dev/gotbot/stt.json' : '/Users/kevin/dev/gotbot/stt.json'
 };
