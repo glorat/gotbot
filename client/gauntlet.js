@@ -20,7 +20,8 @@
 
 }(function (Combinatorics, _) {
   const skills = ['Cmd','Dip','Eng','Sec','Med','Sci'];
-  const featuredSkillWeight = 2.0
+  const featuredSkillWeight = 2.0;
+  const skillCombos = squareCombo(skills, sk => sk);
 
   return {
     featuredSkillWeight: featuredSkillWeight,
@@ -57,36 +58,54 @@
     return res;
   }
 
-  function analyseCharsOld(chars, featuredSkill, featuredSkillWeight) {
+  function fatigueStrengths(chars, strengths) {
+    // fatigue[charIdx] = numOfUses
+    var fatigue = Array(chars.length).fill(0);
+    // Mutable strengths that we use for some DP
+    // adjStrengths[skillComboIdx][charIdx] = strength
+    //var adjStrengths = strengths.map(x => Array(x.length).fill(0.0));
+    var adjStrengths = strengths;
 
-    var result = squareCombo(skills, analyseCombo, chars);
-
-    var denom=0.0;
-    var sum = _.reduce(result, function(a,b){
-      var featured = _.contains(b[0], featuredSkill);
-
-      denom += featured ? featuredSkillWeight : 1.0;
-      // Crits will double the skill value
-      return a+ comboAvg(b[1],b[0]) * (featured ? 2.0 : 1.0 );
-    },0);
-
-    return {result:result, total:sum/denom};
-  }
-
-  function analyseChars(chars, featuredSkill, featuredSkillWeight) {
-    // strengths[skIdx][charIdx] = strength
-
-    // Step 1: Unfatigued strengths
-    var strengths = [];
-    var skillCombos = squareCombo(skills, sk => sk);
-
-    for (var j=0; j<skillCombos.length;j++) {
-      strengths[j] = [];
-      for (var i=0; i<chars.length; i++) {
-        strengths[j][i] = comboAvg(chars[i], skillCombos[j]);
+    var newResult = _.range(skillCombos.length).map(skIdx =>
+      [skillCombos[skIdx], {name:'Noone'}, skIdx, -1, 0.0]
+    );
+    // A sort of DP algo where we copy over best skill to result, and remove from source data
+    for (var iter=0; iter<skillCombos.length; iter++) {
+      const current = currentBests(adjStrengths);
+      const bestOfAll = _.max(current, x => x[4]) // strength
+      const bestSkIdx = bestOfAll[2];
+      const bestCharIdx = bestOfAll[3];
+      // Copy into target
+      newResult[bestSkIdx] = bestOfAll;
+      // Now remove combo from next iteration
+      for (var charIdx = 0; charIdx<chars.length; charIdx++) {
+        adjStrengths[bestSkIdx] =  Array(adjStrengths[bestSkIdx].length).fill(0.0);
       }
+      // Increase the fatigue for this char
+      fatigue[bestCharIdx] ++;
+      // Fatigue the remaining strengths for this char
+      for (var skillIdx = 0; skillIdx < skillCombos.length; skillIdx++) {
+        adjStrengths[skillIdx][bestCharIdx] *= 0.8; // 20% skill reduction!
+      }
+
     }
-    // Step 2: TODO: Produce fatigued strengths
+
+    return newResult;
+
+    function currentBests(sts) {
+      var curBestChars = _.range(skillCombos.length).map(skIdx => {
+        var bestIdx = _.max(_.range(chars.length), charIdx => sts[skIdx][charIdx])
+        var best = chars[bestIdx];
+        return [skillCombos[skIdx], best, skIdx, bestIdx, adjStrengths[skIdx][bestIdx]];
+      });
+      // curBestChars[skIdx] = [combo, bestChar, skIdx, bestIdx, strength]
+      return curBestChars;
+    }
+
+    // Step 3: Reduce to best char per sks
+    var result = currentBests(strengths);
+    return result;
+
     // This step is currently broken
     /*
      for (var charIdx=0; charIdx<chars.length; charIdx++) {
@@ -100,15 +119,25 @@
      strengths[adjIdx][charIdx] *= mult;
      }
      }*/
-    var adjStrengths = strengths;
 
-    // Step 3: Reduce to best char per sks
-    var result = [];
-    for (var j=0; j<skillCombos.length; j++) {
-      var bestIdx = _.max(_.range(chars.length), charIdx => adjStrengths[j][charIdx]);
-      var best = chars[bestIdx];
-      result.push([skillCombos[j], best]);
+  }
+
+  function analyseChars(chars, featuredSkill, featuredSkillWeight) {
+    // strengths[skIdx][charIdx] = strength
+
+    // Step 1: Unfatigued strengths
+    // strengths[skillComboIdx][charIdx] = strength
+    var strengths = [];
+
+    for (var j=0; j<skillCombos.length;j++) {
+      strengths[j] = [];
+      for (var i=0; i<chars.length; i++) {
+        strengths[j][i] = comboAvg(chars[i], skillCombos[j]);
+      }
     }
+    // Step 2/3: TODO: Produce fatigued strengths
+    var result = fatigueStrengths(chars, strengths);
+
 
     // Step 4: Compute totals
     var denom=0.0;
