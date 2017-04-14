@@ -66,9 +66,20 @@ The results table then shows every possible skill combo, your best character for
     <button ng-click="vm.reset()">Reset</button>
   </div>
   <div>
-    <div ng-repeat="row in vm.result">
-      {{ row[0] }} {{ row[1].name  }} {{ vm.comboAvg(row[1], row[0]) | number:0 }}
-    </div>
+    <table>
+      <tr>
+        <th>Skill</th>
+        <th>Crew name</th>
+        <th>Strength</th>
+        <th>Fatigue</th>
+      </tr>
+      <tr ng-repeat="row in vm.result">
+        <td>{{row [0]}}</td>
+        <td>{{row[1].name}}</td>
+        <td align="right">{{row[4] | number:0}}/{{ vm.comboAvg(row[1], row[0]) | number:0 }}</td>
+        <td align="right">{{100-20*row[5] | number}}%</td>
+      </tr>
+    </table>
     <div>
       Total: {{vm.total | number:0}}
     </div>

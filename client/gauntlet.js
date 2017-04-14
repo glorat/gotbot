@@ -72,7 +72,7 @@
     // A sort of DP algo where we copy over best skill to result, and remove from source data
     for (var iter=0; iter<skillCombos.length; iter++) {
       const current = currentBests(adjStrengths);
-      const bestOfAll = _.max(current, x => x[4]) // strength
+      const bestOfAll = _.max(current, x => x[4]); // strength
       const bestSkIdx = bestOfAll[2];
       const bestCharIdx = bestOfAll[3];
       // Copy into target
@@ -96,29 +96,11 @@
       var curBestChars = _.range(skillCombos.length).map(skIdx => {
         var bestIdx = _.max(_.range(chars.length), charIdx => sts[skIdx][charIdx])
         var best = chars[bestIdx];
-        return [skillCombos[skIdx], best, skIdx, bestIdx, adjStrengths[skIdx][bestIdx]];
+        return [skillCombos[skIdx], best, skIdx, bestIdx, adjStrengths[skIdx][bestIdx], fatigue[bestIdx]];
       });
-      // curBestChars[skIdx] = [combo, bestChar, skIdx, bestIdx, strength]
+      // curBestChars[skIdx] = [combo, bestChar, skIdx, bestIdx, strength, fatigue]
       return curBestChars;
     }
-
-    // Step 3: Reduce to best char per sks
-    var result = currentBests(strengths);
-    return result;
-
-    // This step is currently broken
-    /*
-     for (var charIdx=0; charIdx<chars.length; charIdx++) {
-     // Descending order of best
-     var charBestSkills = _.sortBy(_.range(skillCombos.length), skIdx=>{-strengths[skIdx][charIdx]});
-     // Apply adjustment!
-     for (var adjIdx=0; adjIdx<charBestSkills.length; adjIdx++) {
-     // 20% fatigue factor per use
-     var mult = 1 - (0.2 * adjIdx);
-     mult = mult < 0 ? 0 : mult;
-     strengths[adjIdx][charIdx] *= mult;
-     }
-     }*/
 
   }
 
@@ -146,7 +128,7 @@
 
       denom += featured ? featuredSkillWeight : 1.0;
       // Crits will double the skill value
-      return a+ comboAvg(b[1],b[0]) * (featured ? 2.0 : 1.0 );
+      return a+ b[4] * (featured ? 2.0 : 1.0 );
     },0);
     // Step 5: Return the required structure
 
