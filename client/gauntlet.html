@@ -1,12 +1,4 @@
 <!DOCTYPE html>
-<!--
-Created using JS Bin
-http://jsbin.com
-
-Copyright (c) 2017 by glorat (http://jsbin.com/hohaden/23/edit)
-
-Released under the MIT license: http://jsbin.mit-license.org
--->
 <meta name="robots" content="noindex">
 <html>
 <head>
@@ -29,15 +21,13 @@ Released under the MIT license: http://jsbin.mit-license.org
   <h1>Glorat's Gauntlet Crew Optimiser</h1>
   <div class="row">
     Add as many of your crew into this table with the appropriate skill ranges and crit %.
-    Then use the checkboxes to select who you want to participate in the Gauntlet.
-    Press the Analyse button and it will calculate a blended strength rating of your crew!
-    Try different combinations to see which set of crew gives the highest strength and use that for your gauntlet.
+    Analyse your crew by trial and error or let the computer choose for you
   </div>
     <div class="row">
-The results table then shows every possible skill combo, your best character for that combo, and the average points a full strength crew person will get in a typical round. The final is then a weighted average adjusted by the featured skill set (if you select one). I.e. the final number is your average unfatigued score given the random choice of skill combos  </div>
+The results table then shows every possible skill combo, your best character for that combo, and the average points a crew person will get in a typical round. Fatigue is taken into account. The final is then a weighted average adjusted by the featured skill set (if you select one). I.e. the final number is your average score given the random choice of skill combos  </div>
 
   <div>
-    <select ng-options="user.username for user in vm.users track by user._id" ng-model="vm.selectedUser" ng-change="vm.onSelectedUserChange()"></select>
+    Load saved crew list: <select ng-options="user.username for user in vm.users track by user._id" ng-model="vm.selectedUser" ng-change="vm.onSelectedUserChange()"></select>
   </div>
 
   <div ng-repeat="char in vm.chars" class="row">
@@ -60,9 +50,9 @@ The results table then shows every possible skill combo, your best character for
     Featured Skill: <select ng-options="sk for sk in vm.skills" ng-model="vm.featuredSkill"></select>
   </div>
   <div>
-        <button ng-click="vm.selectBest()">Select Top Chars</button>
-    <button ng-click="vm.analyse()">Analyse Selected</button>
-    <button ng-click="vm.analyseAll()">Analyse Combinations of Selected</button>
+        <button ng-click="vm.selectBest()">Step 1: Select Top Chars</button>
+    <button ng-click="vm.analyse()">Step 2: Analyse Selected</button>
+    <button ng-click="vm.analyseAll()">Step 3: Analyse Combinations of Selected</button>
     <button ng-click="vm.reset()">Reset</button>
   </div>
   <div>

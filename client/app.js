@@ -9,15 +9,15 @@ angular
         crit:5,
         selected:true,
         skills : [
-          {name:'Cmd', min:0, max:0},
-          {name:'Dip', min:0, max:0},
-          {name:'Sec', min:0, max:0}
+          {name:'cmd', min:0, max:0},
+          {name:'dip', min:0, max:0},
+          {name:'sec', min:0, max:0}
         ]
       };
     }
 
     var vm = this;
-    vm.skills = ['Cmd','Dip','Eng','Sec','Med','Sci'];
+    vm.skills = ['cmd','dip','eng','sec','med','sci'];
     vm.featuredSkillWeight = 2.0;
 
     var saved = (typeof localStorage === 'object') ? localStorage.getItem('crew') : '';

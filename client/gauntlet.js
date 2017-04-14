@@ -19,7 +19,7 @@
   }
 
 }(function (Combinatorics, _) {
-  const skills = ['Cmd','Dip','Eng','Sec','Med','Sci'];
+  const skills = ['cmd','dip','eng','sec','med','sci'];
   const featuredSkillWeight = 2.0;
   const skillCombos = squareCombo(skills, sk => sk);
 
@@ -48,7 +48,7 @@
     var cmbChars;
     while( cmbChars = cmb.next()) {
       var rec = analyseChars(cmbChars, featuredSkill, featuredSkillWeight);
-      var summary = {names:cmbChars.map(c => c.name), total:rec.total};
+      var summary = {names:cmbChars.map(c => c.name), namesMore: cmbChars.map(c => `${c.name} (${c.crit}%)`), total:rec.total};
       res.push(summary);
     }
 
@@ -94,7 +94,7 @@
 
     function currentBests(sts) {
       var curBestChars = _.range(skillCombos.length).map(skIdx => {
-        var bestIdx = _.max(_.range(chars.length), charIdx => sts[skIdx][charIdx])
+        var bestIdx = _.max(_.range(chars.length), charIdx => sts[skIdx][charIdx]);
         var best = chars[bestIdx];
         return [skillCombos[skIdx], best, skIdx, bestIdx, adjStrengths[skIdx][bestIdx], fatigue[bestIdx]];
       });
