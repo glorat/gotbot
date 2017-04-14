@@ -4,11 +4,12 @@
 
   if (typeof module !== 'undefined' && module.exports ) {
     const Combinatorics = require('./combinatorics.js');
-    module.exports = myService(Combinatorics);
+    const underscore = require ('underscore');
+    module.exports = myService(Combinatorics, underscore);
   } else if( angular) {
     angular.module('myApp')
       .factory('Gauntlet', function(Combinatorics){
-        return myService(Combinatorics);
+        return myService(Combinatorics, _);
       });
 
 
@@ -17,16 +18,18 @@
     // window.myService = myService;
   }
 
-}(function (Combinatorics) {
+}(function (Combinatorics, _) {
   const skills = ['Cmd','Dip','Eng','Sec','Med','Sci'];
+  const featuredSkillWeight = 2.0
 
   return {
+    featuredSkillWeight: featuredSkillWeight,
     skills : skills,
-
     comboAvg:comboAvg,
     analyseChars: analyseChars,
     analyseCharCombos: analyseCharCombos,
-    topChars: topChars
+    topChars: topChars,
+    dbCharToChar : dbCharToChar,
   };
 
   function topChars(chars, featuredSkill, featuredSkillWeight) {
@@ -149,6 +152,21 @@
   function analyseCombo(sks, chars) {
     var best = bestCharForSkills(chars, sks)
     return [sks, best];
+  }
+
+
+  function dbCharToChar(dbChar) {
+    var char = {};
+    char.name = dbChar.name;
+    char.crit = 5;
+    char.selected = true;
+
+    char.skills = _.chain(skills)
+      .filter(function(sk){return !!dbChar[sk.toLowerCase()];})
+      .map(function(sk){return {name:sk, min: dbChar[sk.toLowerCase()].minroll, max:dbChar[sk.toLowerCase()].maxroll};})
+      .value();
+
+    return char;
   }
 
 }));
