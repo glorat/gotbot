@@ -12,73 +12,96 @@
 </head>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.0/angular.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
 <script src="app.js"></script>
 <script src="combinatorics.js"></script>
 <script src="gauntlet.js"></script>
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 
+
 <body ng-app="myApp" ng-controller="myCtrl as vm" class="container-fluid">
   <h1>Glorat's Gauntlet Crew Optimiser</h1>
-  <div class="row">
-    Add as many of your crew into this table with the appropriate skill ranges and crit %.
-    Analyse your crew by trial and error or let the computer choose for you
-  </div>
-    <div class="row">
-The results table then shows every possible skill combo, your best character for that combo, and the average points a crew person will get in a typical round. Fatigue is taken into account. The final is then a weighted average adjusted by the featured skill set (if you select one). I.e. the final number is your average score given the random choice of skill combos  </div>
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div>
+        Add as many of your crew into this table with the appropriate skill ranges and crit %.
+        Analyse your crew by trial and error or let the computer choose for you
+      </div>
+      <div>
+        The results table then shows every possible skill combo, your best character for that combo, and the average points a crew person will get in a typical round. Fatigue is taken into account. The final is then a weighted average adjusted by the featured skill set (if you select one). I.e. the final number is your average score given the random choice of skill combos  </div>
+    </div>
+    </div>
 
   <div>
     Load saved crew list: <select ng-options="user.username for user in vm.users track by user._id" ng-model="vm.selectedUser" ng-change="vm.onSelectedUserChange()"></select>
   </div>
 
-  <div ng-repeat="char in vm.chars" class="row">
-  <div class="col-sm-3 col-lg-2">
-    <input type="checkbox" ng-model="char.selected">
-    <input type="text" ng-model="char.name" size="10">
-    Crit: <input type="number" ng-model="char.crit" class="crit">%
-  </div>
-    <div class="col-sm-3 col-lg-2" ng-repeat="skill in char.skills">
-      <select ng-options="sk for sk in vm.skills" ng-model="skill.name"></select>
-      <input type="number" ng-model="skill.min" class="skill">-<input type="number" ng-model="skill.max" class="skill">
-    </div>
+  <uib-tabset active="active">
+    <uib-tab index="0" heading="Gauntlet Calculator">
 
-  </div>
-  <div>
-    <button ng-click="vm.addChar()">Add</button>
-    <button ng-click="vm.removeChar()">Remove</button>
-  </div>
-  <div>
-    Featured Skill: <select ng-options="sk for sk in vm.skills" ng-model="vm.featuredSkill"></select>
-  </div>
-  <div>
+      <div ng-repeat="char in vm.chars" class="row">
+        <div class="col-sm-3 col-lg-2">
+          <input type="checkbox" ng-model="char.selected">
+          <input type="text" ng-model="char.name" size="10">
+          Crit: <input type="number" ng-model="char.crit" class="crit">%
+        </div>
+        <div class="col-sm-3 col-lg-2" ng-repeat="skill in char.skills">
+          <select ng-options="sk for sk in vm.skills" ng-model="skill.name"></select>
+          <input type="number" ng-model="skill.min" class="skill">-<input type="number" ng-model="skill.max" class="skill">
+        </div>
+
+      </div>
+      <div>
+        <button ng-click="vm.addChar()">Add</button>
+        <button ng-click="vm.removeChar()">Remove</button>
+      </div>
+      <div>
+        Featured Skill: <select ng-options="sk for sk in vm.skills" ng-model="vm.featuredSkill"></select>
+      </div>
+      <div>
         <button ng-click="vm.selectBest()">Step 1: Select Top Chars</button>
-    <button ng-click="vm.analyse()">Step 2: Analyse Selected</button>
-    <button ng-click="vm.analyseAll()">Step 3: Analyse Combinations of Selected</button>
-    <button ng-click="vm.reset()">Reset</button>
-  </div>
-  <div>
-    <table>
-      <tr>
-        <th>Skill</th>
-        <th>Crew name</th>
-        <th>Strength</th>
-        <th>Fatigue</th>
-      </tr>
-      <tr ng-repeat="row in vm.result">
-        <td>{{row [0]}}</td>
-        <td>{{row[1].name}}</td>
-        <td align="right">{{row[4] | number:0}}/{{ vm.comboAvg(row[1], row[0]) | number:0 }}</td>
-        <td align="right">{{100-20*row[5] | number}}%</td>
-      </tr>
-    </table>
-    <div>
-      Total: {{vm.total | number:0}}
-    </div>
-  </div>
-  <div>
-    <div ng-repeat="res in vm.fullRes" class="row">
-      <div class="col-xs-1">{{ res.total | number:0 }}</div>
-      <div class="col-xs-2" ng-repeat="nm in res.names">{{nm}}</div>
-    </div>
-  </div>
+        <button ng-click="vm.analyse()">Step 2: Analyse Selected</button>
+        <button ng-click="vm.analyseAll()">Step 3: Analyse Combinations of Selected</button>
+        <button ng-click="vm.reset()">Reset</button>
+      </div>
+      <div>
+        <table>
+          <tr>
+            <th>Skill</th>
+            <th>Crew name</th>
+            <th>Strength</th>
+            <th>Fatigue</th>
+          </tr>
+          <tr ng-repeat="row in vm.result">
+            <td>{{row [0]}}</td>
+            <td>{{row[1].name}}</td>
+            <td align="right">{{row[4] | number:0}}/{{ vm.comboAvg(row[1], row[0]) | number:0 }}</td>
+            <td align="right">{{100-20*row[5] | number}}%</td>
+          </tr>
+        </table>
+        <div>
+          Total: {{vm.total | number:0}}
+        </div>
+      </div>
+      <div>
+        <div ng-repeat="res in vm.fullRes" class="row">
+          <div class="col-xs-1">{{ res.total | number:0 }}</div>
+          <div class="col-xs-2" ng-repeat="nm in res.names">{{nm}}</div>
+        </div>
+      </div>
+    </uib-tab>
+    <uib-tab index="1" heading="Crew list">
+      <table>
+        <tr>
+          <th>Crew member</th>
+        </tr>
+        <tr ng-repeat="char in vm.chars">
+          <td>{{char.name}}</td>
+          <td ng-repeat="skill in char.skills"><img src="emoji/{{ skill.name }}.png"> {{ skill.base}} ({{skill.min}} - {{skill.max}})</td>
+        </tr>
+      </table>
+    </uib-tab>
+  </uib-tabset>
+
 </body>
 </html>

@@ -1,5 +1,5 @@
 angular
-  .module("myApp", [])
+  .module("myApp", ['ui.bootstrap'])
   .controller("myCtrl", function($scope, $http, Combinatorics, Gauntlet) {
 
     var charIdx = 0;
@@ -100,7 +100,13 @@ angular
 
           char.skills = _.chain(vm.skills)
             .filter(function(sk){return !!dbChar[sk.toLowerCase()];})
-            .map(function(sk){return {name:sk, min: dbChar[sk.toLowerCase()].minroll, max:dbChar[sk.toLowerCase()].maxroll};})
+            .map(function(sk){return {
+              name:sk,
+              min: dbChar[sk.toLowerCase()].minroll,
+              max:dbChar[sk.toLowerCase()].maxroll,
+              base:dbChar[sk.toLowerCase()].base
+            };})
+            .sortBy(x => -x.base)
             .value();
 
           return char;
