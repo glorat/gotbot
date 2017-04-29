@@ -17,8 +17,6 @@ cfg.nedbpath = cfg.nedbpath.replace('stt.json','test_stt.json');
 
 
 describe('gotBot', function () {
-  this.timeout(5000);
-
 
   var app = new Clapp.App({
     name: cfg.name,
@@ -99,6 +97,24 @@ describe('gotBot', function () {
       sendCommand(cmd).then(data => {
         // Not deterministic but this should be good enough to make the test stable
         expect(data).to.match(/You would win (49|50|51)% of the time/);
+        done();
+      }).catch(done);
+    })
+  });
+
+  describe('gcalc command', function() {
+    it('should provide analysis', function(done) {
+      sendCommand('-dev bot gcalc').then(data=>{
+        expect(data).to.match(/Gauntlet strength/);
+        done();
+      }).catch(done);
+    })
+  });
+
+  describe('hello command', function() {
+    it('should say hello', function(done) {
+      sendCommand('-dev bot hello').then(data=>{
+        expect(data).to.contain('Hi test (-1)');
         done();
       }).catch(done);
     })
