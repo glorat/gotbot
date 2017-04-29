@@ -2,18 +2,22 @@
 
 var assert = require('assert');
 var expect = require('expect.js');
-var gotBot = require('../lib');
 
 const fs      = require('fs');
 const Clapp   = require('../lib/modules/clapp-discord');
 
-const cfg     = require('../config.js');
+var cfg     = require('../config.js');
 
 const pkg     = require('../package.json');
 
+// const Promise = require("bluebird");
+
+// Override env for testing
+cfg.nedbpath = cfg.nedbpath.replace('stt.json','test_stt.json');
 
 
 describe('gotBot', function () {
+  this.timeout(5000);
 
 
   var app = new Clapp.App({
@@ -39,6 +43,7 @@ describe('gotBot', function () {
       if (context == null) {
         context = {
           author: {username:'test', id:-1},
+          channel: {name:'test channel'},
           isEntitled: function(){return true},
           emojify : x=>x
         };
@@ -79,5 +84,71 @@ describe('gotBot', function () {
       expect(data).to.contain('Kai Winn');
       done();
     }).catch(done);
+  });
+
+  it('should handle foo', function(done) {
+    const cmd = '-dev bot foo';
+    sendCommand(cmd).then(data => {
+      expect(data).to.contain('Hi test (-1). Thanks for sending in channel test channel');
+      done();
+    }).catch(done);
+  });
+  describe('gaunt command',function(){
+    it('should calculate even match', function(done) {
+      const cmd = '-dev bot gaunt 5 100 900 100 900 5 100 900 100 900';
+      sendCommand(cmd).then(data => {
+        // Not deterministic but this should be good enough to make the test stable
+        expect(data).to.match(/You would win (49|50|51)% of the time/);
+        done();
+      }).catch(done);
+    })
+  });
+
+  describe('crew commands',function(){
+    it('should list crew', function(done){
+      sendCommand('-dev bot crew list').then(data => {
+        expect(data).to.match(/you have these/);
+        done();
+      }).catch(done);
+
+    });
+
+    it('should add crew', function(done) {
+      sendCommand('-dev bot crew add rog win -s2').then(data => {
+        expect(data).to.match(/Hi test. I have added Rogue Kai Winn cmd 643/);
+        done();
+      }).catch(done);
+    });
+
+    it('should add more crew', function(done) {
+      sendCommand('-dev bot crew add rakal -f').then(data => {
+        expect(data).to.match(/Hi test. I have added Rakal Troi cmd 510/);
+        done();
+      }).catch(done);
+    });
+
+
+    it('should fully equip crew to a fuse level', function(done) {
+      sendCommand('-dev bot fullyequip rog win -s3').then(data => {
+        // Not deterministic but this should be good enough to make the test stable
+        expect(data).to.match(/updated stats for Rogue Kai Winn cmd 721/);
+        done();
+      });
+    });
+
+    it('should remove crew', function(done) {
+      sendCommand('-dev bot crew remove rog win').then(data => {
+        expect(data).to.match(/I have removed Rogue Kai Winn/);
+        done();
+      }).catch(done)
+    });
+
+    it('should remove more crew', function(done) {
+      sendCommand('-dev bot crew remove rakal').then(data => {
+        expect(data).to.match(/I have removed Rakal Troi/);
+        done();
+      }).catch(done);
+    });
+
   });
 });
