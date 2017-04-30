@@ -148,10 +148,16 @@ describe('gotBot', function () {
 
     it('should fully equip crew to a fuse level', function(done) {
       sendCommand('-dev bot fullyequip rog win -s3').then(data => {
-        // Not deterministic but this should be good enough to make the test stable
         expect(data).to.match(/updated stats for Rogue Kai Winn cmd 721/);
         done();
-      });
+      }).catch(done);
+    });
+
+    it('should vault crew not in roster', function(done) {
+      sendCommand('-dev bot crew vault cap jane').then(data => {
+        expect(data).to.contain('Captain Janeway has been added to your vault');
+        done();
+      }).catch(done);
     });
 
     it('should remove crew', function(done) {
