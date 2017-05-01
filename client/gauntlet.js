@@ -40,6 +40,7 @@
   }
 
   function analyseCharCombos(chars, featuredSkill, featuredSkillWeight) {
+    if (chars.length<5) return [];
 
     //noprotect
     var cmb = Combinatorics.combination(chars, 5);
@@ -174,7 +175,7 @@
 
     char.skills = _.chain(skills)
       .filter(function(sk){return !!dbChar[sk.toLowerCase()];})
-      .map(function(sk){return {name:sk, min: dbChar[sk.toLowerCase()].minroll, max:dbChar[sk.toLowerCase()].maxroll};})
+      .map(function(sk){return {name:sk, min: +dbChar[sk.toLowerCase()].minroll, max:+dbChar[sk.toLowerCase()].maxroll};})
       .value();
 
     return char;
