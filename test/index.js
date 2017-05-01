@@ -102,17 +102,7 @@ describe('gotBot', function () {
       }).catch(done);
     })
   });
-/* Needs test data
-  describe('gcalc command', function() {
-    it('should provide analysis', function(done) {
-      this.timeout(10000); // Combinatorics is slow
-      sendCommand('-dev bot gcalc').then(data=>{
-        expect(data).to.match(/Gauntlet strength/);
-        done();
-      }).catch(done);
-    })
-  });
-*/
+
   describe('hello command', function() {
     it('should say hello', function(done) {
       sendCommand('-dev bot hello').then(data=>{
@@ -160,6 +150,17 @@ describe('gotBot', function () {
       }).catch(done);
     });
 
+/*
+    describe('gcalc command', function() {
+      it('should provide analysis', function(done) {
+        this.timeout(10000); // Combinatorics is slow
+        sendCommand('-dev bot gcalc').then(data=>{
+          expect(data).to.contain('Gauntlet strength 179458');
+          done();
+        }).catch(done);
+      })
+    });
+*/
     it('should remove crew', function(done) {
       sendCommand('-dev bot crew remove rog win').then(data => {
         expect(data).to.match(/I have removed Rogue Kai Winn/);
