@@ -43,7 +43,8 @@ describe('gotBot', function () {
           author: {username:'test', id:-1},
           channel: {name:'test channel'},
           isEntitled: function(){return true},
-          emojify : x=>x
+          emojify : x=>x,
+          boldify: x=>x
         };
       }
       context.callback = m => resolve(m);

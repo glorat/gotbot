@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<meta name="robots" content="noindex">
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Glorat's Gauntlet Crew Optimiser</title>
+  <style id="jsbin-css">
+    .skill { width: 3.5em }
+    .crit { width: 2.5em }
+  </style>
+</head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.0/angular.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
+<script src="got.js"></script>
+<script src="combinatorics.js"></script>
+<script src="gauntlet.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+
+<body ng-app="myApp" ng-controller="GotCtrl as vm" class="container-fluid">
+<h1>GoT network</h1>
+<uib-tabset active="active">
+  <uib-tab index="0" heading="Console">
+    <input type="text" name="command" ng-model="vm.command">
+    <button ng-click="vm.sendCommand()">Send</button>
+    <pre ng-bind-html="vm.commandResult.message"></pre>
+    <pre ng-bind-html="vm.commandResult.error"></pre>
+  </uib-tab>
+  <uib-tab index="1" heading="Todo">
+    <table>
+      <tr>
+        <th>Crew member</th>
+      </tr>
+      <tr ng-repeat="char in vm.chars">
+        <td>{{char.name}}</td>
+        <td ng-repeat="skill in char.skills"><img src="emoji/{{ skill.name }}.png"> {{ skill.base}} ({{skill.min}} - {{skill.max}})</td>
+      </tr>
+    </table>
+  </uib-tab>
+</uib-tabset>
+
+</body>
+</html>
