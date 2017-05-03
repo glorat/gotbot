@@ -138,8 +138,15 @@ describe('gotBot', function () {
 
 
     it('should fully equip crew to a fuse level', function(done) {
-      sendCommand('-dev bot fullyequip rog win -s3').then(data => {
+      sendCommand('-dev bot equip rog win -s3').then(data => {
         expect(data).to.match(/updated stats for Rogue Kai Winn cmd 721/);
+        done();
+      }).catch(done);
+    });
+
+    it('should fully equip crew to a fuse and skill level', function(done) {
+      sendCommand('-dev bot equip rog win -s3 -l1').then(data => {
+        expect(data).to.match(/updated stats for Rogue Kai Winn cmd 70/);
         done();
       }).catch(done);
     });
