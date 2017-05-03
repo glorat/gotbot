@@ -124,14 +124,16 @@ describe('gotBot', function () {
 
     it('should add crew', function(done) {
       sendCommand('-dev bot crew add rog win -s2').then(data => {
-        expect(data).to.match(/Hi test. I have added Rogue Kai Winn cmd 643/);
+        expect(data).to.match(/Hi test. I have added Rogue Kai Winn/);
+        expect(data).to.contain('cmd 643');
         done();
       }).catch(done);
     });
 
     it('should add more crew', function(done) {
       sendCommand('-dev bot crew add rakal -f').then(data => {
-        expect(data).to.match(/Hi test. I have added Rakal Troi cmd 510/);
+        expect(data).to.match(/Hi test. I have added Rakal Troi/m);
+        expect(data).to.contain('cmd 510');
         done();
       }).catch(done);
     });
@@ -139,14 +141,16 @@ describe('gotBot', function () {
 
     it('should fully equip crew to a fuse level', function(done) {
       sendCommand('-dev bot equip rog win -s3').then(data => {
-        expect(data).to.match(/updated stats for Rogue Kai Winn cmd 721/);
+        expect(data).to.match(/updated stats for Rogue Kai Winn/m);
+        expect(data).to.contain('cmd 721');
         done();
       }).catch(done);
     });
 
     it('should fully equip crew to a fuse and skill level', function(done) {
       sendCommand('-dev bot equip rog win -s3 -l1').then(data => {
-        expect(data).to.match(/updated stats for Rogue Kai Winn cmd 70/);
+        expect(data).to.match(/updated stats for Rogue Kai Winn/m);
+        expect(data).to.contain('cmd 70 ');
         done();
       }).catch(done);
     });
