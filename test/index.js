@@ -2,7 +2,7 @@
 
 var assert = require('assert');
 var expect = require('expect.js');
-
+var _ = require('underscore');
 const fs      = require('fs');
 const Clapp   = require('../lib/modules/clapp-discord');
 
@@ -14,7 +14,7 @@ const pkg     = require('../package.json');
 
 // Override env for testing
 cfg.nedbpath = cfg.nedbpath.replace('stt.json','test_stt.json');
-
+const db = require('../lib/crewdb.js');
 
 describe('gotBot', function () {
 
@@ -149,6 +149,21 @@ describe('gotBot', function () {
         expect(data).to.match(/updated stats for Rogue Kai Winn cmd 70/);
         done();
       }).catch(done);
+    });
+
+    it('should save stars and level in char', function(done) {
+      const qry = { _id: -1 };
+      db.users.findOne(qry, function (err, doc) {
+        const name = 'Rogue Kai Winn';
+        expect(doc).to.be.ok();
+        var char = _.find(doc.crew, x=>x.name === name);
+        expect(char).to.be.ok();
+        expect(char.level).to.be(1);
+        expect(char.stars).to.be(3);
+        expect(char.maxstars).to.be(5);
+        expect(char.cmd.base).to.be(70);
+        done();
+      });
     });
 
     it('should vault crew not in roster', function(done) {
