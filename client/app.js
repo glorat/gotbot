@@ -1,6 +1,6 @@
 angular
   .module("myApp", ['ui.bootstrap'])
-  .controller("myCtrl", function($scope, $http, Combinatorics, Gauntlet) {
+  .controller("GauntletCtrl", function($scope, $http, Combinatorics, Gauntlet) {
 
     var charIdx = 0;
     function newChar() {
