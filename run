@@ -1,0 +1,4 @@
+#!/bin/bash
+export NODE_ENV=production
+node lib/cachewiki.js
+node lib/index.js
