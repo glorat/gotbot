@@ -14,3 +14,6 @@ system("wget -m -np -l1 -o$FindBin::Bin/data/2star.log https://stt.wiki/wiki/Cat
 system("wget -m -np -l1 -o$FindBin::Bin/data/3star.log https://stt.wiki/wiki/Category:Rare");
 system("wget -m -np -l1 -o$FindBin::Bin/data/4star.log https://stt.wiki/wiki/Category:Super_Rare");
 system("wget -m -np -l1 -o$FindBin::Bin/data/5star.log https://stt.wiki/wiki/Category:Legendary");
+
+print "Telling bot to restart\n";
+system("pkill -F data/run.pid");
