@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+use FindBin;
+use Cwd qw(chdir);
+
+chdir("$FindBin::Bin/client");
+
+print "now in $ENV{PWD} script in $FindBin::Bin\n";
+
+system("wget -m -np -l1 -o$FindBin::Bin/data/1star.log https://stt.wiki/wiki/Category:Uncommon");
+system("wget -m -np -l1 -o$FindBin::Bin/data/2star.log https://stt.wiki/wiki/Category:Common");
+system("wget -m -np -l1 -o$FindBin::Bin/data/3star.log https://stt.wiki/wiki/Category:Rare");
+system("wget -m -np -l1 -o$FindBin::Bin/data/4star.log https://stt.wiki/wiki/Category:Super_Rare");
+system("wget -m -np -l1 -o$FindBin::Bin/data/5star.log https://stt.wiki/wiki/Category:Legendary");
