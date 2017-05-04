@@ -53,20 +53,39 @@ describe('gotBot', function () {
     return msgPromise;
   }
 
-  it('should have Rakal Troi stats!', function () {
-    const cmd = '-dev bot stats rakal';
-    sendCommand(cmd).then(function(msg) {
-      expect(msg).to.contain('Rakal Troi');
+  describe('stats command', function() {
+
+    it('should have Rakal Troi stats!', function () {
+      const cmd = '-dev bot stats rakal';
+      sendCommand(cmd).then(function(msg) {
+        expect(msg).to.contain('Rakal Troi');
+      });
+    });
+
+    it('should not have unknown stats!', function (done) {
+      const cmd = '-dev bot stats unknownnnn';
+      sendCommand(cmd).then(data => {
+        expect(data).to.contain('don\'t know any matching character from unknownnnn');
+        done();
+      }).catch(done);
+    });
+
+    it('should show choices for multi-match', function(done) {
+      sendCommand('-dev bot stats mirr sisko').then(data => {
+        expect(data).to.contain('2 character matches. Did you mean');
+        done();
+      }).catch(done);
+    });
+
+    it('should match exact names', function(done) {
+      sendCommand('-dev bot stats mirror sisko').then(data => {
+        expect(data).to.contain('Mirror Sisko');
+        expect(data).to.contain('Scoundrel');
+        done();
+      }).catch(done);
     });
   });
 
-  it('should not have unknown stats!', function (done) {
-    const cmd = '-dev bot stats unknownnnn';
-    sendCommand(cmd).then(data => {
-      expect(data).to.contain('don\'t know any matching character from unknownnnn');
-      done();
-    }).catch(done);
-  });
 
   it('should fail unknown commands', function(done) {
     const cmd = '-dev bot unknowncommand';
