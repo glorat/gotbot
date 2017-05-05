@@ -4,7 +4,7 @@ var assert = require('assert');
 var expect = require('expect.js');
 var _ = require('underscore');
 const fs      = require('fs');
-const Clapp   = require('../lib/modules/clapp-discord');
+const cli   = require('../lib/cli.js');
 
 var cfg     = require('../config.js');
 
@@ -18,39 +18,19 @@ const db = require('../lib/crewdb.js');
 
 describe('gotBot', function () {
 
-  var app = new Clapp.App({
-    name: cfg.name,
-    desc: pkg.description,
-    prefix: cfg.prefix,
-    version: pkg.version,
-    onReply: (msg, context) => {
-      context.callback(msg);
-    }
-  });
-
-
-// Load every command in the commands folder
-  fs.readdirSync('lib/commands/').forEach(file => {
-    app.addCommand(require("../lib/commands/" + file));
-  });
-
   function sendCommand(cmd, context) {
-    assert(app.isCliSentence(cmd));
 
-    let msgPromise = new Promise((resolve, reject) => {
-      if (context == null) {
-        context = {
-          author: {username:'test', id:-1},
-          channel: {name:'test channel'},
-          isEntitled: function(){return true},
-          emojify : x=>x,
-          boldify: x=>x
-        };
-      }
-      context.callback = m => resolve(m);
-      app.parseInput(cmd, context);
-    });
-    return msgPromise;
+    assert(cli.isCliSentence(cmd));
+    if (context == null) {
+      context = {
+        author: {username:'test', id:-1},
+        channel: {name:'test channel'},
+        isEntitled: function(){return true},
+        emojify : x=>x,
+        boldify: x=>x
+      };
+    }
+    return cli.sendCommand(cmd,context);
   }
 
   describe('stats command', function() {
