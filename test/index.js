@@ -66,6 +66,15 @@ describe('gotBot', function () {
     });
   });
 
+  describe('estats command', function(done) {
+    it('should return an embed object', function(done) {
+      sendCommand('-dev bot estats mirror sisko').then(data => {
+        expect(data).to.be('EMBED');
+        done();
+      }).catch(done);
+    });
+  });
+
 
   it('should fail unknown commands', function(done) {
     const cmd = '-dev bot unknowncommand';
