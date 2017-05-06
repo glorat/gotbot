@@ -19,6 +19,7 @@ module.exports = {
   token: isProd
     ? "Mjg3ODI4NzE0OTQ5OTY3ODcy.C50_zQ.kYciwKYeUQgPqmruFoBIiVgihO0"
     : "MjkyMzAwOTAwMjA5NTI0NzQ2.C62B8g.3pztd6QerlZO717lsPHE49dnCWc",
+  gotServer: '235536091011088394', // id of the GoT fleet server
 
   // If this option is enabled, the bot will delete the message that triggered it, and its own
   // response, after the specified amount of time has passed.
