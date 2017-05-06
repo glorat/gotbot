@@ -84,6 +84,32 @@ describe('gotBot', function () {
     }).catch(done);
   });
 
+  describe('best command', function(done) {
+    it('should best base eng', function(done) {
+      sendCommand('-dev bot best base eng').then(data => {
+        expect(data).to.contain('The Traveler'); // Best at time of writing - should stay top 5 for a while
+        done();
+      }).catch(done);
+    });
+    it('should best gauntlet med', function(done) {
+      sendCommand('-dev bot best gauntlet med').then(data => {
+        expect(data).to.contain('Mirror Phlox'); // Best at time of writing - should stay top 5 for a while
+        done();
+      }).catch(done);
+    });
+    it('should best gauntlet med sec', function(done) {
+      sendCommand('-dev bot best gauntlet med sec').then(data => {
+        expect(data).to.contain('Mirror Phlox'); // Best at time of writing - should stay top 5 for a while
+        done();
+      }).catch(done);
+    });
+    it('should best base cmd -f1', function(done) {
+      sendCommand('-dev bot best base cmd -f1').then(data => {
+        expect(data).to.contain('Captain Sisko'); // Best at time of writing - should stay top 5 for a while
+        done();
+      }).catch(done);
+    });
+  });
   it('should search find two kais', function(done) {
     const cmd = '-dev bot search kai';
     sendCommand(cmd).then(data => {
