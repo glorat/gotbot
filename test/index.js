@@ -109,6 +109,12 @@ describe('gotBot', function () {
         done();
       }).catch(done);
     });
+    it('should best gauntlet', function(done) {
+      sendCommand('-dev bot best gauntlet').then(data => {
+        expect(data).to.contain('Locutus'); // Best at time of writing - should stay top 5 for a while
+        done();
+      }).catch(done);
+    });
   });
   it('should search find two kais', function(done) {
     const cmd = '-dev bot search kai';
