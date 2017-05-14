@@ -116,14 +116,32 @@ describe('gotBot', function () {
       }).catch(done);
     });
   });
-  it('should search find two kais', function(done) {
-    const cmd = '-dev bot search kai';
-    sendCommand(cmd).then(data => {
-      expect(data).to.contain('2 results for Kai');
-      expect(data).to.contain('Kai Opaka');
-      expect(data).to.contain('Kai Winn');
-      done();
-    }).catch(done);
+  describe('search command', function() {
+    it('should find two kais', function(done) {
+      const cmd = '-dev bot search kai';
+      sendCommand(cmd).then(data => {
+        expect(data).to.contain('2 results for Kai');
+        expect(data).to.contain('Kai Opaka');
+        expect(data).to.contain('Kai Winn');
+        done();
+      }).catch(done);
+    });
+
+    it('should find tuvix under both tuvok', function(done) {
+      const cmd = '-dev bot search tuvok';
+      sendCommand(cmd).then(data => {
+        expect(data).to.contain('Tuvix');
+        done();
+      }).catch(done);
+    });
+
+    it('and neelix', function(done) {
+      const cmd = '-dev bot search tuvok';
+      sendCommand(cmd).then(data => {
+        expect(data).to.contain('Tuvix');
+        done();
+      }).catch(done);
+    });
   });
 
   it('should handle foo', function(done) {
