@@ -13,8 +13,9 @@
       <span ng-hide="shuttle.type==='single'">
               <input type="text" size="4" ng-model="shuttle.base2">
       <select ng-options="sk for sk in vm.skills" ng-model="shuttle.skill2"></select>
-      </span>
 
+      </span>
+      Multiplier: <select ng-options="m for m in [1,2,3]" ng-model="shuttle.multiplier"></select>
     </td>
   </tr>
   <tr>
@@ -54,3 +55,4 @@
 <p>Assumptions</p>
 <p>The shuttle And multiplier is <input type="number" ng-model="vm.andMultiplier"></p>
 <p>The logistics magic number is {{vm.magic}}</p>
+<p>Normal chars have a multiplier of 1. "Bonus" chars have a multiplier of 2. "Event" chars have a multiplier of 3</p>
