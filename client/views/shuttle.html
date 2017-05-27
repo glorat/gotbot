@@ -1,0 +1,56 @@
+<p>Shuttle success calculator</p>
+
+<table>
+  <tr>
+    <th>Shuttle list</th>
+  </tr>
+  <tr ng-repeat="shuttle in vm.shuttles">
+    <td>Shuttle {{ $index +1}}</td>
+    <td>
+      <input type="text" size="4" ng-model="shuttle.base1">
+      <select ng-options="sk for sk in vm.skills" ng-model="shuttle.skill1"></select>
+      <select ng-options="sk for sk in vm.shuttleTypes" ng-model="shuttle.type"></select>
+      <span ng-hide="shuttle.type==='single'">
+              <input type="text" size="4" ng-model="shuttle.base2">
+      <select ng-options="sk for sk in vm.skills" ng-model="shuttle.skill2"></select>
+      </span>
+
+    </td>
+  </tr>
+  <tr>
+    <td>
+      VP Reward
+    </td>
+    <td>
+      <select ng-options="sk for sk in vm.vpLevels" ng-model="vm.vpLevel"></select>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Shuttle Difficulty
+    </td>
+    <td>
+      {{ vm.difficulty }}
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Average crew skill:
+    </td>
+    <td>
+      {{ vm.avgSkill }}
+    </td>
+  </tr>  <tr>
+    <td>
+      Shuttle Success:
+    </td>
+    <td>
+      {{ vm.success() *100 }}%
+    </td>
+  </tr>
+</table>
+<button ng-click="vm.addShuttle()">Add Shuttle</button>
+<button ng-click="vm.removeShuttle()">Remove Shuttle</button>
+<p>Assumptions</p>
+<p>The shuttle And multiplier is <input type="number" ng-model="vm.andMultiplier"></p>
+<p>The logistics magic number is {{vm.magic}}</p>

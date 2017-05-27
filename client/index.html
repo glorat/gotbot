@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <title>Glorat's Gauntlet Crew Optimiser</title>
+  <title>Glorat's STT tools</title>
   <style id="jsbin-css">
     .skill { width: 3.5em }
     .crit { width: 2.5em }
@@ -16,10 +16,11 @@
 <script src="got.js"></script>
 <script src="combinatorics.js"></script>
 <script src="gauntlet.js"></script>
+<script src="shuttle.js"></script>
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 
 <body ng-app="myApp" ng-controller="GotCtrl as vm" class="container-fluid">
-<h1>GoT network</h1>
+<h1>Glorat's STT tools</h1>
 <uib-tabset active="active">
   <uib-tab index="0" heading="Console">
     <input type="text" name="command" ng-model="vm.command">
@@ -27,7 +28,10 @@
     <pre ng-bind-html="vm.commandResult.message"></pre>
     <pre ng-bind-html="vm.commandResult.error"></pre>
   </uib-tab>
-  <uib-tab index="1" heading="Todo">
+  <uib-tab index="1" heading="Shuttle Calc">
+    <shuttle-calc></shuttle-calc>
+  </uib-tab>
+  <uib-tab index="2" heading="Todo">
     <table>
       <tr>
         <th>Crew member</th>
