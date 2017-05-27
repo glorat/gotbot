@@ -1,11 +1,8 @@
 <p>Shuttle success calculator</p>
 
 <table>
-  <tr>
-    <th>Shuttle list</th>
-  </tr>
   <tr ng-repeat="shuttle in vm.shuttles">
-    <td>Shuttle {{ $index +1}}</td>
+    <th>Shuttle {{ $index +1}}</th>
     <td>
       <input type="text" size="4" ng-model="shuttle.base1">
       <select ng-options="sk for sk in vm.skills" ng-model="shuttle.skill1"></select>
@@ -19,9 +16,22 @@
     </td>
   </tr>
   <tr>
+    <td></td>
     <td>
-      VP Reward
+      <button ng-click="vm.addShuttle()">Add Shuttle</button>
+      <button ng-click="vm.removeShuttle()">Remove Shuttle</button>
     </td>
+  </tr>
+  <tr>
+    <th>Shuttle boost</th>
+    <td>
+      <select ng-options="m for m in [0,1,2,3,4,5]" ng-model="vm.boost.level"></select>* boost with <select ng-options="sk for sk in vm.skills" ng-model="vm.boost.skill"></select> skill. (+{{ vm.boostLevelToSkill[vm.boost.level] }} skill)
+    </td>
+  </tr>
+  <tr>
+    <th>
+      VP Reward
+    </th>
     <td>
       <select ng-options="sk for sk in vm.vpLevels" ng-model="vm.vpLevel"></select>
     </td>
@@ -46,13 +56,12 @@
       Shuttle Success:
     </td>
     <td>
-      {{ vm.success() *100 }}%
+      <b>{{ vm.success() *100 }}%</b>
     </td>
   </tr>
 </table>
-<button ng-click="vm.addShuttle()">Add Shuttle</button>
-<button ng-click="vm.removeShuttle()">Remove Shuttle</button>
 <p>Assumptions</p>
 <p>The shuttle And multiplier is <input type="number" ng-model="vm.andMultiplier"></p>
 <p>The logistics magic number is {{vm.magic}}</p>
 <p>Normal chars have a multiplier of 1. "Bonus" chars have a multiplier of 2. "Event" chars have a multiplier of 3</p>
+<p>I'm not supporting 0* basic boosts in this calculator</p>

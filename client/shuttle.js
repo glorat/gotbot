@@ -13,7 +13,7 @@ angular.module('myApp').directive('shuttleCalc', function() {
       vm.magic = 3.5;
       vm.skills = ['cmd', 'dip', 'eng', 'sec', 'med', 'sci'];
       vm.shuttleTypes = ['single','and','or'];
-      vm.boostLevelToSkill = [0, 10, 20, 250, 40, 50];
+      vm.boostLevelToSkill = [0, 100, 150, 250, 450, 700];
       vm.vpLevels = [1500,1800,2250,2750,3500,4000];
       vm.vpToDifficulty = {
         1500:1000,
