@@ -2,7 +2,7 @@
 
 <table>
   <tr ng-repeat="shuttle in vm.shuttles">
-    <th>Shuttle {{ $index +1}}</th>
+    <th>Slot {{ $index +1}}</th>
     <td>
       <input type="text" size="4" ng-model="shuttle.base1">
       <select ng-options="sk for sk in vm.skills" ng-model="shuttle.skill1"></select>
@@ -56,12 +56,11 @@
       Shuttle Success:
     </td>
     <td>
-      <b>{{ vm.success() *100 }}%</b>
+      <b>{{ vm.success() }}%</b>
     </td>
   </tr>
 </table>
 <p>Assumptions</p>
-<p>The shuttle And multiplier is <input type="number" ng-model="vm.andMultiplier"></p>
 <p>The logistics magic number is {{vm.magic}}</p>
 <p>Normal chars have a multiplier of 1. "Bonus" chars have a multiplier of 2. "Event" chars have a multiplier of 3</p>
 <p>I'm not supporting 0* basic boosts in this calculator</p>

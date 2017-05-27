@@ -24,7 +24,6 @@ angular.module('myApp').directive('shuttleCalc', function() {
         3500:	1700,
         4000:	2000
       };
-      vm.andMultiplier = 1.25;
       vm.shuttles = [];
       vm.boost = {skill: 'cmd', level: 0};
       vm.vpLevel = 4000;
@@ -57,18 +56,19 @@ angular.module('myApp').directive('shuttleCalc', function() {
           .value();
         vm.avgSkill = totalSkill / vm.shuttles.length;
         // Now apply the logistics formula!
-        return Math.floor(100/(1+Math.exp(-(vm.avgSkill/vm.difficulty-0.5)*vm.magic)))/100;
+        return Math.floor(100/(1+Math.exp(-(vm.avgSkill/vm.difficulty-0.5)*vm.magic)));
 
       };
 
       // This is the key function!
       function shuttleSkill(shuttle, boost) {
+        let normalBase = 0;
         if (shuttle.type === 'single') {
           let base1 = +shuttle.base1;
           if (shuttle.skill1 === boost.skill) {
             base1 += +vm.boostLevelToSkill[boost.level];
           }
-          return base1 * shuttle.multiplier;
+          normalBase = shuttle.multiplier;
         }
         else if (shuttle.type === 'or') {
           let base1 = +shuttle.base1;
@@ -79,17 +79,18 @@ angular.module('myApp').directive('shuttleCalc', function() {
           if (shuttle.skill2 === boost.skill) {
             base2 += +vm.boostLevelToSkill[boost.level];
           }
-          return (base2 > base1) ? base2 : base1;
+          normalBase = (base2 > base1) ? base2 : base1;
+
         }
         else if (shuttle.type === 'and') {
-          let avgBase = (+shuttle.base1 + +shuttle.base2) / 2;
+          normalBase = (+shuttle.base1 > +shuttle.base2) ? (+shuttle.base1 + 0.25*shuttle.base2) : (+shuttle.base2 + 0.25*shuttle.base1);
           // Let's have full boost if either matches
           if ((shuttle.skill1 === boost.skill) || (shuttle.skill2 === boost.skill)) {
-            avgBase += +vm.boostLevelToSkill[boost.level];
+            normalBase += +vm.boostLevelToSkill[boost.level];
           }
-          avgBase *= vm.andMultiplier;
-          return avgBase;
         }
+
+        return normalBase * shuttle.multiplier;
       }
 
     }
