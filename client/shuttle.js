@@ -68,7 +68,7 @@ angular.module('myApp').directive('shuttleCalc', function() {
           if (shuttle.skill1 === boost.skill) {
             base1 += +vm.boostLevelToSkill[boost.level];
           }
-          normalBase = shuttle.multiplier;
+          normalBase = base1;
         }
         else if (shuttle.type === 'or') {
           let base1 = +shuttle.base1;
