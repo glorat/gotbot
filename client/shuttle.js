@@ -35,7 +35,7 @@ angular.module('myApp').directive('shuttleCalc', function() {
 
 
       vm.addShuttle = function () {
-        const newShuttle = {type: 'single', skill1: 'cmd', base1: 100, skill2: 'dip', base2: 100, multiplier: 1};
+        const newShuttle = {type: 'single', skill1: 'cmd', base1: 0, skill2: 'dip', base2: 0, multiplier: 1};
         vm.shuttles.push(newShuttle);
       };
 

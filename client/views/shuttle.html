@@ -1,66 +1,73 @@
-<p>Shuttle success calculator</p>
+<p>Shuttle success calculator. Add/remove the necessary slots then enter the skills your crew have. The resultant success % should match the app. Of course we don't know how the real success is calculated on the server but we can only hope they match up</p>
 
-<table>
-  <tr ng-repeat="shuttle in vm.shuttles">
-    <th>Slot {{ $index +1}}</th>
-    <td>
-      <input type="text" size="4" ng-model="shuttle.base1">
-      <select ng-options="sk for sk in vm.skills" ng-model="shuttle.skill1"></select>
-      <select ng-options="sk for sk in vm.shuttleTypes" ng-model="shuttle.type"></select>
+<form class="form-horizontal">
+  <div class="form-group" ng-repeat="shuttle in vm.shuttles">
+    <div class="col-xs-3">Slot {{ $index +1}}</div>
+    <div class="col-xs-6">
+      <input class="form-control minime" type="text" size="4" ng-model="shuttle.base1">
+      <select class="form-control minime"  ng-options="sk for sk in vm.skills" ng-model="shuttle.skill1"></select>
+      <select class="form-control minime" ng-options="sk for sk in vm.shuttleTypes" ng-model="shuttle.type"></select>
       <span ng-hide="shuttle.type==='single'">
-              <input type="text" size="4" ng-model="shuttle.base2">
-      <select ng-options="sk for sk in vm.skills" ng-model="shuttle.skill2"></select>
-
+        <input class="form-control minime" type="text" size="4" ng-model="shuttle.base2">
+        <select class="form-control minime" ng-options="sk for sk in vm.skills" ng-model="shuttle.skill2"></select>
       </span>
-      Multiplier: <select ng-options="m for m in [1,2,3]" ng-model="shuttle.multiplier"></select>
-    </td>
-  </tr>
-  <tr>
-    <td></td>
-    <td>
-      <button ng-click="vm.addShuttle()">Add Shuttle</button>
-      <button ng-click="vm.removeShuttle()">Remove Shuttle</button>
-    </td>
-  </tr>
-  <tr>
-    <th>Shuttle boost</th>
-    <td>
-      <select ng-options="m for m in [0,1,2,3,4,5]" ng-model="vm.boost.level"></select>* boost with <select ng-options="sk for sk in vm.skills" ng-model="vm.boost.skill"></select> skill. (+{{ vm.boostLevelToSkill[vm.boost.level] }} skill)
-    </td>
-  </tr>
-  <tr>
-    <th>
+    </div>
+    <div class="col-xs-3">
+      Multiplier: <select class="form-control minime" ng-options="m for m in [1,2,3]" ng-model="shuttle.multiplier"></select>
+    </div>
+  </div>
+  <div class="form-group" >
+    <div class="col-xs-3"></div>
+    <div class="col-xs-9">
+      <button class="btn btn-primary" ng-click="vm.addShuttle()">Add Slot</button>
+      <button class="btn btn-primary" ng-click="vm.removeShuttle()">Remove Slot</button>
+    </div>
+  </div>
+  <div class="form-group" >
+    <div class="col-xs-3">Shuttle boost</div>
+    <div class="col-xs-9">
+      <select class="form-control minime" ng-options="m for m in [0,1,2,3,4,5]" ng-model="vm.boost.level"></select>* boost with <select class="form-control minime" ng-options="sk for sk in vm.skills" ng-model="vm.boost.skill"></select> skill. (+{{ vm.boostLevelToSkill[vm.boost.level] }} skill)
+    </div>
+  </div>
+  <div class="form-group" >
+    <div class="col-xs-3">
       VP Reward
-    </th>
-    <td>
-      <select ng-options="sk for sk in vm.vpLevels" ng-model="vm.vpLevel"></select>
+    </div>
+    <td class="col-xs-9">
+      <select class="form-control minime" ng-options="sk for sk in vm.vpLevels" ng-model="vm.vpLevel"></select>
     </td>
-  </tr>
-  <tr>
-    <td>
+  </div>
+  <div class="form-group" >
+    <div class="col-xs-3">
       Shuttle Difficulty
-    </td>
-    <td>
+    </div>
+    <div class="col-xs-9">
       {{ vm.difficulty }}
-    </td>
-  </tr>
-  <tr>
-    <td>
+    </div>
+  </div>
+  <div class="form-group" >
+    <div class="col-xs-3">
       Average crew skill:
-    </td>
-    <td>
+    </div>
+    <div class="col-xs-9">
       {{ vm.avgSkill }}
-    </td>
-  </tr>  <tr>
-    <td>
+    </div>
+  </div>
+  <div class="form-group bg-primary" >
+    <div class="col-xs-3">
       Shuttle Success:
-    </td>
-    <td>
-      <b>{{ vm.success() }}%</b>
-    </td>
-  </tr>
-</table>
-<p>Assumptions</p>
-<p>The logistics magic number is {{vm.magic}}</p>
-<p>Normal chars have a multiplier of 1. "Bonus" chars have a multiplier of 2. "Event" chars have a multiplier of 3</p>
-<p>I'm not supporting 0* basic boosts in this calculator</p>
+    </div>
+    <div class="col-xs-9">
+      <h1>{{ vm.success() }}%</h1> <span class="" ng-show="vm.avgSkill===0">but the app will display 0% since your shuttle has no skill</span>
+    </div>
+  </div>
+</form>
+
+<div class="panel panel-default">
+  <header class="panel-heading">Assumptions</header>
+  <div>
+    <p>The logistics magic number is {{vm.magic}}</p>
+    <p>Normal chars have a multiplier of 1. "Bonus" chars have a multiplier of 2. "Event" chars have a multiplier of 3</p>
+    <p>I'm not supporting 0* basic boosts in this calculator</p>
+  </div>
+</div>
