@@ -74,7 +74,7 @@
       </tr>
       <tr ng-repeat="char in vm.chars">
         <td>{{char.name}}</td>
-        <td ng-repeat="skill in char.skills"><img src="emoji/{{ skill.name }}.png"> {{ skill.base}} ({{skill.min}} - {{skill.max}})</td>
+        <td ng-repeat="skill in char.skills"><img ng-src="emoji/{{ skill.name }}.png"> {{ skill.base}} ({{skill.min}} - {{skill.max}})</td>
       </tr>
     </table>
   </uib-tab>
