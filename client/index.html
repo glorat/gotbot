@@ -36,10 +36,19 @@
       </uib-tab>
       <uib-tab index="2" heading="Console">
         <p>This is an unfinished preview feature! It is a web version of a rather useful Discord bot</p>
-        <input type="text" name="command" ng-model="vm.command">
-        <button ng-click="vm.sendCommand()">Send</button>
+        <form ng-submit="vm.sendCommand()">
+          <input type="text" name="command" ng-model="vm.command">
+          <input type="submit">Send</input>
+        </form>
         <pre ng-bind-html="vm.commandResult.message"></pre>
-        <pre ng-bind-html="vm.commandResult.error"></pre>
+        <div class="panel panel-default">
+          <header class="panel-heading">{{vm.embed.title}}</header>
+          <div ng-repeat="field in vm.embed.fields">
+            <h3>{{field.name}}</h3>
+            <p>{{field.value}}</p>
+          </div>
+        </div>
+        <pre class="bg-error" ng-show="vm.commandResult.error" ng-bind-html="vm.commandResult.error"></pre>
       </uib-tab>
     </uib-tabset>
   </div>

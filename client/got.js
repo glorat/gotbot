@@ -17,6 +17,7 @@ angular
       }).then(function successCallback(response) {
         vm.commandResult.error = $sce.trustAsHtml(response.data.error);
         vm.commandResult.message = $sce.trustAsHtml(response.data.message);
+        vm.embed = response.data.embed;
       }, function errorCallback(response) {
         // called asynchronously if an error occurs
         // or server returns response with an error status.
