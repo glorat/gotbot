@@ -1,5 +1,5 @@
 angular
-  .module("myApp", ['ui.bootstrap'])
+  .module("myApp")
   .controller("GotCtrl", function($scope, $http, $sce, Combinatorics, Gauntlet) {
 
     var vm = this;
