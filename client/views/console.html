@@ -1,0 +1,28 @@
+<div class="section scrollable-content">
+<p>This is an unfinished preview feature! It is a web version of a rather useful Discord bot</p>
+<form ng-submit="vm.sendCommand()">
+  <input type="text" name="command" ng-model="vm.command">
+  <input type="submit">
+  <pre ng-bind-html="vm.commandResult.message"></pre>
+  <div class="panel panel-default">
+    <header class="panel-heading">{{vm.embed.title}}</header>
+    <div ng-repeat="field in vm.embed.fields">
+      <h3>{{field.name}}</h3>
+      <pre>{{field.value}}</pre>
+    </div>
+  </div>
+  <pre class="bg-error" ng-show="vm.commandResult.error">{{vm.commandResult.error}}</pre>
+  <div ng-repeat="cmd in vm.commands" class="panel panel-default" style="margin-bottom: 0px;">
+    <header class="panel-heading" style="cursor: pointer; padding: 3px 15px;" ng-click="vm.showPanel = cmd.name">{{cmd.name}}</header>
+    <div ng-show="vm.showPanel === cmd.name">
+      <div>{{cmd.desc}}</div>
+      <div ng-repeat="arg in cmd.args">
+        <input type="text" placeholder="{{ arg.name }}" ng-model="arg.value" ng-change="vm.onCmdChange(cmd.name)"> {{ arg.desc}}
+      </div>
+      <div ng-repeat="flag in cmd.flags">
+        <input type="text" placeholder="{{ flag.name }}" ng-model="flag.value" ng-change="vm.onCmdChange(cmd.name)"> {{ flag.desc}}
+      </div>
+    </div>
+  </div>
+</form>
+</div>
