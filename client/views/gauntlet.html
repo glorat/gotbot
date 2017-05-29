@@ -15,17 +15,27 @@
 </div>
 
 <uib-tabset active="active">
-  <uib-tab index="0" heading="Gauntlet Calculator">
+  <uib-tab index="0" heading="Gauntlet Calculator" class="form-inline">
 
     <div ng-repeat="char in vm.chars" class="row">
-      <div class="col-sm-3 col-lg-2">
-        <input type="checkbox" ng-model="char.selected">
-        <input type="text" ng-model="char.name" size="10">
-        Crit: <input type="number" ng-model="char.crit" class="crit">%
+      <div class="col-xs-8 col-md-8 col-lg-4">
+        <div class="input-group input-group-sm">
+          <span class="input-group-addon">
+            <input type="checkbox" ng-model="char.selected">
+          </span>
+          <input class="form-control minime" type="text" ng-model="char.name" size="10">
+
+        </div>
       </div>
-      <div class="col-sm-3 col-lg-2" ng-repeat="skill in char.skills">
-        <select ng-options="sk for sk in vm.skills" ng-model="skill.name"></select>
-        <input type="number" ng-model="skill.min" class="skill">-<input type="number" ng-model="skill.max" class="skill">
+      <div class="col-xs-4 col-md-4 col-lg-2">
+        <div class="input-group input-group-sm">
+          <input type="text" ng-model="char.crit" class="crit form-control">
+          <span class="input-group-addon">%</span>
+        </div>
+      </div>
+      <div class="col-xs-12 col-md-4 col-lg-2" ng-repeat="skill in char.skills">
+        <select class="form-control input-sm minime"  ng-options="sk for sk in vm.skills" ng-model="skill.name"></select>
+        <input type="text" class="form-control input-sm skill" ng-model="skill.min" >-<input type="text" ng-model="skill.max" class="form-control input-sm skill">
       </div>
 
     </div>
