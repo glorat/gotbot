@@ -1,6 +1,25 @@
 angular
-  .module("myApp", ['ui.bootstrap'])
-
+  .module("myApp", ['ui.bootstrap', 'ngRoute'])
+  .config(['$routeProvider','$locationProvider',
+    function($routeProvider, $locationProvider) {
+      $routeProvider.
+        when('/user/:userId', {
+          templateUrl: 'views/user.html',
+          controller: 'UserCtrl',
+          controllerAs: 'user'
+        })
+        .when('/gauntlet', {
+          templateUrl: 'views/user.html',
+          controller: 'UserCtrl',
+          controllerAs: 'user'
+        })
+        .otherwise({
+          templateUrl: 'views/main.html',
+          controller: 'MainController'
+        });
+      // use the HTML5 History API
+      $locationProvider.html5Mode(true);
+    }])
   .directive('gauntletCalc', function() {
     var vm = this;
 
