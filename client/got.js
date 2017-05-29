@@ -27,7 +27,7 @@ angular
       }, function errorCallback(response) {
         // called asynchronously if an error occurs
         // or server returns response with an error status.
-        vm.commandResult = {message:'', error:response}
+        vm.commandResult = {message:'', error:'The server was unable to process your request. The server may be down or your connection at fault'}
       });
     };
 

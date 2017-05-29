@@ -44,10 +44,10 @@
           <header class="panel-heading">{{vm.embed.title}}</header>
           <div ng-repeat="field in vm.embed.fields">
             <h3>{{field.name}}</h3>
-            <p>{{field.value}}</p>
+            <pre>{{field.value}}</pre>
           </div>
         </div>
-        <pre class="bg-error" ng-show="vm.commandResult.error" ng-bind-html="vm.commandResult.error"></pre>
+        <pre class="bg-error" ng-show="vm.commandResult.error">{{vm.commandResult.error}}</pre>
         <div ng-repeat="cmd in vm.commands" class="panel panel-default" style="margin-bottom: 0px;">
           <header class="panel-heading" style="cursor: pointer; padding: 3px 15px;" ng-click="vm.showPanel = cmd.name">{{cmd.name}}</header>
           <div ng-show="vm.showPanel === cmd.name">
