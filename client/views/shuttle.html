@@ -1,3 +1,5 @@
+<div class="section scrollable">
+<div class="scrollable-content">
 <p>Shuttle success calculator. Add/remove the necessary slots then enter the skills your crew have. The resultant success % should match the app. Of course we don't know how the real success is calculated on the server but we can only hope they match up</p>
 
 <form class="form-horizontal">
@@ -53,14 +55,6 @@
       {{ vm.avgSkill }}
     </div>
   </div>
-  <div class="form-group bg-primary" >
-    <div class="col-xs-3">
-      Shuttle Success:
-    </div>
-    <div class="col-xs-9">
-      <h1>{{ vm.success() }}%</h1> <span class="" ng-show="vm.avgSkill===0">but the app will display 0% since your shuttle has no skill</span>
-    </div>
-  </div>
 </form>
 
 <div class="panel panel-default">
@@ -69,5 +63,17 @@
     <p>The logistics magic number is {{vm.magic}}</p>
     <p>Normal chars have a multiplier of 1. "Bonus" chars have a multiplier of 2. "Event" chars have a multiplier of 3</p>
     <p>I'm not supporting 0* basic boosts in this calculator</p>
+  </div>
+</div>
+  </div>
+  <div class="scrollable-footer">
+    <div class="bg-primary row" >
+      <div class="col-xs-3">
+        Shuttle Success:
+      </div>
+      <div class="col-xs-9">
+        <h1 style="display:inline">{{ vm.success() }}%</h1> <span class="" ng-show="vm.avgSkill===0">but the app will display 0% since your shuttle has no skill</span>
+      </div>
+    </div>
   </div>
 </div>

@@ -3,73 +3,56 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
-  <title>Glorat's STT tools</title>
-  <base href="/">
+  <title>Glorat's Got Bot</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimal-ui" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="yes" />
+
   <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mobile-angular-ui/1.3.4/css/mobile-angular-ui-base.css" integrity="sha256-BbYptDbiTPHIE/EfGucP3/o4cQDpwQgF8lxrZRNNQOo=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mobile-angular-ui/1.3.4/css/mobile-angular-ui-desktop.css" integrity="sha256-9LFIHC+tAE7C2FC29+SnFh8sk4OUbKXehgqIIJzs1so=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mobile-angular-ui/1.3.4/css/mobile-angular-ui-hover.css" integrity="sha256-A7bVWkuHV2VsPgulRBLVssDe7FXqIg1eToaREyuyaJ8=" crossorigin="anonymous" />
   <link rel="stylesheet" href="styles/main.css">
-  <style id="jsbin-css">
-    .skill { width: 3.5em }
-    .crit { width: 2.5em }
-  </style>
 </head>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular-route.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mobile-angular-ui/1.3.4/js/mobile-angular-ui.min.js"></script>
 <script src="app.js"></script>
 <script src="got.js"></script>
 <script src="combinatorics.js"></script>
 <script src="gauntlet.js"></script>
 <script src="shuttle.js"></script>
 
-<body ng-app="myApp" ng-controller="GotCtrl as vm" class="container-fluid">
-<div class="container">
-  <div class="header">
-    <h1 class="text-muted hidden-xs">Glorat's Star Trek Timelines tools</h1>
-  </div>
-  <div>
-    <uib-tabset active="active">
-      <uib-tab index="0" heading="Shuttle Calc">
-        <shuttle-calc></shuttle-calc>
-      </uib-tab>
-      <uib-tab index="1" heading="Gauntlet Optimizer">
-        <gauntlet-calc></gauntlet-calc>
-      </uib-tab>
-      <uib-tab index="2" heading="Console">
-        <p>This is an unfinished preview feature! It is a web version of a rather useful Discord bot</p>
-        <form ng-submit="vm.sendCommand()">
-          <input type="text" name="command" ng-model="vm.command">
-          <input type="submit">
-        <pre ng-bind-html="vm.commandResult.message"></pre>
-        <div class="panel panel-default">
-          <header class="panel-heading">{{vm.embed.title}}</header>
-          <div ng-repeat="field in vm.embed.fields">
-            <h3>{{field.name}}</h3>
-            <pre>{{field.value}}</pre>
-          </div>
-        </div>
-        <pre class="bg-error" ng-show="vm.commandResult.error">{{vm.commandResult.error}}</pre>
-        <div ng-repeat="cmd in vm.commands" class="panel panel-default" style="margin-bottom: 0px;">
-          <header class="panel-heading" style="cursor: pointer; padding: 3px 15px;" ng-click="vm.showPanel = cmd.name">{{cmd.name}}</header>
-          <div ng-show="vm.showPanel === cmd.name">
-            <div>{{cmd.desc}}</div>
-            <div ng-repeat="arg in cmd.args">
-              <input type="text" placeholder="{{ arg.name }}" ng-model="arg.value" ng-change="vm.onCmdChange(cmd.name)"> {{ arg.desc}}
-            </div>
-            <div ng-repeat="flag in cmd.flags">
-              <input type="text" placeholder="{{ flag.name }}" ng-model="flag.value" ng-change="vm.onCmdChange(cmd.name)"> {{ flag.desc}}
-            </div>
-          </div>
-        </div>
-        </form>
-      </uib-tab>
-    </uib-tabset>
+<body ng-app="myApp" ng-controller="GotCtrl as vm">
+
+<div ng-include="'views/sidebar.html'"
+     ui-track-as-search-param='true'
+     class="sidebar sidebar-left"></div>
+
+
+<div class="app">
+  <div class="navbar navbar-app navbar-absolute-top">
+    <div class="navbar-brand navbar-brand-center" ui-yield-to="title">
+      Glorat's Got Bot<span class="hidden-xs"> for Star Trek Timelines</span>
+    </div>
+    <div class="btn-group pull-left">
+      <div ui-toggle="uiSidebarLeft" class="btn sidebar-toggle">
+        <i class="fa fa-bars"></i> Menu
+      </div>
+    </div>
   </div>
 
-  <div class="footer">
-    <p><span class="glyphicon glyphicon-heart"></span>Copyright Kevin Tam 2017</p>
+  <!-- App Body -->
+  <div class="app-body">
+    <div class="app-content">
+      <ng-view></ng-view>
+    </div>
   </div>
 </div>
+
+<div ui-yield-to="modals"></div>
 </body>
 </html>

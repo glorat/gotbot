@@ -1,24 +1,26 @@
 angular
-  .module("myApp", ['ui.bootstrap', 'ngRoute'])
+  .module("myApp", ['ui.bootstrap', 'mobile-angular-ui', 'ngRoute'])
   .config(['$routeProvider','$locationProvider',
     function($routeProvider, $locationProvider) {
       $routeProvider.
-        when('/user/:userId', {
-          templateUrl: 'views/user.html',
-          controller: 'UserCtrl',
-          controllerAs: 'user'
+        when('/shuttle', {
+          template: '<shuttle-calc></shuttle-calc>',
+          reloadOnSearch: false
         })
         .when('/gauntlet', {
-          templateUrl: 'views/user.html',
-          controller: 'UserCtrl',
-          controllerAs: 'user'
+          templateUrl: 'views/gauntlet.html',
+          controller: 'GauntletCtrl',
+          controllerAs: 'vm',
+          reloadOnSearch: false
+        })
+        .when('/console', {
+          templateUrl: 'views/console.html',
+          reloadOnSearch: false
         })
         .otherwise({
           templateUrl: 'views/main.html',
-          controller: 'MainController'
+          reloadOnSearch: false
         });
-      // use the HTML5 History API
-      $locationProvider.html5Mode(true);
     }])
   .directive('gauntletCalc', function() {
     var vm = this;
