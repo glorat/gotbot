@@ -24,7 +24,7 @@ describe('gotBot', function () {
     if (context == null) {
       context = {
         author: {username:'test', id:-1},
-        channel: {name:'test channel'},
+        channel: {id: -1, name:'test channel'},
         isEntitled: function(){return true},
         emojify : x=>x,
         boldify: x=>x
