@@ -11,11 +11,11 @@
   <div class="form-group" ng-repeat="shuttle in vm.shuttles">
     <div class="col-xs-1"><p class="form-control-static">{{ $index +1}}</p></div>
     <div class="col-xs-9">
-      <input class="form-control minime" type="text" size="4" ng-model="shuttle.base1">
+      <input class="form-control minime" type="text" size="4" ng-model="shuttle.base1" select-on-click>
       <select class="form-control minime"  ng-options="sk for sk in vm.skills" ng-model="shuttle.skill1"></select>
       <select class="form-control minime" ng-options="sk for sk in vm.shuttleTypes" ng-model="shuttle.type"></select>
       <span ng-hide="shuttle.type==='single'">
-        <input class="form-control minime" type="text" size="4" ng-model="shuttle.base2">
+        <input class="form-control minime" type="text" size="4" ng-model="shuttle.base2" select-on-click>
         <select class="form-control minime" ng-options="sk for sk in vm.skills" ng-model="shuttle.skill2"></select>
       </span>
     </div>
