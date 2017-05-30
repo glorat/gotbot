@@ -1,7 +1,7 @@
 angular
   .module("myApp", ['ui.bootstrap', 'mobile-angular-ui', 'ngRoute'])
   .config(['$routeProvider','$locationProvider',
-    function($routeProvider, $locationProvider) {
+    function($routeProvider) {
       $routeProvider.
         when('/shuttle', {
           template: '<shuttle-calc></shuttle-calc>',
