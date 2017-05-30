@@ -3,9 +3,14 @@
 <p>Shuttle success calculator. Add/remove the necessary slots then enter the skills your crew have. The resultant success % should match the app. Of course we don't know how the real success is calculated on the server but we can only hope they match up</p>
 
 <form class="form-horizontal">
+  <div class="form-group">
+    <div class="col-xs-1">Slot</div>
+    <div class="col-xs-9">Crew Skill</div>
+    <div class="col-xs-2">Bonus</div>
+  </div>
   <div class="form-group" ng-repeat="shuttle in vm.shuttles">
-    <div class="col-xs-3">Slot {{ $index +1}}</div>
-    <div class="col-xs-6">
+    <div class="col-xs-1"><p class="form-control-static">{{ $index +1}}</p></div>
+    <div class="col-xs-9">
       <input class="form-control minime" type="text" size="4" ng-model="shuttle.base1">
       <select class="form-control minime"  ng-options="sk for sk in vm.skills" ng-model="shuttle.skill1"></select>
       <select class="form-control minime" ng-options="sk for sk in vm.shuttleTypes" ng-model="shuttle.type"></select>
@@ -14,8 +19,8 @@
         <select class="form-control minime" ng-options="sk for sk in vm.skills" ng-model="shuttle.skill2"></select>
       </span>
     </div>
-    <div class="col-xs-3">
-      Multiplier: <select class="form-control minime" ng-options="m for m in [1,2,3]" ng-model="shuttle.multiplier"></select>
+    <div class="col-xs-2">
+      <select class="form-control" style="padding: 6px 2px" ng-options="m for m in [1,2,3]" ng-model="shuttle.multiplier"></select>
     </div>
   </div>
   <div class="form-group" >
@@ -28,7 +33,7 @@
   <div class="form-group" >
     <div class="col-xs-3">Shuttle boost</div>
     <div class="col-xs-9">
-      <select class="form-control minime" ng-options="m for m in [0,1,2,3,4,5]" ng-model="vm.boost.level"></select>* boost with <select class="form-control minime" ng-options="sk for sk in vm.skills" ng-model="vm.boost.skill"></select> skill. (+{{ vm.boostLevelToSkill[vm.boost.level] }} skill)
+      <select class="form-control minime" ng-options="m for m in [0,1,2,3,4,5]" ng-model="vm.boost.level"></select>* boost <select class="form-control minime" ng-options="sk for sk in vm.skills" ng-model="vm.boost.skill"></select> skill. (+{{ vm.boostLevelToSkill[vm.boost.level] }} skill)
     </div>
   </div>
   <div class="form-group" >
