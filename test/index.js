@@ -261,4 +261,67 @@ describe('gotBot', function () {
     });
 
   });
+
+  describe('farm command', function() {
+    it('should match strings', function(done) {
+      sendCommand('-dev bot farm 0 desktop monitor').then(data=>{
+        expect(data).to.contain('Did you mean');
+        done();
+      }).catch(done);
+    });
+
+    it('should farm desktop monitor', function(done) {
+      sendCommand('-dev bot farm 0 desktop monitor tng').then(data=>{
+        expect(data).to.contain('```');
+        done();
+      }).catch(done);
+    })
+  });
+});
+
+describe('missions', function() {
+  let missions = require('../lib/missions.js');
+
+  it('should have an item list', function(done) {
+    missions.ready.then(function() {
+      let all = missions.allMissionItems();
+      expect(all.length).to.be.greaterThan(200); // 202 at time of writing
+      expect(all).to.contain('Polyalloy');
+      done();
+    }).catch(done);
+
+  });
+
+  it('should match items', function(done) {
+    missions.ready.then(function() {
+      missions.matchItem(function(err, name) {
+        expect(err).to.be(null);
+        expect(name).to.be('Desktop Monitor (TNG)');
+        done();
+      }, 'desktop','monitor','tng');
+    }).catch(done);
+  });
+
+
+  it('should fuzzy search items', function(done) {
+    missions.ready.then(function() {
+      missions.matchItem(function(err, name) {
+        expect(err).to.be(null);
+        expect(name).to.be('Polyalloy');
+        done();
+      }, 'polya');
+    }).catch(done);
+  });
+
+  it('should query for an item', function(done) {
+    missions.ready.then(function() {
+      const match = missions.findByStarItem(0, 'Desktop Monitor (TNG)');
+      expect(match.length).to.be(1);
+      match.forEach(m => {
+        console.log(`${m.name} ${m.level} ${m.cost}`);
+      });
+      done();
+    }).catch(done);
+
+  });
 });
