@@ -253,6 +253,14 @@ describe('gotBot', function () {
       }).catch(done)
     });
 
+
+    it('should search', function(done) {
+      sendCommand('-dev bot crew search troi').then(data => {
+        expect(data).to.match(/1 matches for Troi/);
+        done();
+      }).catch(done);
+    });
+
     it('should remove more crew', function(done) {
       sendCommand('-dev bot crew remove rakal').then(data => {
         expect(data).to.match(/I have removed Rakal Troi/);
