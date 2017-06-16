@@ -34,6 +34,7 @@ module.exports = {
 
   httpport: 3030,
   baseUrl : 'http://got.glorat.net/',
+  dataPath : isProd ? '/home/got/gotbot/data/' : '/Users/kevin/dev/gotbot/data/',
   nedbpath: isProd ? '/home/got/gotbot/stt.json' : '/Users/kevin/dev/gotbot/stt.json',
   clilogpath: isProd ? '/home/got/gotbot/data/clilog.json' : '/Users/kevin/dev/gotbot/data/clilog.json'
 };
