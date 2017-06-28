@@ -17,6 +17,8 @@
   ],
   "scripts": {
     "bot": "node ./lib/index.js",
+    "cachewiki": "node ./lib/cachewiki.js",
+    "dlwiki": "./gotcron",
     "prepublish": "gulp prepublish",
     "test": "gulp"
   },
