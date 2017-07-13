@@ -1,5 +1,6 @@
 const node_env = process.env.NODE_ENV || 'development';
 const isProd = node_env === 'production';
+const password = require('./password');
 
 module.exports = {
 
@@ -13,12 +14,9 @@ module.exports = {
   // i.e: if your bot's username is MemeBot#0420, then this option would be MemeBot.
   name: isProd ? "Got Bot" : 'Proto Bot',
 
-  // Your bot's user token. If you don't know what that is, go here:
-  // https://discordapp.com/developers/applications/me
-  // Then create a new application and grab your token.
   token: isProd
-    ? "Mjg3ODI4NzE0OTQ5OTY3ODcy.C50_zQ.kYciwKYeUQgPqmruFoBIiVgihO0"
-    : "MjkyMzAwOTAwMjA5NTI0NzQ2.C62B8g.3pztd6QerlZO717lsPHE49dnCWc",
+    ? password.prod
+    : password.dev,
   gotServer: '235536091011088394', // id of the GoT fleet server
 
   // If this option is enabled, the bot will delete the message that triggered it, and its own
