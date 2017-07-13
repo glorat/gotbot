@@ -142,6 +142,14 @@ describe('gotBot', function () {
         done();
       }).catch(done);
     });
+
+    it('should not have Mirror Garak in klingon', function(done) {
+      const cmd = '-dev bot search klingon';
+      sendCommand(cmd).then(data => {
+        expect(data).not.to.contain('Mirror Garak');
+        done();
+      }).catch(done);
+    });
   });
 
   it('should handle foo', function(done) {
