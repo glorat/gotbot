@@ -243,17 +243,25 @@ describe('gotBot', function () {
       }).catch(done);
     });
 
-/*
+
     describe('gcalc command', function() {
-      it('should provide analysis', function(done) {
+      it('should provide analysis for your crew', function(done) {
         this.timeout(10000); // Combinatorics is slow
         sendCommand('-dev bot gcalc').then(data=>{
           expect(data).to.contain('Gauntlet strength 179458');
           done();
         }).catch(done);
       })
+
+      it('should provide analysis for your best lineup', function(done) {
+        this.timeout(10000); // Combinatorics is slow
+        sendCommand('-dev bot gcalc --best').then(data=>{
+          expect(data).to.contain('Gauntlet strength 179458');
+          done();
+        }).catch(done);
+      })
     });
-*/
+
     it('should remove crew', function(done) {
       sendCommand('-dev bot crew remove rog win').then(data => {
         expect(data).to.match(/I have removed Rogue Kai Winn/);
@@ -272,6 +280,43 @@ describe('gotBot', function () {
     it('should remove more crew', function(done) {
       sendCommand('-dev bot crew remove rakal').then(data => {
         expect(data).to.match(/I have removed Rakal Troi/);
+        done();
+      }).catch(done);
+    });
+
+  });
+
+  describe('voyage command', function() {
+    it('should require enough crew', function(done) {
+      sendCommand('-dev bot voyage cmd dip').then(data=> {
+        expect(data).to.contain('not have enough crew');
+        done();
+      }).catch(done);
+    });
+
+    it('foo', function(done) {
+      sendCommand('-dev bot crew add selar -ff').then(x=>
+        sendCommand('-dev bot crew add conv quark -ff')
+      ).then(x=>
+        sendCommand('-dev bot crew add prof sisko -ff')
+      ).then(x=>
+        sendCommand('-dev bot crew add locutus -ff')
+      ).then(x=>
+        sendCommand('-dev bot crew add wildman -ff')
+      ).then(x=>
+        sendCommand('-dev bot crew add pazl -ff')
+      ).then(x=>
+        sendCommand('-dev bot crew add ensign ro -ff')
+      ).then(x=>
+        sendCommand('-dev bot crew add kdf alex -ff')
+      ).then(x=>
+        sendCommand('-dev bot crew add jaxa -ff')
+      ).then(x=>
+        sendCommand('-dev bot crew add rec spock -ff')
+      ).then(x=>
+        sendCommand('-dev bot voyage cmd dip')
+      ).then(data=> {
+        expect(data).to.contain('not have enough crew');
         done();
       }).catch(done);
     });
