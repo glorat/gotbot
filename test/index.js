@@ -295,33 +295,33 @@ describe('gotBot', function () {
     });
 
     it('foo', function(done) {
-      sendCommand('-dev bot crew add selar -ff').then(x=>
-        sendCommand('-dev bot crew add conv quark -ff')
-      ).then(x=>
-        sendCommand('-dev bot crew add prof sisko -ff')
-      ).then(x=>
-        sendCommand('-dev bot crew add locutus -ff')
-      ).then(x=>
-        sendCommand('-dev bot crew add wildman -ff')
-      ).then(x=>
-        sendCommand('-dev bot crew add pazl -ff')
-      ).then(x=>
-        sendCommand('-dev bot crew add ensign ro -ff')
-      ).then(x=>
-        sendCommand('-dev bot crew add kdf alex -ff')
-      ).then(x=>
-        sendCommand('-dev bot crew add jaxa -ff')
-      ).then(x=>
-        sendCommand('-dev bot crew add rec spock -ff')
-      ).then(x=>
-        sendCommand('-dev bot voyage cmd dip')
-      ).then(data=> {
+      sendCommand('-dev bot voyage cmd dip --best')
+      .then(data=> {
         expect(data).to.contain('not have enough crew');
         done();
       }).catch(done);
     });
 
   });
+
+  describe('voytime command', function() {
+    it('should calculate antimatter levels', function(done) {
+      sendCommand('-dev bot voytime 2000 2000 2000 2000 2000 2000 3').then(data=> {
+        expect(data).to.contain('1028 antimatter');
+        done();
+      }).catch(done);
+    });
+
+    it('should solve for 0 antimatter', function(done) {
+      sendCommand('-dev bot voytime 2000 2000 2000 2000 2000 2000').then(data=> {
+        expect(data).to.contain('Estimated voyage length of 3:54');
+        done();
+      }).catch(done);
+    });
+
+  });
+
+
 
   describe('farm command', function() {
     it('should match strings', function(done) {
