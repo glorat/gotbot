@@ -287,17 +287,18 @@ describe('gotBot', function () {
   });
 
   describe('voyage command', function() {
+    /* depends on crew reset
     it('should require enough crew', function(done) {
       sendCommand('-dev bot voyage cmd dip').then(data=> {
         expect(data).to.contain('not have enough crew');
         done();
       }).catch(done);
-    });
+    });*/
 
-    it('foo', function(done) {
+    it('should handle best crew', function(done) {
       sendCommand('-dev bot voyage cmd dip --best')
       .then(data=> {
-        expect(data).to.contain('not have enough crew');
+        expect(data).to.contain('Your best crew');
         done();
       }).catch(done);
     });
