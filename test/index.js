@@ -307,14 +307,14 @@ describe('gotBot', function () {
   describe('voytime command', function() {
     it('should calculate antimatter levels', function(done) {
       sendCommand('-dev bot voytime 2000 2000 2000 2000 2000 2000 3').then(data=> {
-        expect(data).to.contain('1028 antimatter');
+        expect(data).to.contain('655 antimatter');
         done();
       }).catch(done);
     });
 
     it('should solve for 0 antimatter', function(done) {
       sendCommand('-dev bot voytime 2000 2000 2000 2000 2000 2000').then(data=> {
-        expect(data).to.contain('Estimated voyage length of 3:54');
+        expect(data).to.contain('Estimated voyage length of 3h 30m');
         done();
       }).catch(done);
     });
