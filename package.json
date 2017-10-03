@@ -2,11 +2,11 @@
   "name": "gotbot",
   "version": "1.0.0",
   "description": "",
-  "homepage": "http://tbd",
+  "homepage": "https://github.com/glorat/gotbot",
   "author": {
-    "name": "Glorat",
-    "email": "tbd@tbd.com",
-    "url": ""
+    "name": "Kevin Tam",
+    "email": "glorat+github@gmail.com",
+    "url": "https://github.com/glorat/gotbot"
   },
   "files": [
     "lib"
@@ -48,14 +48,14 @@
     "body-parser": "^1.17.1",
     "cheerio": "^0.22.0",
     "clapp": "^1.3.0",
-    "discord.js": "^11.0.0",
+    "discord.js": "^11.1.0",
     "express": "^4.15.2",
     "json2csv": "^3.7.3",
-    "jsonfile": "^2.4.0",
+    "jsonfile": "^4.0.0",
     "longjohn": "^0.2.12",
     "nedb": "^1.8.0",
     "request-json": "^0.6.1",
     "underscore": "^1.8.3",
-    "uws": "^0.14.5"
+    "uws": "^8.14.1"
   }
 }
