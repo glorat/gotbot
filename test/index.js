@@ -263,7 +263,7 @@ describe('gotBot', function () {
           expect(data).to.contain('Gauntlet strength 179458');
           done();
         }).catch(done);
-      })
+      });
 
       it('should provide analysis for your best lineup', function(done) {
         this.timeout(10000); // Combinatorics is slow

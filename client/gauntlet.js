@@ -162,7 +162,7 @@
   }
 
   function analyseCombo(sks, chars) {
-    var best = bestCharForSkills(chars, sks)
+    var best = bestCharForSkills(chars, sks);
     return [sks, best];
   }
 
