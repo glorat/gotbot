@@ -1,7 +1,34 @@
 # gotbot [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
 > 
+## Introduction
+This is probably the most advanced Star Trek Timelines chat bot in existence. It supports all the basic commands you'd expect from most similar bots such as
+- Basic crew stats
+- Extended crew stats including rankings and special links
+- Crew search by traits or character type
+
+More advanced query capability such as
+- Mission drop rates
+- Gauntlet success calculator
+- Voyage mission time estimator
+- A user manual for the discord administrator
+
+And killer features including
+- Crew selection and management - keep track of all your crew
+- Gauntlet crew optimizer
+- Voyage crew optimizer
+
+To reach the author for help or thanks or other issues, join Discord at https://discord.gg/b2h2P9e
+
+Bug reports in the code and pull requests are welcome but any requests for help will be closed with redirection to Discord
 
 ## Installation
+
+Pre-requisite knowledge for developers
+- Typical node.js setup and installation
+- discord.js, including obtaining Discord tokens
+- cron/supervise and other schedulers
+
+If you need help on the above, please RTM. Otherwise proceed...
 
 Clone this repository, and run:
 ```sh
