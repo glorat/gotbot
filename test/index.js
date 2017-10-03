@@ -25,7 +25,7 @@ describe('gotBot', function () {
       context = {
         author: {username:'test', id:-1},
         channel: {id: -1, name:'test channel'},
-        isEntitled: function(){return true},
+        isEntitled: function(){return true;},
         emojify : x=>x,
         boldify: x=>x
       };
@@ -179,7 +179,7 @@ describe('gotBot', function () {
         expect(data).to.match(/You would win (49|50|51)% of the time/);
         done();
       }).catch(done);
-    })
+    });
   });
 
   describe('hello command', function() {
@@ -188,7 +188,7 @@ describe('gotBot', function () {
         expect(data).to.contain('Hi test (-1)');
         done();
       }).catch(done);
-    })
+    });
   });
 
   describe('crew commands',function(){
@@ -271,14 +271,14 @@ describe('gotBot', function () {
           expect(data).to.contain('Gauntlet strength 179458');
           done();
         }).catch(done);
-      })
+      });
     });
 
     it('should remove crew', function(done) {
       sendCommand('-dev bot crew remove rog win').then(data => {
         expect(data).to.match(/I have removed Rogue Kai Winn/);
         done();
-      }).catch(done)
+      }).catch(done);
     });
 
 
@@ -349,7 +349,7 @@ describe('gotBot', function () {
         expect(data).to.contain('```');
         done();
       }).catch(done);
-    })
+    });
   });
 });
 
