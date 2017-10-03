@@ -1,5 +1,5 @@
-const node_env = process.env.NODE_ENV || 'development';
-const isProd = node_env === 'production';
+const nodeEnv = process.env.NODE_ENV || 'development';
+const isProd = nodeEnv === 'production';
 const password = require('./password');
 
 module.exports = {
@@ -7,16 +7,13 @@ module.exports = {
   // The bot's command prefix. The bot will recognize as command any message that begins with it.
   // i.e: "-got bot foo" will trigger the command "foo",
   //      whereas "Got Bot foo" will do nothing at all.
-  prefix:  isProd ? "-got bot" : '-dev bot',
-
+  prefix: isProd ? '-got bot' : '-dev bot',
 
   // Your bot name. Typically, this is your bot's username without the discriminator.
   // i.e: if your bot's username is MemeBot#0420, then this option would be MemeBot.
-  name: isProd ? "Got Bot" : 'Proto Bot',
+  name: isProd ? 'Got Bot' : 'Proto Bot',
 
-  token: isProd
-    ? password.prod
-    : password.dev,
+  token: isProd ? password.prod : password.dev,
   gotServer: '235536091011088394', // id of the GoT fleet server
 
   // If this option is enabled, the bot will delete the message that triggered it, and its own
@@ -27,12 +24,12 @@ module.exports = {
   // More info: https://discordapp.com/developers/docs/topics/permissions
   deleteAfterReply: {
     enabled: false,
-    time: 30000, // In milliseconds
+    time: 30000 // In milliseconds
   },
 
   httpport: 3030,
-  baseUrl : 'http://got.glorat.net/',
-  dataPath : isProd ? '/home/got/gotbot/data/' : '/Users/kevin/dev/gotbot/data/',
+  baseUrl: 'http://got.glorat.net/',
+  dataPath: isProd ? '/home/got/gotbot/data/' : '/Users/kevin/dev/gotbot/data/',
   nedbpath: isProd ? '/home/got/gotbot/stt.json' : '/Users/kevin/dev/gotbot/stt.json',
   clilogpath: isProd ? '/home/got/gotbot/data/clilog.json' : '/Users/kevin/dev/gotbot/data/clilog.json'
 };
