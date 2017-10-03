@@ -115,6 +115,18 @@ describe('gotBot', function () {
         done();
       }).catch(done);
     });
+    it('should validate query type', function(done) {
+      sendCommand('-dev bot best foo').then(data => {
+        expect(data).to.contain('Must be base|gauntlet'); // Best at time of writing - should stay top 5 for a while
+        done();
+      }).catch(done);
+    });
+    it('should validate skill type', function(done) {
+      sendCommand('-dev bot best base foo').then(data => {
+        expect(data).to.contain('Must be cmd|dip'); // Best at time of writing - should stay top 5 for a while
+        done();
+      }).catch(done);
+    });
   });
   describe('search command', function() {
     it('should find two kais', function(done) {
