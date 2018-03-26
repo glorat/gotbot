@@ -17,7 +17,7 @@ And killer features including
 - Gauntlet crew optimizer
 - Voyage crew optimizer
 
-To reach the author for help or thanks or other issues, join Discord at https://discord.gg/b2h2P9e
+To reach the author for help or thanks or other issues, join Discord at https://discord.gg/R8QzpjW
 
 Bug reports in the code and pull requests are welcome but any requests for help will be closed with redirection to Discord
 
