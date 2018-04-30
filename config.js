@@ -15,6 +15,7 @@ module.exports = {
 
   token: isProd ? password.prod : password.dev,
   gotServer: '235536091011088394', // id of the GoT fleet server
+  adminId: '232748347860058112', // id of the bot administrator
 
   // If this option is enabled, the bot will delete the message that triggered it, and its own
   // response, after the specified amount of time has passed.
