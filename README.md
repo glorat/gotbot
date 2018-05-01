@@ -31,7 +31,7 @@ motivations
 - For any general fleet in the community, you can run a freely hosted free version of the bot by asking at https://discord.gg/R8QzpjW
 - If you are a node.js developer who can understand this code, I'm looking for people willing to help maintain and contribute to the codebase. If you are able to do that, please work with us and in exchange it is fair you get full access to the key features. If you are only seeking to use the bot, please use the freely hosted and supported version
 
-It is my hope that by open sourcing these secrets, when the day comes this author is long longer around to maintain, someone else will be able to pick up the baton. I'd be happy to help guide that person should they come forward.
+It is my hope that by open sourcing these secrets, when the day comes this author is no longer around to maintain the bot, someone else will be able to pick up the baton. I'd be happy to help guide that person should they come forward.
 
 ## Installation
 
