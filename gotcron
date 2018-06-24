@@ -4,19 +4,53 @@ use warnings;
 
 use FindBin;
 use Cwd qw(chdir);
+use v5.10;
 
 chdir("$FindBin::Bin/client");
 
-print "now in $ENV{PWD} script in $FindBin::Bin\n";
+#print "now in $ENV{PWD} script in $FindBin::Bin\n";
 
-system("wget -m -np -l1 -o$FindBin::Bin/data/1star.log https://stt.wiki/wiki/Category:Uncommon");
-system("wget -m -np -l1 -o$FindBin::Bin/data/2star.log https://stt.wiki/wiki/Category:Common");
-system("wget -m -np -l1 -o$FindBin::Bin/data/3star.log https://stt.wiki/wiki/Category:Rare");
-system("wget -m -np -l1 -o$FindBin::Bin/data/4star.log https://stt.wiki/wiki/Category:Super_Rare");
-system("wget -m -np -l1 -o$FindBin::Bin/data/4star.log https://stt.wiki/wiki/Category:Super_Rare?pagefrom=Ruk");
-system("wget -m -np -l1 -o$FindBin::Bin/data/5star.log https://stt.wiki/wiki/Category:Legendary");
-system("wget -m -np -l1 -o$FindBin::Bin/data/5star.log https://stt.wiki/wiki/Category:Away_Team_Missions");
-system("wget -m -np -l1 -o$FindBin::Bin/data/5star.log https://stt.wiki/wiki/Category:Space_Battle_Missions");
+our $retries = 0;
+our $MAX_RETRIES = 5;
+our $SLEEP_SECS = 10;
 
-print "Telling bot to restart\n";
+my @categories = ('Uncommon','Common','Rare','Super_Rare','Super_Rare?pagefrom=Ruk','Legendary', 'Away_Team_Missions', 'Space_Battle_Missions');
+
+foreach (@categories) {
+	downloadCategory($_);
+}
+
+say "Telling bot to restart";
 system("pkill -F ../data/run.pid");
+
+sub checkDownload {
+	my ($path) = @_;
+	my $size = (stat $path)[7];
+	say "$path downloaded with size $size";
+	# Here's the check we'll apply for badness
+	return ($size > 10000);
+}
+
+sub downloadCategory {
+	my ($cat) = @_;
+	my $path = "stt.wiki/wiki/Category:$cat";
+	say "Downloading $path";
+	
+	my $cmd = "wget -m -np -l1 -o$FindBin::Bin/logs/$cat.log https://stt.wiki/wiki/Category:$cat";
+	system($cmd);
+	
+	if (!checkDownload($path)) {
+		if ($retries < $MAX_RETRIES) {
+			$retries ++;
+			say "That looks corrupt so will retry ($retries) again soon";
+			sleep($SLEEP_SECS); # Wait one minute
+			# Tail recursion!
+			goto &downloadCategory;
+		}
+		else {
+			say "Maximum retries hit - bailing";
+			exit 1;
+		}
+
+	}
+}
