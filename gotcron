@@ -4,6 +4,7 @@ use warnings;
 
 use FindBin;
 use Cwd qw(chdir);
+use JSON::Parse;
 use v5.10;
 
 chdir("$FindBin::Bin/client");
@@ -17,8 +18,17 @@ our $SLEEP_SECS = 10;
 my @categories = ('Uncommon','Common','Rare','Super_Rare','Super_Rare?pagefrom=Ruk','Legendary', 'Away_Team_Missions', 'Space_Battle_Missions');
 
 foreach (@categories) {
-	downloadCategory($_);
+	#downloadCategory($_, 'Category:',1);
 }
+
+my $crew = JSON::Parse::json_file_to_perl("../client/morecrew.json"); 
+
+foreach (@$crew) {
+	my $wiki = $_->{'wiki'};
+	$wiki =~ s!/wiki/!!;
+	downloadCategory($wiki,'',0);
+}
+
 
 say "Telling bot to restart";
 system("pkill -F ../data/run.pid");
@@ -32,11 +42,13 @@ sub checkDownload {
 }
 
 sub downloadCategory {
-	my ($cat) = @_;
-	my $path = "stt.wiki/wiki/Category:$cat";
-	say "Downloading $path";
+	my ($cat, $prefix, $depth) = @_;
+	my $path = "stt.wiki/wiki/$prefix$cat";
 	
-	my $cmd = "wget -m -np -l1 -o$FindBin::Bin/logs/$cat.log https://stt.wiki/wiki/Category:$cat";
+	my $mirror = $depth ? "-m -l$depth" : '-x -N --no-remove-listing';
+	
+	my $cmd = "wget -np $mirror -o$FindBin::Bin/logs/$cat.log https://$path";
+	say($cmd);
 	system($cmd);
 	
 	if (!checkDownload($path)) {
