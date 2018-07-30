@@ -18,7 +18,7 @@ our $SLEEP_SECS = 10;
 my @categories = ('Uncommon','Common','Rare','Super_Rare','Super_Rare?pagefrom=Ruk','Legendary', 'Away_Team_Missions', 'Space_Battle_Missions');
 
 foreach (@categories) {
-	#downloadCategory($_, 'Category:',1);
+	downloadCategory($_, 'Category:',1);
 }
 
 my $crew = JSON::Parse::json_file_to_perl("../client/morecrew.json"); 
