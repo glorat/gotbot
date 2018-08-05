@@ -1,1 +1,5 @@
-* text=auto
+*   text=auto
+*.sh    text eol=lf
+# Ensure windows leaves bash/perl scripts with correct eol settings
+gotcron text eol=lf
+run text eol=lf
