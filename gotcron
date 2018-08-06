@@ -48,6 +48,9 @@ sub downloadCategory {
 	my $mirror = $depth ? "-m -l$depth" : '-x -N --no-remove-listing';
 	
 	my $cmd = "wget -np $mirror -o$FindBin::Bin/logs/$cat.log https://$path";
+	# Need to escape out ' chars
+	$cmd =~ s/\'/\\'/g;
+
 	say($cmd);
 	system($cmd);
 	
