@@ -35,5 +35,9 @@
   {"name":"Army Chaplain Odo", "wiki":"/wiki/Army_Chaplain_Odo", "stars":4},
   {"name":"Ensign Picard", "wiki":"/wiki/Ensign_Picard", "stars":4},
   {"name":"Dr. Leonard McCoy", "wiki":"/wiki/Dr._Leonard_McCoy", "stars":4},
-  {"name":"Astrosciences Sulu", "wiki":"/wiki/Astrosciences_Sulu", "stars":5}
+  {"name":"Astrosciences Sulu", "wiki":"/wiki/Astrosciences_Sulu", "stars":5},
+  {"name":"Commanding Officer Sisko", "wiki":"/wiki/Commanding_Officer_Sisko", "stars":3},
+  {"name":"Age of Sail Data", "wiki":"/wiki/Age_of_Sail_Data", "stars":5},
+  {"name":"Maid Marian", "wiki":"/wiki/Maid_Marian", "stars":5},
+  {"name":"Commander Donatra", "wiki":"/wiki/Commander_Donatra", "stars":4}
 ]
