@@ -7,9 +7,13 @@ use Cwd qw(chdir);
 use JSON::Parse;
 use v5.10;
 
+chdir("$FindBin::Bin");
+system('node lib/newchars.js');
+
 chdir("$FindBin::Bin/client");
 
 #print "now in $ENV{PWD} script in $FindBin::Bin\n";
+
 
 our $retries = 0;
 our $MAX_RETRIES = 5;
@@ -21,7 +25,7 @@ foreach (@categories) {
 	downloadCategory($_, 'Category:',1);
 }
 
-my $crew = JSON::Parse::json_file_to_perl("../client/morecrew.json"); 
+my $crew = JSON::Parse::json_file_to_perl("../client/morecrew.json");
 
 foreach (@$crew) {
 	my $wiki = $_->{'wiki'};
@@ -44,16 +48,16 @@ sub checkDownload {
 sub downloadCategory {
 	my ($cat, $prefix, $depth) = @_;
 	my $path = "stt.wiki/wiki/$prefix$cat";
-	
+
 	my $mirror = $depth ? "-m -l$depth" : '-x -N --no-remove-listing';
-	
+
 	my $cmd = "wget -np $mirror -o$FindBin::Bin/logs/$cat.log https://$path";
 	# Need to escape out ' chars
 	$cmd =~ s/\'/\\'/g;
 
 	say($cmd);
 	system($cmd);
-	
+
 	if (!checkDownload($path)) {
 		if ($retries < $MAX_RETRIES) {
 			$retries ++;
