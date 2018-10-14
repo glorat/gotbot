@@ -7,3 +7,4 @@ client/stt.wiki/
 password.js
 logs
 .morecrew*
+.config
