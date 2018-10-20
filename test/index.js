@@ -25,6 +25,7 @@ describe('gotBot', function () {
       context = {
         author: {username:'test', id:-1},
         channel: {id: -1, name:'test channel'},
+        fleetId: -1,
         isEntitled: function(){return true;},
         emojify : x=>x,
         boldify: x=>x
@@ -351,6 +352,29 @@ describe('gotBot', function () {
       }).catch(done);
     });
   });
+
+
+  describe('event command', function(done) {
+    it('should reset event chars', function(done) {
+      sendCommand('-dev bot event reset').then(data => {
+        expect(data).to.be('Event crew reset');
+      }).then(data => sendCommand('-dev bot event')).then(data => {
+        expect(data).to.contain('0 matches');
+        done();
+      }).catch(done);
+    });
+
+    it('should add and list event chars', function(done) {
+      sendCommand('-dev bot event add troi').then(data => {
+        expect(data).to.contain('Deanna Troi');
+      }).then(data => sendCommand('-dev bot crew vault rakal troi')).then(data => {
+      }).then(data => sendCommand('-dev bot event')).then(data => {
+        expect(data).to.contain('R (Troi)');
+        done();
+      }).catch(done);
+    });
+
+  });
 });
 
 describe('missions', function() {
@@ -398,4 +422,6 @@ describe('missions', function() {
     }).catch(done);
 
   });
+
 });
+
