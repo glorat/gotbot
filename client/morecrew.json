@@ -253,5 +253,45 @@
         "name": "Minuet",
         "wiki": "/wiki/Minuet",
         "stars": 5
+    },
+    {
+        "name": "Tarquin",
+        "wiki": "/wiki/Tarquin",
+        "stars": 4
+    },
+    {
+        "name": "Commander Barclay",
+        "wiki": "/wiki/Commander_Barclay",
+        "stars": 4
+    },
+    {
+        "name": "Losira",
+        "wiki": "/wiki/Losira",
+        "stars": 2
+    },
+    {
+        "name": "Data V",
+        "wiki": "/wiki/Data_V",
+        "stars": 5
+    },
+    {
+        "name": "Phlox, Au Naturel",
+        "wiki": "/wiki/Phlox,_Au_Naturel",
+        "stars": 5
+    },
+    {
+        "name": "Wedding Day Quark",
+        "wiki": "/wiki/Wedding_Day_Quark",
+        "stars": 4
+    },
+    {
+        "name": "Lt. Commander Jack Crusher",
+        "wiki": "/wiki/Lt._Commander_Jack_Crusher",
+        "stars": 3
+    },
+    {
+        "name": "Musketeer Picard",
+        "wiki": "/wiki/Musketeer_Picard",
+        "stars": 5
     }
 ]
