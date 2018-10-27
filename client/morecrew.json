@@ -293,5 +293,25 @@
         "name": "Musketeer Picard",
         "wiki": "/wiki/Musketeer_Picard",
         "stars": 5
+    },
+    {
+        "name": "Fennim",
+        "wiki": "/wiki/Fennim",
+        "stars": 5
+    },
+    {
+        "name": "Lucille Davenport",
+        "wiki": "/wiki/Lucille_Davenport",
+        "stars": 5
+    },
+    {
+        "name": "Michael Sullivan",
+        "wiki": "/wiki/Michael_Sullivan",
+        "stars": 4
+    },
+    {
+        "name": "Captain Silva La Forge",
+        "wiki": "/wiki/Captain_Silva_La_Forge",
+        "stars": 5
     }
 ]
