@@ -313,5 +313,15 @@
         "name": "Captain Silva La Forge",
         "wiki": "/wiki/Captain_Silva_La_Forge",
         "stars": 5
+    },
+    {
+        "name": "Covert Operative Leland",
+        "wiki": "/wiki/Covert_Operative_Leland",
+        "stars": 5
+    },
+    {
+        "name": "H.M.S. Pinafore Data",
+        "wiki": "/wiki/H.M.S._Pinafore_Data",
+        "stars": 5
     }
 ]
