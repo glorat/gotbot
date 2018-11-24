@@ -8,7 +8,10 @@ use JSON::Parse;
 use v5.10;
 
 chdir("$FindBin::Bin");
+
+# Some pre-runs that don't need perl code
 system('node lib/newchars.js');
+system('wget -m -l1 http://ssr.izausomecreations.com/crew/');
 
 chdir("$FindBin::Bin/client");
 
