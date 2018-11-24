@@ -323,5 +323,65 @@
         "name": "H.M.S. Pinafore Data",
         "wiki": "/wiki/H.M.S._Pinafore_Data",
         "stars": 5
+    },
+    {
+        "name": "Commodore Robert April",
+        "wiki": "/wiki/Commodore_Robert_April",
+        "stars": 5
+    },
+    {
+        "name": "Lt Commander Airiam",
+        "wiki": "/wiki/Lt_Commander_Airiam",
+        "stars": 4
+    },
+    {
+        "name": "Weyoun Clone 5",
+        "wiki": "/wiki/Weyoun_Clone_5",
+        "stars": 5
+    },
+    {
+        "name": "Prince Bashir",
+        "wiki": "/wiki/Prince_Bashir",
+        "stars": 5
+    },
+    {
+        "name": "Joseph Sisko",
+        "wiki": "/wiki/Joseph_Sisko",
+        "stars": 5
+    },
+    {
+        "name": "Penk",
+        "wiki": "/wiki/Penk",
+        "stars": 4
+    },
+    {
+        "name": "Weyoun Clone 6",
+        "wiki": "/wiki/Weyoun_Clone_6",
+        "stars": 3
+    },
+    {
+        "name": "Captain Spock",
+        "wiki": "/wiki/Captain_Spock",
+        "stars": 5
+    },
+    {
+        "name": "Survivalist Kirk",
+        "wiki": "/wiki/Survivalist_Kirk",
+        "stars": 5
+    },
+    {
+        "name": "Armus",
+        "wiki": "/wiki/Armus",
+        "stars": 5
+    },
+    {
+        "name": "Douglas Pabst",
+        "wiki": "/wiki/Douglas_Pabst",
+        "stars": 4
+    },
+    {
+        "name": "Layna",
+        "wiki": "/wiki/Layna",
+        "stars": 5
     }
 ]
