@@ -31,8 +31,11 @@ download_wiki() {
 
     echo "Fetching MoreCrew"
     wget $WGET_PARAMS -x -N -o ./logs/morecrew.log -i $WGETSOURCE_MORECREW
-
     grep -A 3 FINISHED logs/morecrew.log
+
+    echo "Fetching MoreCrew"
+    wget $WGET_PARAMS -m -l1 -o ./logs/ssr.log "http://ssr.izausomecreations.com/crew/"
+    grep -A 3 FINISHED logs/ssr.log
 }
 
 echo "Checking for new characters"
