@@ -383,5 +383,40 @@
         "name": "Layna",
         "wiki": "/wiki/Layna",
         "stars": 5
+    },
+    {
+        "name": "Mirror Sulu",
+        "wiki": "/wiki/Mirror_Sulu",
+        "stars": 5
+    },
+    {
+        "name": "Mountaineer Spock",
+        "wiki": "/wiki/Mountaineer_Spock",
+        "stars": 5
+    },
+    {
+        "name": "Sergey and Helena Rozhenko",
+        "wiki": "/wiki/Sergey_and_Helena_Rozhenko",
+        "stars": 5
+    },
+    {
+        "name": "Away Team Michael Burnham",
+        "wiki": "/wiki/Away_Team_Michael_Burnham",
+        "stars": 5
+    },
+    {
+        "name": "Etana Jol",
+        "wiki": "/wiki/Etana_Jol",
+        "stars": 5
+    },
+    {
+        "name": "Sphere-Builder Presage",
+        "wiki": "/wiki/Sphere-Builder_Presage",
+        "stars": 5
+    },
+    {
+        "name": "Disguised Chakotay",
+        "wiki": "/wiki/Disguised_Chakotay",
+        "stars": 4
     }
 ]
