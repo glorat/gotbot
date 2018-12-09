@@ -1,6 +1,6 @@
 const nodeEnv = process.env.NODE_ENV || 'development';
 const isProd = nodeEnv === 'production';
-const password = require('./password');
+const password = require('./data/password');
 
 module.exports = {
 
@@ -30,7 +30,7 @@ module.exports = {
 
   httpport: 3030,
   baseUrl: 'http://got.glorat.net/',
-  dataPath: isProd ? '/home/got/gotbot/data/' : '/Users/kevin/dev/gotbot/data/',
-  nedbpath: isProd ? '/home/got/gotbot/stt.json' : '/Users/kevin/dev/gotbot/stt.json',
-  clilogpath: isProd ? '/home/got/gotbot/data/clilog.json' : '/Users/kevin/dev/gotbot/data/clilog.json'
+  dataPath: './data/',
+  nedbpath: './data/stt.json',
+  clilogpath: './data/clilog.json'
 };
