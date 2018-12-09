@@ -1,8 +1,8 @@
 [
     {
-        "name": "Satin Dress Lily Sloane",
-        "wiki": "/wiki/Satin_Dress_Lily_Sloane",
-        "stars": 5
+        "name": "Smuggler Kasidy Yates",
+        "wiki": "/wiki/Smuggler_Kasidy_Yates",
+        "stars": 4
     },
     {
         "name": "Queen Guinevere Kira",
@@ -15,6 +15,11 @@
         "stars": 4
     },
     {
+        "name": "Mambo Picard",
+        "wiki": "/wiki/Mambo_Picard",
+        "stars": 5
+    },
+    {
         "name": "Interfaced La Forge",
         "wiki": "/wiki/Interfaced_La_Forge",
         "stars": 5
@@ -25,108 +30,18 @@
         "stars": 4
     },
     {
-        "name": "Herbert Rossoff",
-        "wiki": "/wiki/Herbert_Rossoff",
-        "stars": 4
-    },
-    {
-        "name": "Emperor Philippa Georgiou",
-        "wiki": "/wiki/Emperor_Philippa_Georgiou",
-        "stars": 5
-    },
-    {
-        "name": "Festive Lwaxana Troi",
-        "wiki": "/wiki/Festive_Lwaxana_Troi",
-        "stars": 4
-    },
-    {
-        "name": "Geordi La Forge",
-        "wiki": "/wiki/Geordi_La_Forge",
-        "stars": 2
-    },
-    {
-        "name": "Mambo Picard",
-        "wiki": "/wiki/Mambo_Picard",
-        "stars": 5
-    },
-    {
-        "name": "Smuggler Kasidy Yates",
-        "wiki": "/wiki/Smuggler_Kasidy_Yates",
-        "stars": 4
-    },
-    {
         "name": "Niners Worf",
         "wiki": "/wiki/Niners_Worf",
         "stars": 5
     },
     {
-        "name": "Rain Robinson",
-        "wiki": "/wiki/Rain_Robinson",
+        "name": "Satin Dress Lily Sloane",
+        "wiki": "/wiki/Satin_Dress_Lily_Sloane",
         "stars": 5
     },
     {
-        "name": "Ahdar Ru'afo",
-        "wiki": "/wiki/Ahdar_Ru'afo",
-        "stars": 5
-    },
-    {
-        "name": "Alternate Future Jadzia Dax",
-        "wiki": "/wiki/Alternate_Future_Jadzia_Dax",
-        "stars": 5
-    },
-    {
-        "name": "Diseased Changeling Founder",
-        "wiki": "/wiki/Diseased_Changeling_Founder",
-        "stars": 4
-    },
-    {
-        "name": "Merry Men Crusher",
-        "wiki": "/wiki/Merry_Men_Crusher",
-        "stars": 5
-    },
-    {
-        "name": "Tourist Jadzia Dax",
-        "wiki": "/wiki/Tourist_Jadzia_Dax",
-        "stars": 3
-    },
-    {
-        "name": "Polywater Yar",
-        "wiki": "/wiki/Polywater_Yar",
-        "stars": 5
-    },
-    {
-        "name": "Admiral Ross",
-        "wiki": "/wiki/Admiral_Ross",
-        "stars": 4
-    },
-    {
-        "name": "Reverend Phlox",
-        "wiki": "/wiki/Reverend_Phlox",
-        "stars": 5
-    },
-    {
-        "name": "Yelgrun",
-        "wiki": "/wiki/Yelgrun",
-        "stars": 4
-    },
-    {
-        "name": "Amelia Earhart",
-        "wiki": "/wiki/Amelia_Earhart",
-        "stars": 5
-    },
-    {
-        "name": "Gary Seven",
-        "wiki": "/wiki/Gary_Seven",
-        "stars": 5
-    },
-    {
-        "name": "Changeling Martok",
-        "wiki": "/wiki/Changeling_Martok",
-        "stars": 5
-    },
-    {
-        "name": "Ikat'Ika",
-        "wiki": "/wiki/Ikat'ika",
+        "name": "Herbert Rossoff",
+        "wiki": "/wiki/Herbert_Rossoff",
         "stars": 4
     },
     {
@@ -135,9 +50,9 @@
         "stars": 2
     },
     {
-        "name": "Alternate Future T'Pol",
-        "wiki": "/wiki/Alternate_Future_T'Pol",
-        "stars": 5
+        "name": "Ikat'ika",
+        "wiki": "/wiki/Ikat'ika",
+        "stars": 4
     },
     {
         "name": "Irumodic Syndrome Picard",
@@ -160,14 +75,14 @@
         "stars": 5
     },
     {
-        "name": "Elizabeth Dehner",
-        "wiki": "/wiki/Elizabeth_Dehner",
-        "stars": 5
-    },
-    {
         "name": "Army Chaplain Odo",
         "wiki": "/wiki/Army_Chaplain_Odo",
         "stars": 4
+    },
+    {
+        "name": "Elizabeth Dehner",
+        "wiki": "/wiki/Elizabeth_Dehner",
+        "stars": 5
     },
     {
         "name": "Ensign Picard",
@@ -230,13 +145,13 @@
         "stars": 4
     },
     {
-        "name": "Mugato",
-        "wiki": "/wiki/Mugato",
+        "name": "Tuxedo Nog",
+        "wiki": "/wiki/Tuxedo_Nog",
         "stars": 5
     },
     {
-        "name": "Tuxedo Nog",
-        "wiki": "/wiki/Tuxedo_Nog",
+        "name": "Mugato",
+        "wiki": "/wiki/Mugato",
         "stars": 5
     },
     {
@@ -252,6 +167,171 @@
     {
         "name": "Minuet",
         "wiki": "/wiki/Minuet",
+        "stars": 5
+    },
+    {
+        "name": "Tarquin",
+        "wiki": "/wiki/Tarquin",
+        "stars": 4
+    },
+    {
+        "name": "Data V",
+        "wiki": "/wiki/Data_V",
+        "stars": 5
+    },
+    {
+        "name": "Losira",
+        "wiki": "/wiki/Losira",
+        "stars": 2
+    },
+    {
+        "name": "Commander Barclay",
+        "wiki": "/wiki/Commander_Barclay",
+        "stars": 4
+    },
+    {
+        "name": "Phlox, Au Naturel",
+        "wiki": "/wiki/Phlox,_Au_Naturel",
+        "stars": 5
+    },
+    {
+        "name": "Lt. Commander Jack Crusher",
+        "wiki": "/wiki/Lt._Commander_Jack_Crusher",
+        "stars": 3
+    },
+    {
+        "name": "Musketeer Picard",
+        "wiki": "/wiki/Musketeer_Picard",
+        "stars": 5
+    },
+    {
+        "name": "Wedding Day Quark",
+        "wiki": "/wiki/Wedding_Day_Quark",
+        "stars": 4
+    },
+    {
+        "name": "Lucille Davenport",
+        "wiki": "/wiki/Lucille_Davenport",
+        "stars": 5
+    },
+    {
+        "name": "Fennim",
+        "wiki": "/wiki/Fennim",
+        "stars": 5
+    },
+    {
+        "name": "Captain Silva La Forge",
+        "wiki": "/wiki/Captain_Silva_La_Forge",
+        "stars": 5
+    },
+    {
+        "name": "Michael Sullivan",
+        "wiki": "/wiki/Michael_Sullivan",
+        "stars": 4
+    },
+    {
+        "name": "Covert Operative Leland",
+        "wiki": "/wiki/Covert_Operative_Leland",
+        "stars": 5
+    },
+    {
+        "name": "H.M.S. Pinafore Data",
+        "wiki": "/wiki/H.M.S._Pinafore_Data",
+        "stars": 5
+    },
+    {
+        "name": "Commodore Robert April",
+        "wiki": "/wiki/Commodore_Robert_April",
+        "stars": 5
+    },
+    {
+        "name": "Weyoun Clone 5",
+        "wiki": "/wiki/Weyoun_Clone_5",
+        "stars": 5
+    },
+    {
+        "name": "Lt Commander Airiam",
+        "wiki": "/wiki/Lt_Commander_Airiam",
+        "stars": 4
+    },
+    {
+        "name": "Joseph Sisko",
+        "wiki": "/wiki/Joseph_Sisko",
+        "stars": 5
+    },
+    {
+        "name": "Prince Bashir",
+        "wiki": "/wiki/Prince_Bashir",
+        "stars": 5
+    },
+    {
+        "name": "Captain Spock",
+        "wiki": "/wiki/Captain_Spock",
+        "stars": 5
+    },
+    {
+        "name": "Weyoun Clone 6",
+        "wiki": "/wiki/Weyoun_Clone_6",
+        "stars": 3
+    },
+    {
+        "name": "Penk",
+        "wiki": "/wiki/Penk",
+        "stars": 4
+    },
+    {
+        "name": "Armus",
+        "wiki": "/wiki/Armus",
+        "stars": 5
+    },
+    {
+        "name": "Survivalist Kirk",
+        "wiki": "/wiki/Survivalist_Kirk",
+        "stars": 5
+    },
+    {
+        "name": "Layna",
+        "wiki": "/wiki/Layna",
+        "stars": 5
+    },
+    {
+        "name": "Douglas Pabst",
+        "wiki": "/wiki/Douglas_Pabst",
+        "stars": 4
+    },
+    {
+        "name": "Mirror Sulu",
+        "wiki": "/wiki/Mirror_Sulu",
+        "stars": 5
+    },
+    {
+        "name": "Mountaineer Spock",
+        "wiki": "/wiki/Mountaineer_Spock",
+        "stars": 5
+    },
+    {
+        "name": "Away Team Michael Burnham",
+        "wiki": "/wiki/Away_Team_Michael_Burnham",
+        "stars": 5
+    },
+    {
+        "name": "Sergey and Helena Rozhenko",
+        "wiki": "/wiki/Sergey_and_Helena_Rozhenko",
+        "stars": 5
+    },
+    {
+        "name": "Disguised Chakotay",
+        "wiki": "/wiki/Disguised_Chakotay",
+        "stars": 4
+    },
+    {
+        "name": "Sphere-Builder Presage",
+        "wiki": "/wiki/Sphere-Builder_Presage",
+        "stars": 5
+    },
+    {
+        "name": "Etana Jol",
+        "wiki": "/wiki/Etana_Jol",
         "stars": 5
     }
 ]
