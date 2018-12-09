@@ -11,9 +11,9 @@ chdir("$FindBin::Bin");
 
 # Some pre-runs that don't need perl code
 system('node lib/newchars.js');
+chdir("$FindBin::Bin/client");
 system('wget -m -l1 http://ssr.izausomecreations.com/crew/');
 
-chdir("$FindBin::Bin/client");
 
 #print "now in $ENV{PWD} script in $FindBin::Bin\n";
 
