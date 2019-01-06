@@ -1,78 +1,82 @@
-#!/usr/bin/perl
-use strict;
-use warnings;
+#!/bin/bash
 
-use FindBin;
-use Cwd qw(chdir);
-use JSON::Parse;
-use v5.10;
+## Retry variables
+MAX_RETRIES=3
+ATTEMPT=1
+SLEEP_SEC=5
 
-chdir("$FindBin::Bin");
+## wget variables
+WGET_PARAMS='-np -P client --reject-regex (Special:|Star_Trek_Timelines:|Category:Crew|Category:Missions|Category_talk:|Cadets$|Main_Page|Mobile_Apps|Missions)'
+WGETSOURCE_CATEGORIES=data/wgetcategories.txt
+WGETSOURCE_MORECREW=data/wgetmorecrew.txt
 
-# Some pre-runs that don't need perl code
-system('node lib/newchars.js');
-chdir("$FindBin::Bin/client");
-system('wget -m -l1 http://ssr.izausomecreations.com/crew/');
+CATEGORIES=( 'Common' 'Uncommon' 'Rare' 'Super_Rare' 'Super_Rare?pagefrom=Ruk' 'Legendary' 'Away_Team_Missions' 'Space_Battle_Missions' )
 
+generate_wgetsources() {
+    echo "Generating source files for wget"
+    > $WGETSOURCE_CATEGORIES
+    for item in ${CATEGORIES[*]}
+    do
+        printf "https://stt.wiki/wiki/Category:%s\n" $item >> $WGETSOURCE_CATEGORIES
+    done
 
-#print "now in $ENV{PWD} script in $FindBin::Bin\n";
-
-
-our $retries = 0;
-our $MAX_RETRIES = 5;
-our $SLEEP_SECS = 10;
-
-my @categories = ('Uncommon','Common','Rare','Super_Rare','Super_Rare?pagefrom=Ruk','Legendary', 'Away_Team_Missions', 'Space_Battle_Missions');
-
-foreach (@categories) {
-	downloadCategory($_, 'Category:',1);
+    # Sort morejson by Category (Stars) then by name
+    jq  -r 'sort_by(.stars,.wiki)|.[].wiki | sub("/wiki/"; "https://stt.wiki/wiki/")' client/morecrew.json >$WGETSOURCE_MORECREW
 }
 
-my $crew = JSON::Parse::json_file_to_perl("../client/morecrew.json");
+download_wiki() {
+    echo "Fetching Wiki Categories"
+    wget $WGET_PARAMS -m -l1 -o ./logs/categories.log -i $WGETSOURCE_CATEGORIES
+    grep -A 3 FINISHED logs/categories.log
 
-foreach (@$crew) {
-	my $wiki = $_->{'wiki'};
-	$wiki =~ s!/wiki/!!;
-	downloadCategory($wiki,'',0);
+    echo "Fetching MoreCrew"
+    wget $WGET_PARAMS -x -N -o ./logs/morecrew.log -i $WGETSOURCE_MORECREW
+    grep -A 3 FINISHED logs/morecrew.log
+
+    echo "Fetching SSR"
+    wget $WGET_PARAMS -m -l1 -o ./logs/ssr.log "http://ssr.izausomecreations.com/crew/"
+    grep -A 3 FINISHED logs/ssr.log
 }
 
+cd "${0%/*}"
 
-say "Telling bot to restart";
-system("pkill -F ../data/run.pid");
+echo "Checking for new characters"
+node lib/newchars.js
 
-sub checkDownload {
-	my ($path) = @_;
-	my $size = (stat $path)[7];
-	say "$path downloaded with size $size";
-	# Here's the check we'll apply for badness
-	return ($size > 10000);
-}
+echo "Creating wget source files"
+generate_wgetsources
 
-sub downloadCategory {
-	my ($cat, $prefix, $depth) = @_;
-	my $path = "stt.wiki/wiki/$prefix$cat";
+# Removing Category pages to ensures subpages are refreshed
+rm client/stt.wiki/wiki/Category*
 
-	my $mirror = $depth ? "-m -l$depth" : '-x -N --no-remove-listing';
+while [ $ATTEMPT -le $MAX_RETRIES ]
+do
+    echo "Starting download of wiki - attempt $ATTEMPT"
+    download_wiki
+    BADDOWNLOADS=$( find client/stt.wiki/wiki/ -size -10k |wc -l )
+    if [ $BADDOWNLOADS -eq 0 ]
+    then
+        break
+    fi
+    echo "Bad downloads detected!"
+    find client/stt.wiki/wiki/ -size -10k -exec rm {} \;
+    sleep $SLEEP_SEC
+    ATTEMPT=$(( $ATTEMPT + 1 ))
+done
 
-	my $cmd = "wget -np $mirror -o$FindBin::Bin/logs/$cat.log https://$path";
-	# Need to escape out ' chars
-	$cmd =~ s/\'/\\'/g;
+if [ $ATTEMPT -gt $MAX_RETRIES ]
+then
+    echo "Unable to download all files at this time"
+    exit 1
+fi
 
-	say($cmd);
-	system($cmd);
+echo "Starting cachewiki"
+node lib/cachewiki.js
 
-	if (!checkDownload($path)) {
-		if ($retries < $MAX_RETRIES) {
-			$retries ++;
-			say "That looks corrupt so will retry ($retries) again soon";
-			sleep($SLEEP_SECS); # Wait one minute
-			# Tail recursion!
-			goto &downloadCategory;
-		}
-		else {
-			say "Maximum retries hit - bailing";
-			exit 1;
-		}
-
-	}
-}
+echo "Telling bot to restart "
+if [ -f /etc/alpine-release ] 
+then
+    pkill -f lib/index.js
+else
+    pkill -F data/run.pid
+fi
