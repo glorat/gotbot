@@ -1,16 +1,27 @@
 'use strict';
 
-var fs = require('fs');
-const _ = require('underscore');
-const cheerio = require('cheerio');
-const Promise = require("bluebird");
-Promise.promisifyAll(fs);
+import * as fs from 'async-file';
 
-const morecrew = require('../client/morecrew.json');
+import _ = require('underscore');
+import cheerio = require('cheerio');
+
+interface CrewFoo {
+  name : string,
+  wiki : string,
+  stars : number,
+  char? : string ,
+  traits? : string,
+  image? : string,
+  headImage? : string,
+  skill? : any,
+  moreChar? : any
+}
+
+const morecrew : Array<CrewFoo> = require('../../client/morecrew.json');
 const moretraitlist = ['StarCap']; // TODO: dir list client/trait
-const moretrait = {};
+const moretrait : any = {};
 moretraitlist.forEach(trait => {
-  let nms = fs.readFileSync(`client/trait/${trait}`).toString().split("\n");
+  let nms = fs.readFile(`client/trait/${trait}`).toString().split("\n");
   nms.forEach(nm => {
     if (!moretrait[nm]) moretrait[nm] = [];
     moretrait[nm].push(trait);
@@ -26,10 +37,10 @@ module.exports = {
   wikidb:wikidb
 };
 
-function parseCharForTraits($) {
+function parseCharForTraits($:CheerioStatic) {
   const traitheader = $('b').filter(function() {return $(this).text() === 'Traits';}).first();
   const traitbox = traitheader.parent().parent().next('tr');
-  var traits = [];
+  var traits : Array<string> = [];
   traitbox.find('a').each(function() {
     let nm = copyString($(this).text());
     traits.push(nm);
@@ -37,17 +48,20 @@ function parseCharForTraits($) {
   return traits.join(', ');
 }
 
-function parseCharForChar($) {
+function parseCharForChar($:CheerioStatic) {
   const traitheader = $('b').filter(function() {return $(this).text() === 'Character';}).first();
   const traitbox = traitheader.parent().parent().next('tr');
   return copyString(traitbox.find('a').text());
 
 }
 
-function parseCharForMoreChar($) {
-  const moreHeader = $('b').filter(function() {return $(this).text().match('Other (Versions|Variations|Variants)');}).first();
+function parseCharForMoreChar($:CheerioStatic) {
+  const moreHeader = $('b').filter(function() : boolean {
+    // @ts-ignore
+    return $(this).text().match('Other (Versions|Variations|Variants)');
+  }).first();
   const moreBox = moreHeader.parent().parent().next('tr');
-  const moreTraits = [];
+  const moreTraits : Array<string> = [];
   moreBox.find('a').each(function() {
     const more = $(this).text().replace('Versions','').trim();
     moreTraits.push(copyString(more)) ;
@@ -56,14 +70,14 @@ function parseCharForMoreChar($) {
 
 }
 
-function parseCharForSkillData(entry, $) {
+function parseCharForSkillData(entry:CrewFoo, $:CheerioStatic) {
   const stars = entry.stars;
   const name = entry.name;
 
   const table = $('#Away_Team_Skills').first().parent().next().next(); //.parent().next('table').first();
 
   const starsRow = table.find('tr').eq(1);
-  const skillCount = starsRow.find('td').eq(1).attr('colspan');
+  const skillCount = +starsRow.find('td').eq(1).attr('colspan');
 
   const skillsRow = table.find('tr').eq(2);
   const skillsCells = skillsRow.find('a');
@@ -90,11 +104,11 @@ function parseCharForSkillData(entry, $) {
         }).text();
         const basere = /\d+/;
         if (!basere.test(base)) {
-          base = 0;
+          base = '0';
         }
         const rollre = /\((\d+).(\d+)\)/;
-        var rolls = rollre.exec(cell.text());
-        if (rolls === null) rolls = [0, 0, 0];
+        let rolls : Array<string> | null= rollre.exec(cell.text());
+        if (rolls === null) rolls = ['0', '0', '0'];
         skilldata.push({
           stars: star + 1,
           level: level,
@@ -112,7 +126,7 @@ function parseCharForSkillData(entry, $) {
   }
   return skilldata;
 }
-function parseCharPage($, entry) {
+function parseCharPage($:CheerioStatic, entry:CrewFoo) {
   const name = entry.name;
   const skilldata = parseCharForSkillData(entry, $);
 
@@ -138,21 +152,21 @@ function parseCharPage($, entry) {
 
 
 /** Almighty hack to prevent V8 from holding onto the mega string when parsing */
-function copyString(original_string) {
+function copyString(original_string:string) {
   return (' ' + original_string).slice(1);
 }
 
 
-function parseWikiCrew() {
+async function parseWikiCrew() {
   const superRareCutoff = 'Ruk'; // Check gotcron to see what page is being used to do the cutoff
   const subcatFiles = ['Common','Uncommon','Rare','Super_Rare','Super_Rare?pagefrom=' + superRareCutoff,'Legendary'];
   const subcats = ['Common','Uncommon','Rare','Super_Rare','Legendary'];
 
-  let crewLoadPromises = subcatFiles.map(catfile => {
+  let crewLoadPromises = subcatFiles.map(async catfile => {
     const cat = catfile.replace(/\?.*/,'');
     const stars = subcats.indexOf(cat)+1;
     const file = `client/stt.wiki/wiki/Category:${catfile}`;
-    return fs.readFileAsync(file, 'utf8')
+    return await fs.readFile(file, 'utf8')
       .then(cheerio.load)
       .then(function($) {
         console.log('LOADING ' + file);
@@ -173,10 +187,10 @@ function parseWikiCrew() {
   return Promise.all(crewLoadPromises).then(function() {
     console.log("All crew summary were loaded");
   }).then(function() {
-    const all = wikidb.crewentries.map(entry => {
+    const all = wikidb.crewentries.map(async entry => {
       const file =`client/stt.wiki/${decodeURI(entry.wiki)}`;
 
-      return fs.readFileAsync(file, 'utf8')
+      return await fs.readFile(file, 'utf8')
         .then(cheerio.load)
         .then(function(dom) {
           return parseCharPage(dom, entry);
@@ -186,10 +200,10 @@ function parseWikiCrew() {
         });
     });
     return Promise.all(all);
-  }).then(function() {
+  }).then(async function() {
     console.log('All crew pages parsed');
     // Cache it
-    fs.writeFile('data/wikidb.json',JSON.stringify(wikidb));
+    await fs.writeFile('data/wikidb.json',JSON.stringify(wikidb));
     console.log('wikidb written');
   });
 

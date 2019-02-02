@@ -46,6 +46,10 @@
   "repository": "git@github.com:glorat/gotbot.git",
   "license": "Apache-2.0",
   "dependencies": {
+    "@types/bluebird": "^3.5.25",
+    "@types/cheerio": "^0.22.10",
+    "@types/underscore": "^1.8.9",
+    "async-file": "^2.0.2",
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.1",
     "cheerio": "^0.22.0",
