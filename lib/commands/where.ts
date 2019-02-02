@@ -8,12 +8,20 @@ module.exports = new Clapp.Command({
   name: "where",
   desc: "where is the bot deployed",
 
+
   fn:(argv:any, context:any) => new Promise((fulfill, reject) => {
-    let bot : Discord.Client = context.bot;
-    if (bot) {
+    const botServer = context.bot.guilds.get(cfg.botServer);
+    const bot : Discord.Client = context.bot;
+
+    if (context.bot && botServer) {
+
       const ret = `I am in the following servers\n` + bot.guilds.map(x => {
-          const adminPresent = x.members.has(cfg.adminId);
-          return `${x.name} - (authorised: ${adminPresent})`;
+        const adminPresent = x.members.has(cfg.adminId);
+        const thisOwner = x.owner;
+
+        const fleetInBotServer = botServer.members.has(thisOwner.id);
+
+        return `${x.name} - ${thisOwner.displayName} - (auth checks: ${adminPresent},${fleetInBotServer})`;
       }).join(`\n`);
       fulfill (ret);
     }

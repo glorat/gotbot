@@ -18,8 +18,9 @@ interface CrewFoo {
 }
 
 const morecrew : Array<CrewFoo> = require('../../client/morecrew.json');
-const moretraitlist = ['StarCap']; // TODO: dir list client/trait
+const moretraitlist = ['StarCap','DiscoCrew']; // TODO: dir list client/trait
 const moretrait : any = {};
+
 moretraitlist.forEach(trait => {
   let nms = fs.readFile(`client/trait/${trait}`).toString().split("\n");
   nms.forEach(nm => {
