@@ -26,7 +26,7 @@ Relative skill distribution: ${mult.join(',')}
   return ret;
 }
 
-function calcAntiMatter(skills, start, time) {
+function calcAntiMatter(skills:Array<number>, start:number, time:number) {
   if (skills.length !== 6) return 0;
 
   let antimatter = start;
@@ -39,7 +39,7 @@ function calcAntiMatter(skills, start, time) {
   return antimatter;
 }
 
-function calcSkillSuccess(skills, time) {
+function calcSkillSuccess(skills:Array<number>, time:number) {
   let ret = [];
   for (let m=0; m<6; m++) {
     let good = Math.round(Math.min(time, (skills[m]-baseSkill)/difficultyPerHr) * hazardsPerHr * mult[m]);
@@ -49,7 +49,7 @@ function calcSkillSuccess(skills, time) {
   return ret;
 }
 
-function solveTime(skills, start) {
+function solveTime(skills:Array<number>, start:number) {
   return goalSeek({
     Func: calcAntiMatter,
     aFuncParams: [skills, start, 1],

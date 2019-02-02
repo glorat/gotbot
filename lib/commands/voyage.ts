@@ -1,5 +1,5 @@
-var Clapp = require('../modules/clapp-discord');
-var _ = require('underscore');
+const Clapp = require('../modules/clapp-discord');
+import _ = require('underscore');
 const chars = require('../chars.js');
 const crewdb = require('../crewdb.js');
 const fleets = require('../fleetdb.js');
@@ -7,7 +7,7 @@ const voyage = require('../voyage.js');
 
 const voyageSkills = ['cmd','dip','sec','eng','sci','med'];
 
-let calcTotalSkills = function (crewList, skillList) {
+let calcTotalSkills = function (crewList:Array<any>, skillList:Array<any>) {
   let totalSkills = [0, 0, 0, 0, 0, 0];
   crewList.forEach(ch => {
     for (let i = 0; i < skillList.length; i++) {
@@ -23,7 +23,7 @@ let calcTotalSkills = function (crewList, skillList) {
   return totalSkills;
 };
 
-function formatHrs(t) {
+function formatHrs(t:number) {
   const hrs = Math.floor(t);
   const mins = Math.floor((t - hrs) * 60);
   return `${hrs}h ${mins}m`;
@@ -34,13 +34,14 @@ module.exports = new Clapp.Command({
   desc: 'voyage crew calculator',
 
 // Command function
-  fn: (argv, context) => new Promise((fulfill) => {
+  fn: (argv:any, context:any) => new Promise((fulfill) => {
     try {
       const author = context.author.username;
       const userid = context.author.id;
       const fleetId = context.fleetId;
       const args = argv.args;
       const emojify = context.emojify;
+      const sks : Array<string> = chars.skills;
 
       if (!context.isEntitled(userid)) {
         fulfill(`Sorry, this function is in restricted beta`);
@@ -51,14 +52,14 @@ module.exports = new Clapp.Command({
       const skillList = _.union([args.primary], [args.secondary], _.without(chars.skills, args.primary, args.secondary));
 
 
-      const handleUserDoc = function(doc) {
+      const handleUserDoc = function(doc:any) {
         if (argv.flags.best) {
           const allInfo = chars.allCrewEntries();
-          const allNms = allInfo.map(x => x.name);
+          const allNms:Array<string> = allInfo.map((x:any) => x.name);
 
           const fullCrew = allNms.map(nm => {
             return {name: nm};
-          }).map(char => chars.fullyEquip(char, _.find(allInfo, info => info.name === char.name)));
+          }).map((char:any) => chars.fullyEquip(char, _.find(allInfo, info => info.name === char.name)));
           doc = {crew: fullCrew};
         }
         // Create a default doc if user is new
@@ -70,23 +71,23 @@ module.exports = new Clapp.Command({
         let crew = doc.crew;
         if (!argv.flags.vault) {
           // excluded vaulted chars
-          crew = crew.filter(e => !e.vaulted === true);
+          crew = crew.filter((e:any) => !e.vaulted === true);
         }
 
         // TODO: check fleetId from crew doc
-        fleets.get(fleetId).then(fleet => {
+        fleets.get(fleetId).then((fleet:any) => {
           crewdb.calcAdjustedSkill(doc, fleet);
           handleAdjustedCrew(crew, fleet);
         });
       };
 
-      const handleAdjustedCrew = function(crew, fleet) {
+      const handleAdjustedCrew = function(crew:any, fleet:any) {
         const starbase = fleet.starbase;
 
-        let sortedByVoyage = function (availCrew) {
+        let sortedByVoyage = function (availCrew:Array<any>) {
           availCrew.forEach(ch => {
             let score = 0;
-            chars.skills.forEach(sk => {
+            sks.forEach(sk => {
               if (ch[sk]) {
                 const rl = ch.adj[sk];
                 let avg = rl.base + rl.minroll + ((rl.maxroll - rl.minroll) / 2);
@@ -106,7 +107,7 @@ module.exports = new Clapp.Command({
           return availCrew.sort((a, b) => (b.score - a.score));
         };
 
-        let recurseFit = function (crew, avail) {
+        let recurseFit = function (crew:Array<any>, avail:any):any {
           // Base cases - none to fit or out of crew
           if (avail.crew.length >= 12) {
             return avail;
@@ -117,9 +118,9 @@ module.exports = new Clapp.Command({
           // Recursive case  - try to place head
           const head = crew[0];
           let best = avail;
-          chars.skills.forEach(sk => {
+          sks.forEach(sk => {
             if (head[sk] && avail[sk].length < 2 && head.score > 0) {
-              const newAvail = _.clone(avail); // copy on write
+              const newAvail :any = _.clone(avail); // copy on write
               newAvail.score += head.score;
               newAvail[sk] = _.clone(newAvail[sk]);
               newAvail[sk].push(head);
@@ -140,7 +141,7 @@ module.exports = new Clapp.Command({
           }
         };
 
-        let fitCrewToSlots = function (crew) {
+        let fitCrewToSlots = function (crew:any) {
           const avail = {dip: [], cmd: [], sec: [], eng: [], sci: [], med: [], score: 0, crew: []};
           const best = recurseFit(crew, avail);
           return best;
@@ -149,17 +150,17 @@ module.exports = new Clapp.Command({
         let bestCrew = sortedByVoyage(crew);
         let constrainedCrew = fitCrewToSlots(bestCrew);
 
-        function replaceConstrainedCrew(obj, before, after) {
+        function replaceConstrainedCrew(obj:any, before:any, after:any) {
           // copy on write
-          let ret = _.clone(obj);
+          let ret : any = _.clone(obj);
 
           // Replace the main crew area
-          ret.crew = ret.crew.map(function (item) {
+          ret.crew = ret.crew.map(function (item:any) {
             return item === before ? after : item;
           });
           // Replace the skills
-          chars.skills.forEach(sk => {
-            ret[sk] = ret[sk].map(function (item) {
+          chars.skills.forEach((sk:string) => {
+            ret[sk] = ret[sk].map(function (item:any) {
               return item === before ? after : item;
             });
           });
@@ -182,12 +183,12 @@ module.exports = new Clapp.Command({
           console.log(`Iteration ${iters} of swapping`);
           bestCrew.forEach(after => {
             if (!_.contains(constrainedCrew.crew, after)) {
-              let bestReplace = null;
+              let bestReplace = {name:'NA'};
               let bestReplaceHours = bestHours;
               // Let's try to swap in somewhere
               skillList.forEach(sk => {
                 if (after[sk]) { // Matching skill to attempt into
-                  constrainedCrew[sk].forEach(before => {
+                  constrainedCrew[sk].forEach((before:any) => {
                     let maybe = replaceConstrainedCrew(constrainedCrew, before, after);
                     let maybeSkills = calcTotalSkills(maybe.crew, skillList);
                     const maybeHours = voyage.solveTime(maybeSkills, startAm);
@@ -221,9 +222,9 @@ module.exports = new Clapp.Command({
           hrsMsg += `${refill} refills: ${formatHrs(targetHours)}\n`;
         }
 
-        let names = [];
+        let names :Array<string> = [];
         voyageSkills.forEach(sk => {
-          constrainedCrew[sk].forEach(x => {
+          constrainedCrew[sk].forEach((x:any) => {
             let name = x.vaulted ? `(${x.name})` : x.name;
             names.push(`${emojify(sk)} ${name} (${Math.round(x.score)})`);
           });
@@ -231,8 +232,9 @@ module.exports = new Clapp.Command({
 
         let msg;
         if (names) {
-          let baseBonuses = chars.skills.map(sk => `${emojify(sk)}+${starbase[sk]}%`).join('  ');
-          let profBonuses = chars.skills.map(sk => `${emojify(sk)}+${fleet.starprof[sk]}%`).join('  ');
+
+          let baseBonuses = sks.map(sk => `${emojify(sk)}+${starbase[sk]}%`).join('  ');
+          let profBonuses = sks.map(sk => `${emojify(sk)}+${fleet.starprof[sk]}%`).join('  ');
 
           msg = `Your best crew for ${emojify(argv.args.primary)}/${emojify(argv.args.secondary)}
     ${names.join('\n    ')}
@@ -268,7 +270,7 @@ ${hrsMsg}
       validations: [
         {
           errorMessage: 'Must be cmd|dip|sci|eng|med|sec',
-          validate: value => {
+          validate: (value:string) => {
             return Boolean(value.match(/^cmd|dip|sci|eng|med|sec|$/));
           }
         }
@@ -283,7 +285,7 @@ ${hrsMsg}
       validations: [
         {
           errorMessage: 'Must be cmd|dip|sci|eng|med|sec',
-          validate: value => {
+          validate: (value:string) => {
             return Boolean(value.match(/^cmd|dip|sci|eng|med|sec|$/));
           }
         }

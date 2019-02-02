@@ -3,7 +3,7 @@ var Clapp = require('../modules/clapp-discord');
 module.exports = new Clapp.Command({
   name: "foo",
   desc: "does foo things",
-  fn: (argv, context) => {
+  fn: (argv:Array<string>, context:any) => {
     const channel = context.channel.name;
     const author = context.author.username;
 
