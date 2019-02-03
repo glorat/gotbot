@@ -37,6 +37,39 @@ interface WikiDB {
   charstars:any
 }
 
+interface Skill {
+  base: number
+  minroll: number
+  maxroll: number
+}
+
+interface Char {
+  name:string
+  chars: string
+  stars: number
+  maxstars: number
+  level: number
+  // For updating ease...
+  [index: string]: any;
+}
+
+// From wiki/wikidb
+interface SkillInfo {
+  stars: number
+  level: number
+  skill: string
+  base: number
+  min: number
+  max: number
+}
+
+interface CharInfo {
+  name: string,
+  wiki: string,
+  stars: number
+  skill: Array<SkillInfo>
+}
+
 var wikidb : WikiDB;
 
 fs.readFile('./data/wikidb.json', 'utf8')
@@ -222,20 +255,14 @@ function statsFor(char:any, emojify:API.EmojiFn, boldify:API.BoldifyFn, opts:Sta
 
 }
 
-interface Skill extends Dictionary<any> {
-  base: number
-  minroll: number
-  maxroll: number
-}
-
 /** Mutate char to be fully equipped given info and stars
  * */
-function fullyEquip(char:any, info:any, stars:number, level:number) {
+function fullyEquip(char:Char, info:CharInfo, stars:number, level:number) {
   if (!(info && info.skill)) {
     console.log (`fullyEquip is lacking info for ${char.name}`);
     return char;
   }
-  const skill:Skill = info.skill;
+  const skill = info.skill;
   level = level ? level : 100;
   stars = stars ? stars : info.stars;
   const starSk = _.filter(skill, sk => sk.stars === stars && sk.level === level);
@@ -312,7 +339,7 @@ function bestChars(entrys:Array<any>, stars:number, fuse:number, category:string
 
     const fnVals = skillMatch.map(skill => {
       if (skill) {
-        const sk = e.skill.find( (s:Skill) => s.level===level && (fuse ? fuse : e.stars) === s.stars && s.skill === skill);
+        const sk = e.skill.find( (s:SkillInfo) => s.level===level && (fuse ? fuse : e.stars) === s.stars && s.skill === skill);
         return catFn.map(sk);
       }
       else {
