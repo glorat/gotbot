@@ -2,7 +2,7 @@ const nodeEnv = process.env.NODE_ENV || 'development';
 const isProd = nodeEnv === 'production';
 const isTest = nodeEnv === 'test';
 
-let password = require('./data/password');
+let password = isTest ? {prod:'',dev:''} : require('./data/password');
 let dataPath =  isTest ? './test-data/': './data/';
 
 export default class Config {
