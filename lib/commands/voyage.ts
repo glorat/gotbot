@@ -14,7 +14,7 @@ let calcTotalSkills = function (crewList:Array<any>, skillList:Array<any>) {
     for (let i = 0; i < skillList.length; i++) {
       let sk = skillList[i];
 
-      if (ch.adj[sk]) {
+      if (ch.adj[sk] && ch.adj[sk].base) {
         const rl = ch.adj[sk];
         let avg = rl.base + rl.minroll + ((rl.maxroll - rl.minroll) / 2);
         totalSkills[i] += Math.round(avg);
@@ -89,7 +89,7 @@ module.exports = new Clapp.Command({
           availCrew.forEach(ch => {
             let score = 0;
             sks.forEach(sk => {
-              if (ch[sk]) {
+              if (ch[sk] && ch.adj[sk]) {
                 const rl = ch.adj[sk];
                 let avg = rl.base + rl.minroll + ((rl.maxroll - rl.minroll) / 2);
                 let mult = 1;
