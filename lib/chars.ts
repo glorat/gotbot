@@ -11,7 +11,7 @@ const jsonreq = require('request-json');
 const matcher = require('./matcher.js');
 
 const Table = require('cli-table3');
-const cfg     = require('../config.js');
+import cfg from '../config.js';
 
 export const skills = ['cmd','dip','eng','sec','med','sci'];
 
@@ -82,7 +82,7 @@ export interface StatsOpts {
 
 var wikidb : WikiDB;
 
-let json = fssync.readFileSync('./data/wikidb.json', 'utf8');
+let json = fssync.readFileSync(cfg.wikidbpath, 'utf8');
 let obj = JSON.parse(json);
 
 wikidb = obj;

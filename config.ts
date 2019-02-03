@@ -1,8 +1,9 @@
 const nodeEnv = process.env.NODE_ENV || 'development';
 const isProd = nodeEnv === 'production';
+const isTest = nodeEnv === 'test';
 
 let password = require('./data/password');
-let dataPath = './data/';
+let dataPath =  isTest ? './test-data/': './data/';
 
 export default class Config {
 
@@ -23,7 +24,7 @@ export default class Config {
 
   static readonly httpport = 3030;
   static readonly baseUrl = 'http://got.glorat.net/';
-  static nedbpath =  Config.dataPath + 'stt.json';
-  static readonly clilogpath = Config.dataPath + 'clilog.json';
-  static readonly wikidbpath = Config.dataPath + 'wikidb.json';
+  static nedbpath =  dataPath + 'stt.json';
+  static readonly clilogpath = dataPath + 'clilog.json';
+  static readonly wikidbpath = dataPath + 'wikidb.json';
 };

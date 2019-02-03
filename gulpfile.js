@@ -55,7 +55,12 @@ gulp.task('mocha', function(done) {
 
 });
 
-gulp.task('test', gulp.series('ts','pre-test','mocha'));
+gulp.task('set-test-node-env', function(done) {
+  process.env.NODE_ENV = 'test';
+  done();
+});
+
+gulp.task('test', gulp.series('ts','pre-test','set-test-node-env','mocha'));
 
 gulp.task('watch', function () {
   gulp.watch(['lib/**/*.js', 'test/**'], ['test']);

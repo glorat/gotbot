@@ -1,12 +1,14 @@
 'use strict';
 
-var assert = require('assert');
-var expect = require('expect.js');
-var _ = require('underscore');
+process.env.NODE_ENV = "test";
+
+const assert = require('assert');
+const expect = require('expect.js');
+const _ = require('underscore');
 const fs      = require('fs');
 const cli   = require('../lib/cli.js');
 
-import cfg from '../config.js';
+import cfg from '../config';
 import * as api from '../lib/Interfaces';
 
 const pkg     = require('../../package.json');
@@ -16,6 +18,9 @@ const pkg     = require('../../package.json');
 // Override env for testing
 cfg.nedbpath = cfg.nedbpath.replace('stt.json','test_stt.json');
 const db = require('../lib/crewdb.js');
+console.log(cfg.nedbpath);
+console.log(cfg.dataPath);
+
 
 describe('gotBot', function () {
 
