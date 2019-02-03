@@ -1,8 +1,10 @@
 
 import * as API from './Interfaces';
 import * as fs from 'async-file';
+import * as fssync from 'fs';
 import _ = require('underscore');
 import {Dictionary} from "underscore";
+import {MatchCB} from "./matcher";
 const request = require('request');
 const jsonreq = require('request-json');
 
@@ -28,6 +30,13 @@ export interface Char {
   // For updating ease... FIXME later
   [index: string]: any;
 }
+
+export interface CrewDoc {
+  _id: number
+  username:string
+  crew: Array<Char>
+}
+
 
 // From wiki/wikidb
 export interface SkillInfo {
@@ -71,24 +80,20 @@ export interface StatsOpts {
   table?:boolean
 }
 
-
 var wikidb : WikiDB;
 
-fs.readFile('./data/wikidb.json', 'utf8')
-  .then(JSON.parse)
-  .then(function(obj) {
-    wikidb = obj;
-    wikidb.charstars = _.object(wikidb.crewentries.map(x=>x.name), wikidb.crewentries.map(x=>x.stars));
-    wikidb.charToCrew = _.groupBy(wikidb.crewentries, x=>x.char);
+let json = fssync.readFileSync('./data/wikidb.json', 'utf8');
+let obj = JSON.parse(json);
 
-    var traitsSet = new Set();
-    wikidb.crewentries.forEach(x=>x.traits += ',' + _.uniq(x.skill.map(x=>x.skill)).join(',') );
-    wikidb.crewentries.forEach(x=>x.traits.split(',').map(x=>x.trim()).forEach((x:string)=>traitsSet.add(x)));
+wikidb = obj;
+wikidb.charstars = _.object(wikidb.crewentries.map(x=>x.name), wikidb.crewentries.map(x=>x.stars));
+wikidb.charToCrew = _.groupBy(wikidb.crewentries, x=>x.char);
 
-    wikidb.traits = Array.from(traitsSet);
+var traitsSet = new Set();
+wikidb.crewentries.forEach(x=>x.traits += ',' + _.uniq(x.skill.map(x=>x.skill)).join(',') );
+wikidb.crewentries.forEach(x=>x.traits.split(',').map(x=>x.trim()).forEach((x:string)=>traitsSet.add(x)));
 
-  })
-  .catch(e => {throw(e);});
+wikidb.traits = Array.from(traitsSet);
 
 export function allCrewEntries() : Array<CharInfo>{
   return _.clone(wikidb.crewentries);
@@ -105,7 +110,7 @@ export function charStars() {
   return wikidb.charstars;
 }
 
-export function matchOne(cb:any, one:string, two:string, three:string) {
+export function matchOne(cb:MatchCB, one:string, two:string, three:string) {
   return matcher.matchOne(cb, _.keys(wikidb.charstars), 'character', one, two, three);
 }
 
@@ -273,7 +278,7 @@ export function fullyEquip(char:Char, info:CharInfo, stars:number, level:number)
 
 
 
-function bestChars(entrys:Array<any>, stars:number, fuse:number, category:string, level:number, skill1:string, skill2:string){
+export function bestChars(entrys:Array<any>, stars:number, fuse:number, category:string, level:number, skill1:string, skill2:string){
   if (stars) {
     entrys = entrys.filter(x=>x.stars <= stars);
   }
@@ -305,9 +310,7 @@ function bestChars(entrys:Array<any>, stars:number, fuse:number, category:string
     },
     gauntlet: {
       map: sk => sk ? (sk.min + sk.max) / 2 : 0,
-      reduce: x =>
-        _.chain(x).sortBy(z=>-z).first(2).reduce(function (memo, num) {return memo+num[0];},0).value()
-      ,
+      reduce: x => _.reduce(x,function (memo, num) {return memo+num;},0),
       default: 0
     },
     minroll: {
@@ -373,7 +376,7 @@ export function createCrewTable(entries: Array<any>, searchParams:Array<string>,
   return ret;
 }
 
-export function searchCrewByCharTrait (criteria: Array<string>, entries: Array<any>) {
+export function searchCrewByCharTrait (criteria: Array<string>, entries: Array<CharInfo>) {
   const charsAndTraits = allChars().concat(allTraits());
   let searchParams: Array<string> = [];
   criteria.filter(x => x !== '').forEach(name => {

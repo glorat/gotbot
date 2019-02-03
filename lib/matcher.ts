@@ -7,11 +7,13 @@ function reSafe(str:string) {
 }
 
 // FIXME: How to declare cb in typescript?
-export function matchOne(cb: any, allNames:Array<string>, desc:string, one:string, two:string, three:string) {
+export type MatchCB = (err:string|null, name:string|null) => void
+
+export function matchOne(cb: MatchCB, allNames:Array<string>, desc:string, one:string, two:string, three:string) {
   var names = matchAll(allNames, one, two, three);
 
   if (names.length === 0) {
-    cb(`Sorry don't know any matching ${desc} from ${[one,two,three].join()}`);
+    cb(`Sorry don't know any matching ${desc} from ${[one,two,three].join()}`, null);
   }
   else if (names.length ===1 ) {
     const name = names[0];
@@ -23,7 +25,7 @@ export function matchOne(cb: any, allNames:Array<string>, desc:string, one:strin
       names = _.sample(names, 5);
     }
     const nameStr = names.join(', ');
-    cb(`${n} ${desc} matches. Did you mean ${nameStr}?`);
+    cb(`${n} ${desc} matches. Did you mean ${nameStr}?`, null);
   }
 }
 

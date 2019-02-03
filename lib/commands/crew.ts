@@ -1,25 +1,18 @@
-var Clapp = require('../modules/clapp-discord');
-const _ = require('underscore');
-const chars = require('../chars.js');
+import Clapp = require('../modules/clapp-discord');
+import _ = require('underscore');
+import chars = require('../chars.js');
 const matcher = require('../matcher.js');
 const crewdb = require('../crewdb.js');
 const fleets = require('../fleetdb.js');
-
-let searchCrewByCharTrait = function (args, entries, cb) {
-  try {
-    cb(null, chars.searchCrewByCharTrait([args.name1, args.name2, args.name3], entries));
-  } catch (e) {
-    console.log(e);
-    cb(e);
-  }
-};
+import * as API from '../Interfaces';
+import {Char, CharInfo, CrewDoc} from "../chars";
 
 module.exports = new Clapp.Command({
   name: 'crew',
   desc: 'manage your crew roster',
 
 // Command function
-  fn: (argv, context) => new Promise((fulfill, reject) => {
+  fn: (argv:any, context: API.Context) => new Promise((fulfill, reject) => {
     const author = context.author.username;
     const userid = context.author.id;
     const args = argv.args;
@@ -34,20 +27,23 @@ module.exports = new Clapp.Command({
     const qry = {_id: userid};
     let statsOpt = {textOnly: argv.flags.textOnly};
 
-    crewdb.get(userid, context).then(doc => {
+
+    crewdb.get(userid, context).then( (doc:CrewDoc) => {
       // Create a default doc if user is new
       if (doc === null) {
         doc = {_id: userid, username: author, crew: []};
       }
       if (args.cmd === 'add') {
-        chars.matchOne(function (err, name) {
+        chars.matchOne(function (err:any, name:any) {
           if (err) {
             fulfill(err);
           } else {
             if (!doc.crew) {
               doc.crew = [];
-            } // Vivify
-            const char = {name: name};
+            }
+            // Vivify
+            // @ts-ignore
+            const char: Char = {name: name};
 
             enrichChar(char, function () {
               doc.crew.push(char);
@@ -65,7 +61,7 @@ module.exports = new Clapp.Command({
           doc.crew = [];
         } // Vivify
         const myNames = doc.crew.map(x => x.name);
-        matcher.matchOne(function (err, name) {
+        matcher.matchOne(function (err:any, name:any) {
           if (err) {
             fulfill(err);
           } else {
@@ -89,10 +85,16 @@ module.exports = new Clapp.Command({
           if (err) {
             fulfill(err);
           } else {
-            var char = _.find(doc.crew, x => x.name === name);
-            if (!char) {
+            var charOpt = _.find(doc.crew, x => x.name === name);
+            let char : Char;
+            if (!charOpt) {
+              // Some auto-vivify shortcut - ignore the types
+              // @ts-ignore
               char = {name: name};
               doc.crew.push(char);
+            }
+            else {
+              char = charOpt
             }
 
             char.vaulted = true;
@@ -145,26 +147,25 @@ module.exports = new Clapp.Command({
         }
 
 
-        let searchCb = function(err, res) {
-          if (err) {
-            fulfill(err);
-          } else {
+        let searchCb = function(res:any) {
+
             const ret = chars.createCrewTable(res.entries, res.searchParams, charsToSearch, emojify, boldify);
             fulfill(ret);
-          }
         };
 
         if (~argv.flags.raw) {
           const fleetId = context.fleetId;
-          fleets.get(fleetId).then(fleet => {
+          fleets.get(fleetId).then((fleet:any) => {
             doc.crew = charsToSearch; // Shove it back in so we can access the bonuses
             crewdb.calcAdjustedSkill(doc, fleet);
-            searchCrewByCharTrait(args, entries, searchCb);
+            let res = chars.searchCrewByCharTrait([args.name1, args.name2, args.name3], entries);
+            searchCb(res);
           });
 
         }
         else {
-          searchCrewByCharTrait(args, entries, searchCb);
+          let res = chars.searchCrewByCharTrait([args.name1, args.name2, args.name3], entries);
+          searchCb(res);
         }
 
 
@@ -179,27 +180,24 @@ module.exports = new Clapp.Command({
           charsToSearch = charsToSearch.filter(e => e.stars === argv.flags.stars);
         }
         // Filter by any supplied traits etc.
-        searchCrewByCharTrait(args, charsToSearch, function (err, res) {
-          if (err) {
-            fulfill(err);
-          } else {
-            // Random sorting?!
-            const count = res.entries.length;
-            let ordered = _.first(_.shuffle(res.entries), 5);
-            const lines = ordered
-              .map(char => chars.fullyEquip({name: char.name}, char, char.stars, 100))
-              .map(char => chars.statsFor(char, emojify, boldify, statsOpt));
-            const ret = `${ordered.length}/${count} matches for ${res.searchParams.join(', ')}\n` + lines.join('\n');
-            fulfill(ret);
-          }
-        });
-        fulfill(`TBD ${charsToSearch.length} entries`);
+        let res = chars.searchCrewByCharTrait(args, charsToSearch);
+        // Random sorting?!
+        const count = res.entries.length;
+        let ordered : Array<CharInfo> = _.first(_.shuffle(res.entries), 5);
+
+        const lines = ordered
+        // @ts-ignore - auto vivify trickery
+          .map(char => chars.fullyEquip({name: char.name}, char, char.stars, 100))
+          .map(char => chars.statsFor(char, emojify, boldify, statsOpt));
+        const ret = `${ordered.length}/${count} matches for ${res.searchParams.join(', ')}\n` + lines.join('\n');
+        fulfill(ret);
+
       } else {
         fulfill(`Sorry ${author}. I don't know how to ${args.cmd} to your crew roster`);
       }
     });
 
-    function enrichChar(char, cb) {
+    function enrichChar(char:Char, cb: ()=>void) {
       var stars = argv.flags.ff ? 999 : argv.flags.stars;
       var level = argv.flags.level;
       // Use supplied, 100 if ff/stars flag, else just 1
@@ -209,7 +207,7 @@ module.exports = new Clapp.Command({
       }
 
       if (stars > 0) {
-        chars.wikiLookup(char.name, function (err, info) {
+        chars.wikiLookup(char.name, function (err:any, info:any) {
           if (!err) {
             if (stars > info.stars) {
               stars = info.stars;
@@ -232,7 +230,7 @@ module.exports = new Clapp.Command({
       validations: [
         {
           errorMessage: 'Must be add, remove, vault, unvault, search, list, collect',
-          validate: value => {
+          validate: (value:string) => {
             return Boolean(value.match(/^add|remove|rename|list|vault|unvault|search|collect$/));
           }
         }
