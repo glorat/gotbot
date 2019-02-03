@@ -11,50 +11,26 @@ const matcher = require('./matcher.js');
 const Table = require('cli-table3');
 
 
-const skills = ['cmd','dip','eng','sec','med','sci'];
+export const skills = ['cmd','dip','eng','sec','med','sci'];
 
-module.exports = {
-  skills:skills,
-  allCrewEntries: allCrewEntries,
-  allTraits: allTraits,
-  allChars: allChars,
-  bestChars: bestChars,
-  charStars: charStars,
-  matchOne: matchOne,
-  ssrLookup:ssrLookup,
-  generateDifficulty:generateDifficulty,
-  statsFor:statsFor,
-  fullyEquip:fullyEquip,
-  wikiLookup:wikiLookup,
-  createCrewTable:createCrewTable,
-  searchCrewByCharTrait:searchCrewByCharTrait
-};
-
-interface WikiDB {
-  crewentries: Array<any>
-  charToCrew:any
-  traits:Array<string>
-  charstars:any
-}
-
-interface Skill {
+export interface Skill {
   base: number
   minroll: number
   maxroll: number
 }
 
-interface Char {
+export interface Char {
   name:string
   chars: string
   stars: number
   maxstars: number
   level: number
-  // For updating ease...
+  // For updating ease... FIXME later
   [index: string]: any;
 }
 
 // From wiki/wikidb
-interface SkillInfo {
+export interface SkillInfo {
   stars: number
   level: number
   skill: string
@@ -63,12 +39,38 @@ interface SkillInfo {
   max: number
 }
 
-interface CharInfo {
+export interface CharInfo {
   name: string,
   wiki: string,
   stars: number
   skill: Array<SkillInfo>
+  traits: string // comma separated string
+  char: string // character class (e.g Picard)
+  moreChar: Array<string>
+  image: string
+  headImage: string
 }
+
+export interface WikiDB {
+  crewentries: Array<CharInfo>
+  charToCrew: Dictionary<Array<CharInfo>>
+  traits:Array<string>
+  charstars:Dictionary<number> // name->stars:number
+}
+
+
+export interface MyStat{
+  skill:string
+  base:number
+  minroll:number
+  maxroll:number
+}
+
+export interface StatsOpts {
+  textOnly?:boolean
+  table?:boolean
+}
+
 
 var wikidb : WikiDB;
 
@@ -80,34 +82,34 @@ fs.readFile('./data/wikidb.json', 'utf8')
     wikidb.charToCrew = _.groupBy(wikidb.crewentries, x=>x.char);
 
     var traitsSet = new Set();
-    wikidb.crewentries.forEach(x=>x.traits += ',' + _.uniq(x.skill.map((x:any)=>x.skill)).join(',') );
-    wikidb.crewentries.forEach(x=>x.traits.split(',').map((x:string)=>x.trim()).forEach((x:string)=>traitsSet.add(x)));
+    wikidb.crewentries.forEach(x=>x.traits += ',' + _.uniq(x.skill.map(x=>x.skill)).join(',') );
+    wikidb.crewentries.forEach(x=>x.traits.split(',').map(x=>x.trim()).forEach((x:string)=>traitsSet.add(x)));
 
     wikidb.traits = Array.from(traitsSet);
 
   })
   .catch(e => {throw(e);});
 
-function allCrewEntries() {
+export function allCrewEntries() : Array<CharInfo>{
   return _.clone(wikidb.crewentries);
 }
 
-function allChars() {
+export function allChars() {
   return _.keys(wikidb.charToCrew);
 }
-function allTraits() {
+export function allTraits() {
   return Array.from(wikidb.traits);
 }
 
-function charStars() {
+export function charStars() {
   return wikidb.charstars;
 }
 
-function matchOne(cb:any, one:string, two:string, three:string) {
+export function matchOne(cb:any, one:string, two:string, three:string) {
   return matcher.matchOne(cb, _.keys(wikidb.charstars), 'character', one, two, three);
 }
 
-function wikiLookup(name:string, cb:any) {
+export function wikiLookup(name:string, cb:any) {
   const entry = _.find(wikidb.crewentries, x=>x.name === name);
 
   if (!entry) {return cb(`Unknown crew member ${name}`);}
@@ -159,7 +161,7 @@ Number.prototype.between = function(a, i, r) {
   return r ? this >= e && this <= o : this > e && this < o;
 };
 
-function generateDifficulty(a:any, i:any, r:any) {
+export function generateDifficulty(a:any, i:any, r:any) {
   var e = a.difficulty
     , o = ""
     , n = "";
@@ -180,7 +182,7 @@ function generateDifficulty(a:any, i:any, r:any) {
     r ? n : i ? o : o;
 }
 
-async function ssrLookup(name:string, cb:any) {
+export async function ssrLookup(name:string, cb:any) {
   const client = jsonreq.createClient('http://ssr.izausomecreations.com/');
   var wname=name.replace(/"/gi,"!Q!");
   wname=wname.replace(/,/gi,"!C!");
@@ -208,19 +210,7 @@ function shortName(name:string) {
   return [shorter, _.last(parts)];
 }
 
-interface MyStat{
-  skill:string
-  base:number
-  minroll:number
-  maxroll:number
-}
-
-interface StatsOpts {
-  textOnly?:boolean
-  table?:boolean
-}
-
-function statsFor(char:any, emojify:API.EmojiFn, boldify:API.BoldifyFn, opts:StatsOpts) {
+export function statsFor(char:Char, emojify:API.EmojiFn, boldify:API.BoldifyFn, opts:StatsOpts) {
   if (!opts) opts = {};
 
   let mystats:Array<MyStat> = [];
@@ -257,7 +247,7 @@ function statsFor(char:any, emojify:API.EmojiFn, boldify:API.BoldifyFn, opts:Sta
 
 /** Mutate char to be fully equipped given info and stars
  * */
-function fullyEquip(char:Char, info:CharInfo, stars:number, level:number) {
+export function fullyEquip(char:Char, info:CharInfo, stars:number, level:number) {
   if (!(info && info.skill)) {
     console.log (`fullyEquip is lacking info for ${char.name}`);
     return char;
@@ -354,7 +344,7 @@ function bestChars(entrys:Array<any>, stars:number, fuse:number, category:string
 }
 
 
-function createCrewTable(entries: Array<any>, searchParams:Array<string>, charsToSearch:Array<any>, emojify: API.EmojiFn, boldify: API.BoldifyFn) {
+export function createCrewTable(entries: Array<any>, searchParams:Array<string>, charsToSearch:Array<any>, emojify: API.EmojiFn, boldify: API.BoldifyFn) {
   const matchingNames = entries.map(x => x.name);
   const matchingRoster = charsToSearch.filter(x => _.contains(matchingNames, x.name));
   //const sortFn = x => -(x.maxstars * 10000 + x.stars * 1000 + _.max(skills.map(sk => x[sk] ? x[sk].base : 0)));
@@ -383,7 +373,7 @@ function createCrewTable(entries: Array<any>, searchParams:Array<string>, charsT
   return ret;
 }
 
-function searchCrewByCharTrait (criteria: Array<string>, entries: Array<any>) {
+export function searchCrewByCharTrait (criteria: Array<string>, entries: Array<any>) {
   const charsAndTraits = allChars().concat(allTraits());
   let searchParams: Array<string> = [];
   criteria.filter(x => x !== '').forEach(name => {
