@@ -1,7 +1,14 @@
 const nodeEnv = process.env.NODE_ENV || 'development';
 const isProd = nodeEnv === 'production';
-const password = require('./data/password');
 
+let password;
+try {
+  password = require('./data/password');
+}
+catch {
+  // Unit test environment
+  password = {prod:"", dev:""};
+}
 module.exports = {
 
   // The bot's command prefix. The bot will recognize as command any message that begins with it.
