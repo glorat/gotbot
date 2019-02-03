@@ -2,7 +2,7 @@
 
 import * as fs from 'async-file';
 
-import _ = require('underscore');
+import * as _ from 'underscore';
 import cheerio = require('cheerio');
 
 interface CrewFoo {

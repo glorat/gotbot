@@ -1,9 +1,11 @@
-var fs = require('fs');
-const _ = require('underscore');
+
+import * as API from './Interfaces';
+import * as fs from 'async-file';
+import _ = require('underscore');
+import {Dictionary} from "underscore";
 const request = require('request');
 const jsonreq = require('request-json');
-const Promise = require("bluebird");
-Promise.promisifyAll(fs);
+
 const matcher = require('./matcher.js');
 
 const Table = require('cli-table3');
@@ -28,8 +30,16 @@ module.exports = {
   searchCrewByCharTrait:searchCrewByCharTrait
 };
 
-var wikidb;
-fs.readFileAsync('./data/wikidb.json', 'utf8')
+interface WikiDB {
+  crewentries: Array<any>
+  charToCrew:any
+  traits:Array<string>
+  charstars:any
+}
+
+var wikidb : WikiDB;
+
+fs.readFile('./data/wikidb.json', 'utf8')
   .then(JSON.parse)
   .then(function(obj) {
     wikidb = obj;
@@ -37,8 +47,8 @@ fs.readFileAsync('./data/wikidb.json', 'utf8')
     wikidb.charToCrew = _.groupBy(wikidb.crewentries, x=>x.char);
 
     var traitsSet = new Set();
-    wikidb.crewentries.forEach(x=>x.traits += ',' + _.uniq(x.skill.map(x=>x.skill)).join(',') );
-    wikidb.crewentries.forEach(x=>x.traits.split(',').map(x=>x.trim()).forEach(x=>traitsSet.add(x)));
+    wikidb.crewentries.forEach(x=>x.traits += ',' + _.uniq(x.skill.map((x:any)=>x.skill)).join(',') );
+    wikidb.crewentries.forEach(x=>x.traits.split(',').map((x:string)=>x.trim()).forEach((x:string)=>traitsSet.add(x)));
 
     wikidb.traits = Array.from(traitsSet);
 
@@ -60,11 +70,11 @@ function charStars() {
   return wikidb.charstars;
 }
 
-function matchOne(cb, one, two, three) {
+function matchOne(cb:any, one:string, two:string, three:string) {
   return matcher.matchOne(cb, _.keys(wikidb.charstars), 'character', one, two, three);
 }
 
-function wikiLookup(name, cb) {
+function wikiLookup(name:string, cb:any) {
   const entry = _.find(wikidb.crewentries, x=>x.name === name);
 
   if (!entry) {return cb(`Unknown crew member ${name}`);}
@@ -109,13 +119,14 @@ const rating_cal = [{
   max: 3053.0790825688073
 }];
 
+// @ts-ignore
 Number.prototype.between = function(a, i, r) {
   var e = Math.min(a, i)
     , o = Math.max(a, i);
   return r ? this >= e && this <= o : this > e && this < o;
 };
 
-function generateDifficulty(a, i, r) {
+function generateDifficulty(a:any, i:any, r:any) {
   var e = a.difficulty
     , o = ""
     , n = "";
@@ -136,22 +147,22 @@ function generateDifficulty(a, i, r) {
     r ? n : i ? o : o;
 }
 
-function ssrLookup(name, cb) {
+async function ssrLookup(name:string, cb:any) {
   const client = jsonreq.createClient('http://ssr.izausomecreations.com/');
   var wname=name.replace(/"/gi,"!Q!");
   wname=wname.replace(/,/gi,"!C!");
-
-  return fs.readFile(`client/ssr.izausomecreations.com/crew/${wname}.json`, 'utf8', (err,data) => {
-    if (err) cb({});
-    else {
-      const obj = JSON.parse(data);
-      cb (obj.info ? obj.info : {});
-    }
-  });
+  try {
+    let data = await fs.readFile(`client/ssr.izausomecreations.com/crew/${wname}.json`, 'utf8');
+    const obj = JSON.parse(data);
+    cb (obj.info ? obj.info : {});
+  }
+  catch {
+    cb({});
+  }
 
 }
 
-function shortName(name) {
+function shortName(name:string) {
   const re = /(\S+)/g;
   let match = re.exec(name);
   let parts = [];
@@ -164,10 +175,22 @@ function shortName(name) {
   return [shorter, _.last(parts)];
 }
 
-function statsFor(char, emojify, boldify, opts) {
+interface MyStat{
+  skill:string
+  base:number
+  minroll:number
+  maxroll:number
+}
+
+interface StatsOpts {
+  textOnly?:boolean
+  table?:boolean
+}
+
+function statsFor(char:any, emojify:API.EmojiFn, boldify:API.BoldifyFn, opts:StatsOpts) {
   if (!opts) opts = {};
 
-  var mystats = [];
+  let mystats:Array<MyStat> = [];
   // Get skills into an array
   let sksrc = char.adj ? char.adj : char; // Use adjusted if available!
   skills.forEach(sk => {
@@ -199,15 +222,20 @@ function statsFor(char, emojify, boldify, opts) {
 
 }
 
+interface Skill extends Dictionary<any> {
+  base: number
+  minroll: number
+  maxroll: number
+}
 
 /** Mutate char to be fully equipped given info and stars
  * */
-function fullyEquip(char, info, stars, level) {
+function fullyEquip(char:any, info:any, stars:number, level:number) {
   if (!(info && info.skill)) {
     console.log (`fullyEquip is lacking info for ${char.name}`);
     return char;
   }
-  const skill = info.skill;
+  const skill:Skill = info.skill;
   level = level ? level : 100;
   stars = stars ? stars : info.stars;
   const starSk = _.filter(skill, sk => sk.stars === stars && sk.level === level);
@@ -228,18 +256,31 @@ function fullyEquip(char, info, stars, level) {
 
 
 
-function bestChars(entrys, stars, fuse, category, level, skill1, skill2){
+function bestChars(entrys:Array<any>, stars:number, fuse:number, category:string, level:number, skill1:string, skill2:string){
   if (stars) {
     entrys = entrys.filter(x=>x.stars <= stars);
   }
   entrys = entrys.map(_.clone); // Shallow clone as we will add a result
 
 
-  const starMatch = function (x) {
-    return s => fuse ? fuse : x.stars;
+  const starMatch = function (x:any) {
+    return (s:number) => fuse ? fuse : x.stars;
   };
 
-  const entryFn = {
+
+  interface Entry {
+    map : (sk:any) => number,
+    reduce : (x:_.List<number>) => number,
+    default: number
+  }
+  interface EntryFn extends Dictionary<any> {
+    base: Entry
+    gauntlet: Entry
+    minroll: Entry
+    avg:Entry
+  }
+
+  const entryFn : EntryFn  = {
     base: {
       map: sk => sk ? sk.base : 0,
       reduce: x => _.reduce(x,function (memo, num) {return num > memo ? num : memo;},0),
@@ -248,7 +289,7 @@ function bestChars(entrys, stars, fuse, category, level, skill1, skill2){
     gauntlet: {
       map: sk => sk ? (sk.min + sk.max) / 2 : 0,
       reduce: x =>
-        _.chain(x).sortBy(z=>-z).first(2).reduce(function (memo, num) {return memo+num;},0).value()
+        _.chain(x).sortBy(z=>-z).first(2).reduce(function (memo, num) {return memo+num[0];},0).value()
       ,
       default: 0
     },
@@ -271,7 +312,7 @@ function bestChars(entrys, stars, fuse, category, level, skill1, skill2){
 
     const fnVals = skillMatch.map(skill => {
       if (skill) {
-        const sk = e.skill.find(s => s.level===level && (fuse ? fuse : e.stars) === s.stars && s.skill === skill);
+        const sk = e.skill.find( (s:Skill) => s.level===level && (fuse ? fuse : e.stars) === s.stars && s.skill === skill);
         return catFn.map(sk);
       }
       else {
@@ -286,11 +327,11 @@ function bestChars(entrys, stars, fuse, category, level, skill1, skill2){
 }
 
 
-function createCrewTable(entries, searchParams, charsToSearch, emojify, boldify) {
+function createCrewTable(entries: Array<any>, searchParams:Array<string>, charsToSearch:Array<any>, emojify: API.EmojiFn, boldify: API.BoldifyFn) {
   const matchingNames = entries.map(x => x.name);
   const matchingRoster = charsToSearch.filter(x => _.contains(matchingNames, x.name));
   //const sortFn = x => -(x.maxstars * 10000 + x.stars * 1000 + _.max(skills.map(sk => x[sk] ? x[sk].base : 0)));
-  const sortFn = x => -(_.max(skills.map(sk => x[sk] ? x[sk].base : 0)));
+  const sortFn = (x:any) => -(_.max(skills.map(sk => x[sk] ? x[sk].base : 0)));
   const sortedRoster = _.first(_.sortBy(matchingRoster, sortFn), 20); // 20 seems a safe arbitrary number
   const totalMatches = matchingRoster.length;
 
@@ -315,17 +356,17 @@ function createCrewTable(entries, searchParams, charsToSearch, emojify, boldify)
   return ret;
 }
 
-function searchCrewByCharTrait (criteria, entries) {
+function searchCrewByCharTrait (criteria: Array<string>, entries: Array<any>) {
   const charsAndTraits = allChars().concat(allTraits());
-  let searchParams = [];
+  let searchParams: Array<string> = [];
   criteria.filter(x => x !== '').forEach(name => {
-    matcher.matchOne(function (err, res) {
+    matcher.matchOne(function (err:any, res:string) {
       if (err) {
         throw err;
       }
       searchParams.push(res);
       entries = entries.filter(
-        entry => _.contains(entry.traits.split(',').map(x => x.trim()), res)
+        entry => _.contains(entry.traits.split(',').map((x:string) => x.trim()), res)
           || (entry.char === res)
           || _.contains(entry.moreChar, res));
 

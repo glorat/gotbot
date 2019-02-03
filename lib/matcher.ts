@@ -1,19 +1,13 @@
 'use strict';
 
-const _ = require('underscore');
+import _ = require('underscore');
 
-module.exports = {
-  matchOne: matchOne,
-  matchAll: matchAll
-};
-
-
-function reSafe(str) {
+function reSafe(str:string) {
   return (str+'').replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&");
 }
 
-
-function matchOne(cb, allNames, desc, one, two, three) {
+// FIXME: How to declare cb in typescript?
+export function matchOne(cb: any, allNames:Array<string>, desc:string, one:string, two:string, three:string) {
   var names = matchAll(allNames, one, two, three);
 
   if (names.length === 0) {
@@ -33,7 +27,7 @@ function matchOne(cb, allNames, desc, one, two, three) {
   }
 }
 
-function matchAll(origNames, one, two, three) {
+export function matchAll(origNames:Array<string>, one:string, two:string, three:string) {
   let names = _.uniq(origNames);
 
   let perfect = [one,two,three].join(' ').trim().toLowerCase();
