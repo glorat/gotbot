@@ -11,7 +11,7 @@ const jsonreq = require('request-json');
 const matcher = require('./matcher.js');
 
 const Table = require('cli-table3');
-
+const cfg     = require('../config.js');
 
 export const skills = ['cmd','dip','eng','sec','med','sci'];
 

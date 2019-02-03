@@ -11,20 +11,24 @@ module.exports = new Clapp.Command({
 
 
   fn:(argv:any, context: API.Context) => new Promise((fulfill, reject) => {
-    const botServer = context.bot.guilds.get(cfg.botServer);
-    const bot : Discord.Client = context.bot;
+    const bot : Discord.Client|undefined = context.bot;
 
-    if (context.bot && botServer) {
+    if (bot) {
+      const botServer = bot.guilds.get(cfg.botServer);
+      if (botServer) {
+        const ret = `I am in the following servers\n` + bot.guilds.map(x => {
+          const adminPresent = x.members.has(cfg.adminId);
+          const thisOwner = x.owner;
 
-      const ret = `I am in the following servers\n` + bot.guilds.map(x => {
-        const adminPresent = x.members.has(cfg.adminId);
-        const thisOwner = x.owner;
+          const fleetInBotServer = botServer.members.has(thisOwner.id);
 
-        const fleetInBotServer = botServer.members.has(thisOwner.id);
-
-        return `${x.name} - ${thisOwner.displayName} - (auth checks: ${adminPresent},${fleetInBotServer})`;
-      }).join(`\n`);
-      fulfill (ret);
+          return `${x.name} - ${thisOwner.displayName} - (auth checks: ${adminPresent},${fleetInBotServer})`;
+        }).join(`\n`);
+        fulfill (ret);
+      }
+      else {
+        fulfill ('No bot server')
+      }
     }
   }),
   args: [

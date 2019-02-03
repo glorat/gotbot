@@ -6,7 +6,8 @@ var _ = require('underscore');
 const fs      = require('fs');
 const cli   = require('../lib/cli.js');
 
-var cfg     = require('../../config.js');
+import cfg from '../config.js';
+import * as api from '../lib/Interfaces';
 
 const pkg     = require('../../package.json');
 
@@ -18,17 +19,17 @@ const db = require('../lib/crewdb.js');
 
 describe('gotBot', function () {
 
-  function sendCommand(cmd, context) {
+  function sendCommand(cmd:string, context?:api.Context) : Promise<string> {
 
     assert(cli.isCliSentence(cmd));
     if (context == null) {
       context = {
         author: {username:'test', id:-1},
-        channel: {id: -1, name:'test channel'},
-        fleetId: -1,
+        channel: {id: '-1', name:'test channel', send:()=>{}},
+        fleetId: '-1',
         isEntitled: function(){return true;},
-        emojify : x=>x,
-        boldify: x=>x
+        emojify : (x:string)=>x,
+        boldify: (x:string)=>x
       };
     }
     return cli.sendCommand(cmd,context);
@@ -67,7 +68,7 @@ describe('gotBot', function () {
     });
   });
 
-  describe('estats command', function(done) {
+  describe('estats command', function() {
     it('should return an embed object', function(done) {
       sendCommand('-dev bot estats mirror sisko').then(data => {
         expect(data).to.be('EMBED');
@@ -85,7 +86,7 @@ describe('gotBot', function () {
     }).catch(done);
   });
 
-  describe('best command', function(done) {
+  describe('best command', function() {
     it('should best base eng', function(done) {
       sendCommand('-dev bot best base eng').then(data => {
         expect(data).to.contain('The Traveler'); // Best at time of writing - should stay top 5 for a while
@@ -236,10 +237,10 @@ describe('gotBot', function () {
 
     it('should save stars and level in char', function(done) {
       const qry = { _id: -1 };
-      db.users.findOne(qry, function (err, doc) {
+      db.users.findOne(qry, function (err:any, doc:any) {
         const name = 'Rogue Kai Winn';
         expect(doc).to.be.ok();
-        var char = _.find(doc.crew, x=>x.name === name);
+        var char = _.find(doc.crew, (x:any)=>x.name === name);
         expect(char).to.be.ok();
         expect(char.level).to.be(1);
         expect(char.stars).to.be(3);
@@ -354,7 +355,7 @@ describe('gotBot', function () {
   });
 
 
-  describe('event command', function(done) {
+  describe('event command', function() {
     it('should reset event chars', function(done) {
       sendCommand('-dev bot event reset').then(data => {
         expect(data).to.be('Event crew reset');
@@ -392,7 +393,7 @@ describe('missions', function() {
 
   it('should match items', function(done) {
     missions.ready.then(function() {
-      missions.matchItem(function(err, name) {
+      missions.matchItem(function(err:any, name:string) {
         expect(err).to.be(null);
         expect(name).to.be('Desktop Monitor (TNG)');
         done();
@@ -403,7 +404,7 @@ describe('missions', function() {
 
   it('should fuzzy search items', function(done) {
     missions.ready.then(function() {
-      missions.matchItem(function(err, name) {
+      missions.matchItem(function(err:any, name:any) {
         expect(err).to.be(null);
         expect(name).to.be('Polyalloy');
         done();
@@ -415,7 +416,7 @@ describe('missions', function() {
     missions.ready.then(function() {
       const match = missions.findByStarItem(0, 'Desktop Monitor (TNG)');
       expect(match.length).to.be(1);
-      match.forEach(m => {
+      match.forEach((m:any) => {
         console.log(`${m.name} ${m.level} ${m.cost}`);
       });
       done();

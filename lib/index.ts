@@ -2,7 +2,7 @@
 
 const fs      = require('fs');
 const Clapp   = require('./modules/clapp-discord');
-const cfg     = require('../config.js');
+import cfg from "../config";
 const pkg     = require(process.cwd() + '/package.json');
 import Discord = require('discord.js');
 const chars      = require('./chars.js');
@@ -120,7 +120,7 @@ bot.on('message', msg => {
       cli.sendCommand(content, context).then(trimMessage).then(onReply);
     }
     else if(msg.isMentioned(bot.user)) {
-      var str = msg.cleanContent.replace('@' + cfg.name, '').trim();
+      var str = msg.cleanContent.replace('@' + cfg.botName, '').trim();
       const cmd = cfg.prefix + ' ' + str;
       cli.sendCommand(cmd, context).then(trimMessage).then(onReply);
     }
