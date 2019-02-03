@@ -59,9 +59,10 @@
   },
   "include": [
     "lib/**/*",
-    "test/**/*/"
-  ],
-  "exclude": [
-    "client"
+    "test/**/*/",
+    "config.js",
+    "package.json",
+    "data/password.js",
+    "client/*.js"
   ]
 }

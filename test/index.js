@@ -6,7 +6,7 @@ var _ = require('underscore');
 const fs      = require('fs');
 const cli   = require('../lib/cli.js');
 
-var cfg     = require('../config.js');
+var cfg     = require('../../config.js');
 
 const pkg     = require('../../package.json');
 
