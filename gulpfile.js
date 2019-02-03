@@ -7,24 +7,26 @@ var mocha = require('gulp-mocha');
 var istanbul = require('gulp-istanbul');
 var plumber = require('gulp-plumber');
 
-gulp.task('static', function () {
-  return gulp.src(['test/**/*.js', 'lib/*.js', 'lib/commands/*.js', '*.js'])
+gulp.task('static', function (done) {
+  gulp.src(['test/**/*.js', 'lib/*.js', 'lib/commands/*.js', '*.js'])
     .pipe(excludeGitignore())
     .pipe(eslint())
     .pipe(eslint.format())
     .pipe(eslint.failAfterError());
+  done();
 });
 
-gulp.task('pre-test', function () {
-  return gulp.src('lib/**/*.js')
+gulp.task('pre-test', function (done) {
+  gulp.src('lib/**/*.js')
     .pipe(excludeGitignore())
     .pipe(istanbul({
       includeUntested: true
     }))
     .pipe(istanbul.hookRequire());
+  done();
 });
 
-gulp.task('test', ['pre-test'], function (cb) {
+gulp.task('test', gulp.series('pre-test', function (cb) {
   var mochaErr;
 
   gulp.src('test/**/*.js')
@@ -35,12 +37,14 @@ gulp.task('test', ['pre-test'], function (cb) {
     })
     .pipe(istanbul.writeReports())
     .on('end', function () {
-      cb(mochaErr);
+      console.error(mochaErr);
+      //cb(mochaErr);
     });
-});
+  cb();
+}));
 
 gulp.task('watch', function () {
   gulp.watch(['lib/**/*.js', 'test/**'], ['test']);
 });
 
-gulp.task('default', ['static', 'test']);
+gulp.task('default', gulp.series('static', 'test'));

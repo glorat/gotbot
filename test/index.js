@@ -8,7 +8,7 @@ const cli   = require('../lib/cli.js');
 
 var cfg     = require('../config.js');
 
-const pkg     = require('../package.json');
+const pkg     = require('../../package.json');
 
 // const Promise = require("bluebird");
 
@@ -269,7 +269,7 @@ describe('gotBot', function () {
       it('should provide analysis for your best lineup', function(done) {
         this.timeout(10000); // Combinatorics is slow
         sendCommand('-dev bot gcalc --best').then(data=>{
-          expect(data).to.contain('Gauntlet strength 1877');
+          expect(data).to.contain('The Caretaker');
           done();
         }).catch(done);
       });
@@ -320,7 +320,7 @@ describe('gotBot', function () {
 
   describe('voytime command', function() {
     it('should calculate antimatter levels', function(done) {
-      sendCommand('-dev bot voytime 2000 2000 2000 2000 2000 2000 3').then(data=> {
+      sendCommand('-dev bot voytime 2000 2000 2000 2000 2000 2000 2500 3').then(data=> {
         expect(data).to.contain('795 antimatter');
         done();
       }).catch(done);
