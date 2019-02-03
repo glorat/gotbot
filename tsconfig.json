@@ -60,7 +60,7 @@
   "include": [
     "lib/**/*",
     "test/**/*/",
-    "config.js",
+    "config.ts",
     "package.json",
     "data/password.js",
     "client/*.js"
