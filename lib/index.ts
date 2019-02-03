@@ -4,51 +4,68 @@ const fs      = require('fs');
 const Clapp   = require('./modules/clapp-discord');
 const cfg     = require('../config.js');
 const pkg     = require(process.cwd() + '/package.json');
-const Discord = require('discord.js');
+import Discord = require('discord.js');
 const chars      = require('./chars.js');
 const db      = require('./crewdb.js');
 const bot     = new Discord.Client();
 const webserver = require('./webserver.js');
 const cli = require('./cli.js');
 const fleets = require('./fleetdb.js');
-const winston = require('winston');
+import winston = require('winston');
 const path = require('path');
 const moment = require('moment');
+const mkdirp = require('mkdirp');
+import * as API from './Interfaces';
 
 if (process.env.NODE_ENV !== 'production'){
   require('longjohn');
 }
 
-function isEntitled(id) {
+function isEntitled(id:string) : boolean {
   let got = bot.guilds.get(cfg.gotServer);
-  return got.members.has(id);
+  return got ? got.members.has(id) : false;
 }
+
+function hasGuild(channel : Discord.TextChannel | Discord.GroupDMChannel | Discord.DMChannel) : channel is Discord.TextChannel {
+  return (<Discord.TextChannel>channel).guild !== undefined;
+}
+function hasChannelName(channel : Discord.TextChannel | Discord.GroupDMChannel | Discord.DMChannel) : channel is Discord.TextChannel | Discord.GroupDMChannel{
+  return (<Discord.TextChannel | Discord.GroupDMChannel>channel).name !== undefined;
+}
+function canFetchMessages(channel: any) :  channel is Discord.TextBasedChannelFields {
+  return (<Discord.TextBasedChannelFields>channel).fetchMessages !== undefined;
+}
+
 
 bot.on('message', msg => {
   // Fired when someone sends a message
-  function emojify(sym) {
-    const emojis = msg.channel.guild ? msg.channel.guild.emojis : msg.client.emojis;
+  function emojify(sym:string) : string|Discord.Emoji {
+    const emojis =  hasGuild( msg.channel) ? msg.channel.guild.emojis : msg.client.emojis;
     const estat = emojis.find(x=> x.name === sym.toLowerCase());
     return estat ? estat : sym;
   }
 
-  const context = {
+
+  const context : API.Context = {
     author:msg.author,
     channel:msg.channel,
-    fleetId: msg.channel.guild ? msg.channel.guild.id : 0,
+    fleetId: hasGuild(msg.channel) ? msg.channel.guild.id : '0',
     isEntitled:isEntitled,
     emojify : emojify,
     boldify: x => `**${x}**`,
     bot : bot
   };
 
-  let serverName = msg.channel.guild ? msg.channel.guild.name : 'direct';
-  let channelTag = `${serverName}/${msg.channel.name}`;
+
+
+  let serverName = hasGuild(msg.channel) ? msg.channel.guild.name : 'direct';
+  const channelName = hasChannelName(msg.channel)? msg.channel.name : 'DM';
+  let channelTag = hasChannelName(msg.channel)? `${serverName}/${channelName}` : 'DM';
   if (!winston.loggers.has(channelTag)) {
     console.log(`Creating logger for ${channelTag}`);
-    const mkdirp = require('mkdirp');
+
     const dir = path.join(__dirname,'..','logs',serverName);
-    mkdirp(dir, function (err) {
+    mkdirp(dir, function (err:any) {
       if (err) console.error(err);
       else console.log(`${dir} directory made`);
     });
@@ -57,39 +74,30 @@ bot.on('message', msg => {
       transports: [
         new (winston.transports.File)({
           dirname: dir,
-          filename: `${msg.channel.name}.log`,
+          filename: `${channelName}.log`,
           level: 'info',
           json: false,
-          timestamp: x => moment().format('YYYY-MM-DD hh:mm:ss').trim(),
-          formatter: opts => `${opts.timestamp()} - ${opts.message}`
+          timestamp: (x:any) => moment().format('YYYY-MM-DD hh:mm:ss').trim(),
+          formatter: (opts:any) => `${opts.timestamp()} - ${opts.message}`
         })
       ]
     }).info('Bot restarted');
   }
   winston.loggers.get(channelTag).info(`${msg.author.username} - ${msg.content}`);
 
-  let onReply = function(msg) {
+  let onReply = function(msg:string) {
     if (msg) {
       if (msg === 'EMBED') {
         context.channel.send( {embed: context.embed});
       }
       else {
-        context.channel.send(msg).then(bot_response => {
-          if (cfg.deleteAfterReply.enabled) {
-            context.msg.delete(cfg.deleteAfterReply.time)
-              .then(msg => console.log(`Deleted message from ${msg.author}`))
-              .catch(console.log);
-            bot_response.delete(cfg.deleteAfterReply.time)
-              .then(msg => console.log(`Deleted message from ${msg.author}`))
-              .catch(console.log);
-          }
-        });
+        context.channel.send(msg);
       }
 
     }
   };
 
-  let trimMessage = function(msg){
+  let trimMessage = function(msg : string){
     if (msg.length>1995) {
       msg = msg.substr(0, 1990) + '...';
       console.log('Trimming excessively long message');
@@ -101,7 +109,7 @@ bot.on('message', msg => {
   const fleetId = context.fleetId;
   const fleetProm = fleets.get(fleetId);
 
-  fleetProm.then(fleet => {
+  fleetProm.then( (fleet : any) => {
     // Allow fleet specific prefix if exists
     if (fleet && fleet.prefix) {
       const re = new RegExp(`^${fleet.prefix} `);
@@ -147,12 +155,12 @@ bot.on("resume", function () {
 });
 
 // We subscribe to raw because the messageDelete event doesn't work on "old" messages
-bot.on("raw", packet => {
+bot.on("raw", (packet:any) => {
   if(packet.t === "MESSAGE_DELETE") {
     let messageID = packet.d.id;
     let channelID = packet.d.channel_id;
     let channel = bot.channels.get(channelID);
-    if (channel) {
+    if (channel && canFetchMessages(channel)) {
       channel.fetchMessages({limit:1, after:messageID}).then(msgs => {
         msgs.forEach(msg => {
           if (msg.author.id === bot.user.id) {

@@ -3,13 +3,14 @@ var jsonfile = require('nedb');
 const cfg = require('../../config.js');
 const _ = require('underscore');
 import Discord = require('discord.js');
+import * as API from '../Interfaces';
 
 module.exports = new Clapp.Command({
   name: "where",
   desc: "where is the bot deployed",
 
 
-  fn:(argv:any, context:any) => new Promise((fulfill, reject) => {
+  fn:(argv:any, context: API.Context) => new Promise((fulfill, reject) => {
     const botServer = context.bot.guilds.get(cfg.botServer);
     const bot : Discord.Client = context.bot;
 

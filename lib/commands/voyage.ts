@@ -4,6 +4,7 @@ const chars = require('../chars.js');
 const crewdb = require('../crewdb.js');
 const fleets = require('../fleetdb.js');
 const voyage = require('../voyage.js');
+import * as API from '../Interfaces';
 
 const voyageSkills = ['cmd','dip','sec','eng','sci','med'];
 
@@ -34,7 +35,7 @@ module.exports = new Clapp.Command({
   desc: 'voyage crew calculator',
 
 // Command function
-  fn: (argv:any, context:any) => new Promise((fulfill) => {
+  fn: (argv:any, context:API.Context) => new Promise((fulfill) => {
     try {
       const author = context.author.username;
       const userid = context.author.id;

@@ -1,4 +1,4 @@
-var Clapp = require('../modules/clapp-discord');
+const Clapp = require('../modules/clapp-discord');
 
 module.exports = new Clapp.Command({
   name: "foo",
