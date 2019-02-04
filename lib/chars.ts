@@ -35,6 +35,8 @@ export interface CrewDoc {
   _id: number
   username:string
   crew: Array<Char>
+  base: any
+  prof: any
 }
 
 

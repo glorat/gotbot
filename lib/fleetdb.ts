@@ -1,13 +1,12 @@
 'use strict';
 
 const cfg = require('../config.js');
-var Datastore = require('nedb');
-const Promise = require("bluebird");
-const _ = require('underscore');
-const chars = require('./chars.js');
+import Datastore from 'nedb-async';
+import * as _ from 'underscore';
+import * as chars from './chars.js';
 
+// @ts-ignore
 const fleets = new Datastore({ filename: cfg.dataPath + 'fleetdb.json', autoload: true });
-Promise.promisifyAll(fleets);
 
 module.exports = {
   fleets: fleets,
@@ -18,39 +17,39 @@ module.exports = {
   get : get
 };
 
-function update(fleetId, fn) {
+function update(fleetId:string, fn:any) {
   const qry = {_id: fleetId};
-  return get(fleetId).then(doc => {
+  return get(fleetId).then((doc:any) => {
     const newDoc = fn(doc);
-    fleets.update(qry, newDoc, {upsert: true});
+    fleets.asyncUpdate(qry, newDoc, {upsert: true});
     return newDoc;
   });
 }
 
-function updateStarbase(fleetId, stats) {
+function updateStarbase(fleetId:string, stats:any) {
   let filtered = _.pick(stats, chars.skills);
-  const f = doc => {doc.starbase = filtered; return doc;};
+  const f = (doc:any) => {doc.starbase = filtered; return doc;};
   return update(fleetId, f);
 }
 
-function updateStarprof(fleetId, stats) {
+function updateStarprof(fleetId:string, stats:any) {
   let filtered = _.pick(stats, chars.skills);
-  const f = doc => {doc.starprof = filtered; return doc;};
+  const f = (doc:any) => {doc.starprof = filtered; return doc;};
   return update(fleetId, f);
 }
 
-function resetEvent(fleetId) {
-  const f = doc => {doc.event = []; return doc;};
+function resetEvent(fleetId:string) {
+  const f = (doc:any) => {doc.event = []; return doc;};
   return update(fleetId, f);
 }
 
-function addEvent(fleetId, criteria) {
-  const f = doc => {doc.event.push(criteria); return doc;};
+function addEvent(fleetId:string, criteria:Array<string>) {
+  const f = (doc:any) => {doc.event.push(criteria); return doc;};
   return update(fleetId, f);
 }
 
-function get(fleetId) {
-  function vivify(doc) {
+function get(fleetId:string) {
+  function vivify(doc:any) {
     if (doc === null) {
       doc = {_id: fleetId };
     }
@@ -66,5 +65,5 @@ function get(fleetId) {
     return doc;
   }
   const qry = {_id: fleetId};
-  return fleets.findOneAsync(qry).then(vivify);
+  return fleets.asyncFindOne(qry).then(vivify);
 }

@@ -31,7 +31,7 @@ module.exports = new Clapp.Command({
     crewdb.get(userid, context).then( (doc:CrewDoc) => {
       // Create a default doc if user is new
       if (doc === null) {
-        doc = {_id: userid, username: author, crew: []};
+        doc = {_id: userid, username: author, crew: [], base:{}, prof:{}};
       }
       if (args.cmd === 'add') {
         chars.matchOne(function (err:any, name:any) {

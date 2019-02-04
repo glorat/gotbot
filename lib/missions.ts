@@ -115,11 +115,11 @@ function allMissionItems() {
   return wikidb.itemList;
 }
 
-function findByStarItem(itemStars:number, itemName:string) {
+function findByStarItem(itemStars:number, itemName:string) : Array<MissionEntry> {
   return _.filter(wikidb.entries, entry => entry.itemName === itemName && entry.itemStars === +itemStars);
 }
 
-function findByMissionCode(code:string, level:string) {
+function findByMissionCode(code:string, level:string) : Array<MissionEntry> {
   return _.filter(wikidb.entries, entry => entry.code.toLowerCase() === code.toLowerCase() && entry.level.toLowerCase() === level.toLowerCase());
 }
 

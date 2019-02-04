@@ -1,13 +1,11 @@
 
-const cfg = require('../config.js');
-const Datastore = require('nedb');
-const Promise = require("bluebird");
-const chars = require('./chars.js');
+import cfg from '../config.js';
+import Datastore from 'nedb-async';
+import * as chars from './chars.js';
 
+// @ts-ignore
 const users = new Datastore({ filename: cfg.nedbpath, autoload: true });
-
-
-Promise.promisifyAll(users);
+import * as api from './Interfaces'
 
 module.exports = {
   users: users,
@@ -16,18 +14,19 @@ module.exports = {
   calcAdjustedSkill: calcAdjustedSkill
 };
 
-function update(userid, fn) {
+function update(userid:any, fn: (x:any)=>any) {
   const qry = {_id: userid};
+  // @ts-ignore
   return get(userid).then(doc => {
     const newDoc = fn(doc);
-    users.update(qry, newDoc, {upsert: true});
+    users.asyncUpdate(qry, newDoc, {upsert: true});
     return newDoc;
   });
 }
 
 
-function get(userid, context) {
-  function vivify(doc) {
+function get(userid:any, context:api.Context) {
+  function vivify(doc:any) {
     if (doc === null) {
       doc = {_id: userid, username: context.author.username, crew: []};
     }
@@ -40,11 +39,11 @@ function get(userid, context) {
     return doc;
   }
   const qry = {_id: userid};
-  return users.findOneAsync(qry).then(vivify);
+  return users.asyncFindOne(qry).then(vivify);
 }
 
 // Enrich the crew in the doc with bonus adjusted skills
-function calcAdjustedSkill(doc, fleet) {
+function calcAdjustedSkill(doc:chars.CrewDoc, fleet:any) {
   doc.crew.forEach(c => {
     c.adj = {};
     chars.skills.forEach(sk => {
