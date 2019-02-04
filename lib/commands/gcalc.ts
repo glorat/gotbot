@@ -1,17 +1,18 @@
-var Clapp = require('../modules/clapp-discord');
-var _ = require('underscore');
-const cfg = require('../../config.js');
-const chars = require('../chars.js');
-const matcher = require('../matcher.js');
+const Clapp = require('../modules/clapp-discord');
+import * as _ from 'underscore';
+import cfg from '../../config';
+import * as chars from '../chars';
+import * as matcher from '../matcher.js';
 const Gauntlet = require('../../client/gauntlet.js');
-const db = require('../crewdb.js');
+const db = require('../crewdb');
+import * as API from '../Interfaces';
 
 module.exports = new Clapp.Command({
   name: "gcalc",
   desc: "gauntlet crew calculator",
 
 // Command function
-  fn: (argv, context) => new Promise((fulfill, reject) => {
+  fn: (argv:any, context:API.Context) => new Promise((fulfill) => {
     try {
 
       const author = context.author.username;
@@ -27,22 +28,20 @@ module.exports = new Clapp.Command({
       const traits = _.chain([args.trait1, args.trait2, args.trait3])
         .filter(x => x != undefined && x != '')
         .value();
-      var featuredTraits = [];
+      let featuredTraits:Array<string> = [];
       _.forEach(traits, name => {
         matcher.matchOne(function (err, val) {
           if (err) throw err;
-          featuredTraits.push(val);
+          featuredTraits.push(<string>val);
         }, chars.allTraits(), 'trait', name);
       });
 
-      const qry = {_id: userid};
-
-      db.users.findOne(qry, function (err, doc) {
+      db.get(userid).then(function(doc:any) {
         if (argv.flags.best) {
           const allInfo = chars.allCrewEntries();
           const allNms = allInfo.map(x => x.name);
 
-          const fullCrew = allNms.map(nm => {return {name:nm};}).map(char => chars.fullyEquip(char, _.find(allInfo, info => info.name === char.name) ));
+          const fullCrew = allNms.map(nm => {return {name:nm};}).map(char => chars.fullyEquip(<chars.Char>char, _.find(allInfo, info => info.name === char.name) ));
           doc = {crew: fullCrew};
         }
         // Create a default doc if user is new
@@ -53,13 +52,13 @@ module.exports = new Clapp.Command({
 
         const featuredSkill = args.skill;
         const featuredSkillWeight = Gauntlet.featuredSkillWeight;
-        let charTraits = {};
+        let charTraits:any = {};
         chars.allCrewEntries().forEach(x=> {
           charTraits[x.name] = x.traits.split(',').map(x=>x.trim());
         });
-        const availCrew = doc.crew.filter(x => !x.vaulted===true);
+        const availCrew = doc.crew.filter((x:any) => !x.vaulted===true);
 
-        const gchars = _.map(availCrew, Gauntlet.dbCharToChar).map(c => {
+        const gchars = _.map(availCrew, Gauntlet.dbCharToChar).map((c:any) => {
           c.crit = 5 + _.filter(featuredTraits, t => _.contains(charTraits[c.name], t)).length * 20;
           return c;
         });
@@ -101,7 +100,7 @@ module.exports = new Clapp.Command({
       validations: [
         {
           errorMessage: "Must be cmd|dip|sci|eng|med|sec or empty",
-          validate: value => {
+          validate: (value:string) => {
             return !!value.match(/^cmd|dip|sci|eng|med|sec|$/);
           }
         }
