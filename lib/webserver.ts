@@ -1,12 +1,13 @@
 'use strict';
-const cfg     = require('../config.js');
-var express = require('express');
-var http = express();
+import cfg from '../config.js';
+import express from 'express';
+const http = express();
 const bodyParser = require('body-parser');
 const db      = require('./crewdb.js');
 const cli = require('./cli.js');
 const chars = require("./chars.js");
 //const json2csv = require("json2csv");
+import * as api from './Interfaces'
 
 module.exports = {
 };
@@ -21,7 +22,7 @@ http.get('/', function (req, res) {
 });
 
 http.get('/users', function (req, res) {
-  db.users.find({}, {_id:1, username:1}, function(err, doc) {
+  db.users.find({}, {_id:1, username:1}, function(err:any, doc:any) {
     res.json(doc);
   });
 });
@@ -29,7 +30,7 @@ http.get('/users', function (req, res) {
 http.get('/user/:userId', function (req, res) {
   const qry = { _id: req.params.userId };
 
-  db.users.findOne(qry, function (err, doc) {
+  db.users.findOne(qry, function (err:any, doc:any) {
     if (doc === null) {
       doc = {_id:req.params.userId, username: 'anonymous', crew:[]};
     }
@@ -55,20 +56,21 @@ http.get('/usercsv/:userId', function (req, res) {
   });
 });*/
 
-const emojify = em => `<img src="emoji/${em}.png">`;
+const emojify : api.EmojiFn = em => `<img src="emoji/${em}.png">`;
 
 http.post('/command', function(req,res) {
-  var context = {
+  let context : api.Context  = {
     author: {username:'test', id:-1},
-    channel: {name:'webserver'},
+    channel: {id:'-2',name:'webserver', send: ()=>{}},
     isEntitled: function(){return false;},
     emojify : emojify,
-    boldify : x => `<b>${x}</b>`
+    boldify : x => `<b>${x}</b>`,
+    fleetId : '-1'
   };
 
   let cmd = cfg.prefix + ' ' + req.body.command;
 
-  cli.sendCommand(cmd, context).then(function(msg) {
+  cli.sendCommand(cmd, context).then(function(msg:any) {
     res.json({message:msg, embed:context.embed});
   });
 
