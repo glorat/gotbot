@@ -254,8 +254,8 @@ export function statsFor(char:Char, emojify:API.EmojiFn, boldify:API.BoldifyFn, 
 
 /** Mutate char to be fully equipped given info and stars
  * */
-export function fullyEquip(char:Char, info:CharInfo, stars:number, level:number) {
-  if (!(info && info.skill)) {
+export function fullyEquip(char:Char, info:CharInfo|undefined, stars:number=0, level:number=0) {
+  if (!(info!==undefined && info.skill)) {
     console.log (`fullyEquip is lacking info for ${char.name}`);
     return char;
   }

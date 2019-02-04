@@ -9,7 +9,7 @@ function reSafe(str:string) {
 // FIXME: How to declare cb in typescript?
 export type MatchCB = (err:string|null, name:string|null) => void
 
-export function matchOne(cb: MatchCB, allNames:Array<string>, desc:string, one:string, two:string, three:string) {
+export function matchOne(cb: MatchCB, allNames:Array<string>, desc:string, one:string, two:string="", three:string="") {
   var names = matchAll(allNames, one, two, three);
 
   if (names.length === 0) {
