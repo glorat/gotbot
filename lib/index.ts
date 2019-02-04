@@ -1,5 +1,7 @@
 'use strict';
 
+import {hasChannelName, hasGuild, canFetchMessages} from "./Interfaces";
+
 const fs      = require('fs');
 const Clapp   = require('./modules/clapp-discord');
 import cfg from "../config";
@@ -28,17 +30,6 @@ function isEntitled(id:string) : boolean {
   let got = bot.guilds.get(cfg.gotServer);
   return got ? got.members.has(id) : false;
 }
-
-function hasGuild(channel : Discord.TextChannel | Discord.GroupDMChannel | Discord.DMChannel) : channel is Discord.TextChannel {
-  return (<Discord.TextChannel>channel).guild !== undefined;
-}
-function hasChannelName(channel : Discord.TextChannel | Discord.GroupDMChannel | Discord.DMChannel) : channel is Discord.TextChannel | Discord.GroupDMChannel{
-  return (<Discord.TextChannel | Discord.GroupDMChannel>channel).name !== undefined;
-}
-function canFetchMessages(channel: any) :  channel is Discord.TextBasedChannelFields {
-  return (<Discord.TextBasedChannelFields>channel).fetchMessages !== undefined;
-}
-
 
 bot.on('message', msg => {
   // Fired when someone sends a message
@@ -89,7 +80,7 @@ bot.on('message', msg => {
   winston.loggers.get(channelTag).info(`${msg.author.username} - ${msg.content}`);
 
   let onReply = function(msg:string) {
-    if (msg) {
+    if (msg && canFetchMessages(context.channel)) {
       if (msg === 'EMBED') {
         context.channel.send( {embed: context.embed});
       }

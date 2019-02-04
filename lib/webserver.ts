@@ -61,7 +61,7 @@ const emojify : api.EmojiFn = em => `<img src="emoji/${em}.png">`;
 http.post('/command', function(req,res) {
   let context : api.Context  = {
     author: {username:'test', id:-1},
-    channel: {id:'-2',name:'webserver', send: ()=>{}},
+    channel: {id:'-2',name:'webserver'},
     isEntitled: function(){return false;},
     emojify : emojify,
     boldify : x => `<b>${x}</b>`,

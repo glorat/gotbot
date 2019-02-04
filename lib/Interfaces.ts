@@ -6,7 +6,6 @@ export type BoldifyFn = (x:string) => string
 export interface DummyChannel {
   id : string
   name: string
-  send : (msg:any) => void
 
 }
 export interface Context {
@@ -20,4 +19,15 @@ export interface Context {
   msg? : Discord.Message;
   callback? : any; // FIXME
   isEntitled(userid: string): boolean ;
+}
+
+export function hasGuild(channel : Discord.TextChannel | Discord.GroupDMChannel | Discord.DMChannel | DummyChannel) : channel is Discord.TextChannel {
+  return (<Discord.TextChannel>channel).guild !== undefined;
+}
+export function hasChannelName(channel : Discord.TextChannel | Discord.GroupDMChannel | Discord.DMChannel | DummyChannel)
+  : channel is Discord.TextChannel | Discord.GroupDMChannel | DummyChannel{
+  return (<Discord.TextChannel | Discord.GroupDMChannel>channel).name !== undefined;
+}
+export function canFetchMessages(channel: any) :  channel is Discord.TextBasedChannelFields {
+  return (<Discord.TextBasedChannelFields>channel).send !== undefined;
 }

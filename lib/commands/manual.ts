@@ -1,5 +1,8 @@
-var Clapp = require('../modules/clapp-discord');
-const cfg = require('../../config.js');
+import {canFetchMessages, hasChannelName, hasGuild} from "../Interfaces";
+
+const Clapp = require('../modules/clapp-discord');
+import cfg from '../../config';
+import * as API from '../Interfaces';
 
 const manual = [
   'Welcome to the manual\nFirstly to get help at any point, use the --help command',
@@ -42,18 +45,25 @@ module.exports = new Clapp.Command({
   name: "manual",
   desc: "show manual",
 
-  fn:(argv, context) => new Promise((fulfill, reject) => {
-    const channelName = context.channel.name;
+  fn:(argv:any, context:API.Context) => new Promise((fulfill, reject) => {
+    const channelName = hasChannelName(context.channel) ? context.channel.name : 'Unknown';
     const author = context.author.username;
-    const guild = context.channel.guild;
-    const guildOwner = guild ? guild.ownerID : NaN;
+    //const guild = context.channel.guild;
+    const guildOwner = hasGuild(context.channel) ? context.channel.guild.ownerID : NaN;
+
+    let doSend = async function(s:string) {
+      if (canFetchMessages(context.channel)) {
+        return context.channel.send(s);
+      }
+    };
 
     if (context.author.id === guildOwner) {
       let i=0;
 
       let doNext = function() {
-        context.channel.send(`__${manual[i]}__`).then(x => {
-          context.channel.send(cfg.prefix + ' '+manual[i+1]).then(y => {
+
+        doSend(`__${manual[i]}__`).then(x => {
+          doSend(cfg.prefix + ' '+manual[i+1]).then(y => {
             i+=2;
             if (manual[i]) {
               setTimeout(doNext, 100);

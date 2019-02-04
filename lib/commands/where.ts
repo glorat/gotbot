@@ -1,6 +1,6 @@
-var Clapp = require('../modules/clapp-discord');
-var jsonfile = require('nedb');
-const cfg = require('../../config.js');
+const Clapp = require('../modules/clapp-discord');
+const jsonfile = require('nedb');
+import cfg from '../../config';
 const _ = require('underscore');
 import Discord = require('discord.js');
 import * as API from '../Interfaces';
