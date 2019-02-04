@@ -13,8 +13,6 @@ import * as api from '../lib/Interfaces';
 
 const pkg     = require('../../package.json');
 
-// const Promise = require("bluebird");
-
 // Override env for testing
 cfg.nedbpath = cfg.nedbpath.replace('stt.json','test_stt.json');
 const db = require('../lib/crewdb.js');

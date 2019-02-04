@@ -1,12 +1,10 @@
 'use strict';
 
 import cfg  from '../config.js';
-var fs = require('fs');
+import * as fs from 'async-file';
 import * as _ from 'underscore';
 const request = require('request');
 const jsonreq = require('request-json');
-const Promise = require("bluebird");
-Promise.promisifyAll(fs);
 const matcher = require('./matcher.js');
 
 interface MissionDB {
@@ -40,7 +38,7 @@ type MissionEntry = any
 // FIXME: later
 // @ts-ignore
 let wikidb : MissionDB = {};
-let ready = fs.readFileAsync(cfg.missionsdbpath, 'utf8')
+let ready = fs.readFile(cfg.missionsdbpath, 'utf8')
   .then(JSON.parse)
   .then(function(obj:MissionDB) {
     wikidb = obj;
