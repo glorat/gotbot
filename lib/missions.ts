@@ -1,19 +1,50 @@
 'use strict';
 
+import cfg  from '../config.js';
 var fs = require('fs');
-const _ = require('underscore');
+import * as _ from 'underscore';
 const request = require('request');
 const jsonreq = require('request-json');
 const Promise = require("bluebird");
 Promise.promisifyAll(fs);
 const matcher = require('./matcher.js');
 
-let wikidb = {};
-let ready = fs.readFileAsync('./data/missions.json', 'utf8')
+interface MissionDB {
+  missions : Array<Mission>
+  itemList : Array<string>
+  missionNames : Array<string>
+  missionCodes : Array<string>
+  entries : Array<MissionEntry>
+}
+interface Mission {
+  name : string
+  wiki: string
+  code: string
+  missiontype: string
+  tables: Array<MissionTable>
+}
+interface MissionTable {
+  runs: number
+  level: number
+  cost: number
+  items: Array<MissionTableItem>
+}
+interface MissionTableItem {
+  name : string
+  units: number
+  stars: number
+  qty: number
+}
+type MissionEntry = any
+
+// FIXME: later
+// @ts-ignore
+let wikidb : MissionDB = {};
+let ready = fs.readFileAsync(cfg.missionsdbpath, 'utf8')
   .then(JSON.parse)
-  .then(function(obj) {
+  .then(function(obj:MissionDB) {
     wikidb = obj;
-    const concat = (x,y) => x.concat(y);
+    const concat = (x:any,y:any) => x.concat(y);
 
     const allItemNames = wikidb.missions.map(mission => mission.tables.map(table => table.items.map(item => item.name)) )
       .reduce(concat).reduce(concat);
@@ -64,14 +95,14 @@ let ready = fs.readFileAsync('./data/missions.json', 'utf8')
     wikidb.traits = Array.from(traitsSet);*/
 
   })
-  .catch(e => {throw(e);})
+  .catch((e:any) => {throw(e);})
 ;
 
 
 module.exports = {
   allMissionNames: function(){return wikidb.missionNames;},
   allMissionCodes: function(){return wikidb.missionCodes;},
-  missionNameToCode : nm => _.find(wikidb.entries, m=>m.name === nm).code,
+  missionNameToCode : (nm:string) => _.find(wikidb.entries, m=>m.name === nm).code,
   allMissionItems: allMissionItems,
   matchItem: matchItem,
   findByStarItem :  findByStarItem,
@@ -84,14 +115,14 @@ function allMissionItems() {
   return wikidb.itemList;
 }
 
-function findByStarItem(itemStars, itemName) {
+function findByStarItem(itemStars:number, itemName:string) {
   return _.filter(wikidb.entries, entry => entry.itemName === itemName && entry.itemStars === +itemStars);
 }
 
-function findByMissionCode(code, level) {
+function findByMissionCode(code:string, level:string) {
   return _.filter(wikidb.entries, entry => entry.code.toLowerCase() === code.toLowerCase() && entry.level.toLowerCase() === level.toLowerCase());
 }
 
-function matchItem(cb, one, two, three) {
+function matchItem(cb:any, one:string, two:string, three:string) {
   return matcher.matchOne(cb, wikidb.itemList, 'items', one, two, three);
 }
