@@ -5,13 +5,10 @@ process.env.NODE_ENV = "test";
 const assert = require('assert');
 const expect = require('expect.js');
 const _ = require('underscore');
-const fs      = require('fs');
 const cli   = require('../lib/cli.js');
 
 import cfg from '../config';
 import * as api from '../lib/Interfaces';
-
-const pkg     = require('../../package.json');
 
 // Override env for testing
 cfg.nedbpath = cfg.nedbpath.replace('stt.json','test_stt.json');

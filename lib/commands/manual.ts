@@ -1,4 +1,4 @@
-import {canFetchMessages, hasChannelName, hasGuild} from "../Interfaces";
+import {canFetchMessages, hasGuild} from "../Interfaces";
 
 const Clapp = require('../modules/clapp-discord');
 import cfg from '../../config';
@@ -46,8 +46,6 @@ module.exports = new Clapp.Command({
   desc: "show manual",
 
   fn:(argv:any, context:API.Context) => new Promise((fulfill, reject) => {
-    const channelName = hasChannelName(context.channel) ? context.channel.name : 'Unknown';
-    const author = context.author.username;
     //const guild = context.channel.guild;
     const guildOwner = hasGuild(context.channel) ? context.channel.guild.ownerID : NaN;
 

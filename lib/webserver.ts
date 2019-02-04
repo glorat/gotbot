@@ -5,7 +5,6 @@ const http = express();
 const bodyParser = require('body-parser');
 const db      = require('./crewdb.js');
 const cli = require('./cli.js');
-const chars = require("./chars.js");
 //const json2csv = require("json2csv");
 import * as api from './Interfaces'
 

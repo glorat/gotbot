@@ -215,7 +215,7 @@ module.exports = new Clapp.Command({
         // Recompute skills one more time
         totalSkills = calcTotalSkills(constrainedCrew.crew, skillList);
 
-        const estlen = formatHrs(bestHours);
+        //const estlen = formatHrs(bestHours);
 
         let hrsMsg = '';
         for (let refill=0; refill<=args.refill+1; refill++) {

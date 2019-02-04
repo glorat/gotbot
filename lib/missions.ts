@@ -3,8 +3,6 @@
 import cfg  from '../config.js';
 import * as fs from 'async-file';
 import * as _ from 'underscore';
-const request = require('request');
-const jsonreq = require('request-json');
 const matcher = require('./matcher.js');
 
 interface MissionDB {

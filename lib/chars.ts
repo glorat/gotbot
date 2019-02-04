@@ -5,8 +5,6 @@ import * as fssync from 'fs';
 import _ = require('underscore');
 import {Dictionary} from "underscore";
 import {MatchCB} from "./matcher";
-const request = require('request');
-const jsonreq = require('request-json');
 
 const matcher = require('./matcher.js');
 
@@ -190,7 +188,6 @@ export function generateDifficulty(a:any, i:any, r:any) {
 }
 
 export async function ssrLookup(name:string, cb:any) {
-  const client = jsonreq.createClient('http://ssr.izausomecreations.com/');
   var wname=name.replace(/"/gi,"!Q!");
   wname=wname.replace(/,/gi,"!C!");
   try {
@@ -285,12 +282,6 @@ export function bestChars(entrys:Array<any>, stars:number, fuse:number, category
     entrys = entrys.filter(x=>x.stars <= stars);
   }
   entrys = entrys.map(_.clone); // Shallow clone as we will add a result
-
-
-  const starMatch = function (x:any) {
-    return (s:number) => fuse ? fuse : x.stars;
-  };
-
 
   interface Entry {
     map : (sk:any) => number,

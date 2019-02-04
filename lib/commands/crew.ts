@@ -115,7 +115,6 @@ module.exports = new Clapp.Command({
             fulfill(err);
           } else {
             var char = _.find(doc.crew, x => x.name === name && x.vaulted);
-            let msg;
             if (!char) {
               fulfill(`${name} is not in your vault`);
             }

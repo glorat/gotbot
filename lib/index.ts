@@ -2,17 +2,12 @@
 
 import {hasChannelName, hasGuild, canFetchMessages} from "./Interfaces";
 
-const fs      = require('fs');
-const Clapp   = require('./modules/clapp-discord');
 import cfg from "../config";
 console.log(`crew database: ${cfg.nedbpath}`);
 
-const pkg     = require(process.cwd() + '/package.json');
+//const pkg     = require(process.cwd() + '/package.json');
 import Discord = require('discord.js');
-const chars      = require('./chars.js');
-const db      = require('./crewdb.js');
 const bot     = new Discord.Client();
-const webserver = require('./webserver.js');
 const cli = require('./cli.js');
 const fleets = require('./fleetdb.js');
 import winston = require('winston');
@@ -174,7 +169,7 @@ bot.on("raw", (packet:any) => {
 
 
 bot.login(cfg.token).then(() => {
-  let got = bot.guilds.get(cfg.gotServer);
+  //let got = bot.guilds.get(cfg.gotServer);
   // TODO: Post something to computer-core channel
   console.log('Connected to discord!');
 }).catch(function(e) {
