@@ -3,6 +3,8 @@
 const fs      = require('fs');
 const Clapp   = require('./modules/clapp-discord');
 import cfg from "../config";
+console.log(`crew database: ${cfg.nedbpath}`);
+
 const pkg     = require(process.cwd() + '/package.json');
 import Discord = require('discord.js');
 const chars      = require('./chars.js');
@@ -16,6 +18,7 @@ const path = require('path');
 const moment = require('moment');
 const mkdirp = require('mkdirp');
 import * as API from './Interfaces';
+
 
 if (process.env.NODE_ENV !== 'production'){
   require('longjohn');
@@ -64,7 +67,7 @@ bot.on('message', msg => {
   if (!winston.loggers.has(channelTag)) {
     console.log(`Creating logger for ${channelTag}`);
 
-    const dir = path.join(__dirname,'..','logs',serverName);
+    const dir = path.join(process.cwd(),'logs',serverName);
     mkdirp(dir, function (err:any) {
       if (err) console.error(err);
       else console.log(`${dir} directory made`);
