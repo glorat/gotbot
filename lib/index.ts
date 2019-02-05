@@ -8,6 +8,7 @@ console.log(`crew database: ${cfg.nedbpath}`);
 //const pkg     = require(process.cwd() + '/package.json');
 import Discord = require('discord.js');
 const bot     = new Discord.Client();
+import './webserver';
 const cli = require('./cli.js');
 const fleets = require('./fleetdb.js');
 import winston = require('winston');
