@@ -9,7 +9,7 @@ import {MatchCB} from "./matcher";
 const matcher = require('./matcher.js');
 
 const Table = require('cli-table3');
-import cfg from '../config.js';
+import cfg from '../config';
 
 export const skills = ['cmd','dip','eng','sec','med','sci'];
 

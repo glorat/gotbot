@@ -1,5 +1,5 @@
 'use strict';
-import cfg from '../config.js';
+import cfg from '../config';
 import express from 'express';
 const http = express();
 const bodyParser = require('body-parser');

@@ -1,15 +1,16 @@
-const cfg = require('../config.js');
-var Datastore = require('nedb');
+import cfg from '../config';
+import Datastore from 'nedb-async';
 
-var cmds = new Datastore({ filename: cfg.clilogpath, autoload: true });
+// @ts-ignore
+const cmds = new Datastore({ filename: cfg.clilogpath, autoload: true });
 
 module.exports = {
   cmds: cmds,
   logCommand: logCommand
 };
 
-function logCommand(cmd, context) {
-  let doc = {
+function logCommand(cmd:any, context:any) {
+  let doc :any = {
     cmd:cmd,
     authorId:context.author.id,
     authorName: context.author.name,

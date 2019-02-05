@@ -1,7 +1,7 @@
 
-import cfg from '../config.js';
+import cfg from '../config';
 import Datastore from 'nedb-async';
-import * as chars from './chars.js';
+import * as chars from './chars';
 
 // @ts-ignore
 const users = new Datastore({ filename: cfg.nedbpath, autoload: true });

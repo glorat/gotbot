@@ -1,9 +1,9 @@
 'use strict';
 
-const cfg = require('../config.js');
+import cfg from '../config';
 import Datastore from 'nedb-async';
 import * as _ from 'underscore';
-import * as chars from './chars.js';
+import * as chars from './chars';
 
 // @ts-ignore
 const fleets = new Datastore({ filename: cfg.dataPath + 'fleetdb.json', autoload: true });

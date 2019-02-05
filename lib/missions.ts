@@ -1,6 +1,6 @@
 'use strict';
 
-import cfg  from '../config.js';
+import cfg  from '../config';
 import * as fs from 'async-file';
 import * as _ from 'underscore';
 const matcher = require('./matcher.js');

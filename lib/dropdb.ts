@@ -1,6 +1,6 @@
 'use strict';
 
-import cfg from '../config.js';
+import cfg from '../config';
 import Datastore from 'nedb-async';
 import * as _ from 'underscore';
 
