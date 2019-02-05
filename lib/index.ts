@@ -105,6 +105,8 @@ bot.on('message', msg => {
       content = content.replace(re, cfg.prefix + ' ');
     }
 
+    console.log(content);
+
     if (cli.isCliSentence(content)) {
       cli.sendCommand(content, context).then(trimMessage).then(onReply);
     }
@@ -114,7 +116,7 @@ bot.on('message', msg => {
       cli.sendCommand(cmd, context).then(trimMessage).then(onReply);
     }
     else {
-      console.log(msg.content);
+
       /*
        msg.channel.send('I heard someone say ' + msg.content).then(bot_response => {
        context.msg.delete(cfg.deleteAfterReply.time)
