@@ -17,6 +17,9 @@ export default class Config {
   static readonly botName = isProd ? 'Got Bot' : 'Proto Bot';
   static readonly dataPath = dataPath;
 
+  // Use STT to get crew entries
+  static readonly useSttCrewEntries : boolean = password.sttuser != '';
+
   static readonly token =isProd ? password.prod : password.dev;
   static readonly gotServer = '235536091011088394'; // id of the GoT fleet server
   static readonly adminId = '232748347860058112'; // id of the bot administrator

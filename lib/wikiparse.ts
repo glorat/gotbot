@@ -4,8 +4,9 @@ import * as fs from 'async-file';
 
 import * as _ from 'underscore';
 import cheerio = require('cheerio');
+import cfg from '../config';
 
-interface CrewFoo {
+interface CrewEntry {
   name : string,
   wiki : string,
   stars : number,
@@ -15,9 +16,34 @@ interface CrewFoo {
   headImage? : string,
   skill? : any,
   moreChar? : any
+  traits_hidden?: Array<string>
 }
 
-const morecrew : Array<CrewFoo> = require('../../client/morecrew.json');
+
+// STT data
+export interface AssetRef {
+  file: string
+}
+export interface CrewAvatar {
+  id: number
+  symbol: string
+  name: string
+  traits: Array<string>
+  traits_hidden: Array<string>
+  short_name: string
+  max_rarity: number
+  icon: AssetRef
+  portrait: AssetRef
+  full_body: AssetRef
+  default_avatar: boolean
+  hide_from_cryo: boolean
+  skills: Array<string>
+
+  wiki: string // Added by the download script for convenience
+}
+
+const allcrew: Array<CrewAvatar> = require('../../data/sttcrew.json');
+const morecrew : Array<CrewEntry> = require('../../client/morecrew.json');
 const moretraitlist = ['StarCap','DiscoCrew']; // TODO: dir list client/trait
 const moretrait : any = {};
 
@@ -29,8 +55,12 @@ moretraitlist.forEach(trait => {
   });
 });
 
-var wikidb = {
-  crewentries : morecrew
+interface WikiDB {
+  crewentries: Array<CrewEntry>
+}
+
+let wikidb : WikiDB = {
+  crewentries : cfg.useSttCrewEntries ? [] :  morecrew
 };
 
 module.exports = {
@@ -71,7 +101,7 @@ function parseCharForMoreChar($:CheerioStatic) {
 
 }
 
-function parseCharForSkillData(entry:CrewFoo, $:CheerioStatic) {
+function parseCharForSkillData(entry:CrewEntry, $:CheerioStatic) {
   const stars = entry.stars;
   const name = entry.name;
 
@@ -127,7 +157,7 @@ function parseCharForSkillData(entry:CrewFoo, $:CheerioStatic) {
   }
   return skilldata;
 }
-function parseCharPage($:CheerioStatic, entry:CrewFoo) {
+function parseCharPage($:CheerioStatic, entry:CrewEntry) {
   const name = entry.name;
   const skilldata = parseCharForSkillData(entry, $);
 
@@ -157,55 +187,107 @@ function copyString(original_string:string) {
   return (' ' + original_string).slice(1);
 }
 
+async function parseSttLoadedCrew() : Promise<Array<any>> {
+  let entries = allcrew.map(c => <CrewEntry>{
+    name:c.name,
+    stars:c.max_rarity,
+    wiki:c.wiki,
+    traits_hidden: c.traits_hidden.map(snake2PascalCase) // for prettiness
+  });
+  wikidb.crewentries = entries;
+  return entries;
+}
 
-async function parseWikiCrew() {
+async function parseCategoryCrew() : Promise<Array<any>> {
   const superRareCutoff = 'Ruk'; // Check gotcron to see what page is being used to do the cutoff
-  const subcatFiles = ['Common','Uncommon','Rare','Super_Rare','Super_Rare?pagefrom=' + superRareCutoff,'Legendary'];
-  const subcats = ['Common','Uncommon','Rare','Super_Rare','Legendary'];
+  const subcatFiles = ['Common', 'Uncommon', 'Rare', 'Super_Rare', 'Super_Rare?pagefrom=' + superRareCutoff, 'Legendary'];
+  const subcats = ['Common', 'Uncommon', 'Rare', 'Super_Rare', 'Legendary'];
 
   let crewLoadPromises = subcatFiles.map(async catfile => {
-    const cat = catfile.replace(/\?.*/,'');
-    const stars = subcats.indexOf(cat)+1;
+    const cat = catfile.replace(/\?.*/, '');
+    const stars = subcats.indexOf(cat) + 1;
     const file = `client/stt.wiki/wiki/Category:${catfile}`;
     return await fs.readFile(file, 'utf8')
       .then(cheerio.load)
-      .then(function($) {
+      .then(function ($) {
         console.log('LOADING ' + file);
         const crewlinks = $('.mw-category-generated a');
-        crewlinks.each(function(i,elem) {
+        crewlinks.each(function (i, elem) {
           const a = $(this);
-          if (a.text() !== 'next page' && a.text() !== 'previous page' && ! _.some(wikidb.crewentries, x=>x.name == a.text())) {
+          if (a.text() !== 'next page' && a.text() !== 'previous page' && !_.some(wikidb.crewentries, x => x.name == a.text())) {
             //console.log(cat + '    ' + a.text() + ' ' + stars);
-            wikidb.crewentries.push({name:copyString(a.text()), wiki: copyString(a.attr('href')), stars:stars});
-          }
-          else {
+            let entry = {name: copyString(a.text()), wiki: copyString(a.attr('href')), stars: stars}
+            let mkwiki = '/wiki/' + entry.name.replace(/ /g, '_');
+            let mkwiki2 = mkwiki.replace(/'/g, "%27");
+            if (mkwiki2 !== entry.wiki) {
+              console.log(`Auto wiki name error: ${mkwiki2} vs ${entry.wiki}`);
+            }
+            wikidb.crewentries.push(entry);
+          } else {
             console.log('SKIP    ' + a.text());
           }
-        });})
-      .catch(function(e){throw e;});
+        });
+      })
+      .catch(function (e) {
+        throw e;
+      });
   });
 
   return Promise.all(crewLoadPromises).then(function() {
     console.log("All crew summary were loaded");
-  }).then(function() {
-    const all = wikidb.crewentries.map(async entry => {
-      const file =`client/stt.wiki/${decodeURI(entry.wiki)}`;
+    return wikidb.crewentries;
+  });
 
+}
+
+async function parseEachCharPage() {
+  const all = wikidb.crewentries.map(async entry => {
+    const file = `client/stt.wiki${decodeURI(entry.wiki)}`;
+    if (await fs.exists(file)) {
       return await fs.readFile(file, 'utf8')
         .then(cheerio.load)
-        .then(function(dom) {
+        .then(function (dom) {
           return parseCharPage(dom, entry);
         })
-        .catch(function(e) {
+        .catch(function (e) {
+          console.error(e);
           throw e;
         });
-    });
-    return Promise.all(all);
-  }).then(async function() {
+    }
+    else {
+      console.error(file + ' does not exist');
+      return;
+    }
+  });
+  return Promise.all(all);
+}
+
+async function parseWikiCrew() {
+  let loadPromise = cfg.useSttCrewEntries ? parseSttLoadedCrew() : parseCategoryCrew();
+
+  return loadPromise.then(parseEachCharPage).then(async function() {
     console.log('All crew pages parsed');
+    // Filter the good
+    wikidb.crewentries = wikidb.crewentries.filter(x => x.skill !== undefined);
     // Cache it
     await fs.writeFile('data/wikidb.json',JSON.stringify(wikidb));
     console.log('wikidb written');
   });
 
+}
+
+
+function snake2CamelCase(string:string) {
+  return string
+    .replace(
+      /_(\w)/g,
+      ($, $1) => $1.toUpperCase()
+    )
+    ;
+}
+
+function snake2PascalCase(string:string) {
+  let s = snake2CamelCase(string);
+
+  return `${s.charAt(0).toUpperCase()}${s.substr(1)}`;
 }

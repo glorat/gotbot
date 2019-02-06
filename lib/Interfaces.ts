@@ -31,3 +31,28 @@ export function hasChannelName(channel : Discord.TextChannel | Discord.GroupDMCh
 export function canFetchMessages(channel: any) :  channel is Discord.TextBasedChannelFields {
   return (<Discord.TextBasedChannelFields>channel).send !== undefined;
 }
+
+
+
+
+
+
+
+export interface AssetRef {
+  file: string
+}
+export interface CrewAvatar {
+  id: number,
+  symbol: string,
+  name: string,
+  traits: Array<string>
+  traits_hidden: Array<string>
+  short_name: string
+  max_rarity: number
+  icon: AssetRef
+  portrait: AssetRef
+  full_body: AssetRef
+  default_avatar: boolean
+  hide_from_cryo: boolean
+  skills: Array<string>
+}
