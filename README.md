@@ -44,7 +44,7 @@ If you need help on the above, please RTM. Otherwise proceed...
 
 Clone this repository, and run:
 ```sh
-$ npm install
+$ npm install && npm test
 ```
 Copy `password_sample.js` to `data/password.js` and supply valid Discord bot tokens
 
