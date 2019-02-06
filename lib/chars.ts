@@ -170,7 +170,7 @@ Number.prototype.between = function(a, i, r) {
   return r ? this >= e && this <= o : this > e && this < o;
 };
 
-export function generateDifficulty(a:any, i:any, r:any) {
+export function generateDifficulty(a:any, i?:any, r?:any) {
   var e = a.difficulty
     , o = ""
     , n = "";

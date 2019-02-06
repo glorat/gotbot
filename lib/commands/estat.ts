@@ -1,7 +1,8 @@
 const Clapp = require('../modules/clapp-discord');
-const _ = require('underscore');
-const chars = require("../chars.js");
-
+import * as _ from 'underscore';
+import chars = require('../chars.js');
+//import cfg from '../../config';
+import * as API from '../Interfaces';
 
 
 module.exports = new Clapp.Command({
@@ -9,8 +10,7 @@ module.exports = new Clapp.Command({
   desc: "query extended stats for characters",
 
 // Command function
-  fn: (argv, context) => new Promise((fulfill, reject) => {
-    const msg = context.msg;
+  fn: (argv:any, context:API.Context) => new Promise((fulfill, reject) => {
     const args = argv.args;
     //Emojis are broken in android so we manually do it
     // const emojify = context.emojify;
@@ -23,8 +23,8 @@ new moon
     Unicode: U+1F311, UTF-8: F0 9F 8C 91
 */
 
-    const emojify = function(x) {
-      const custom = {'1star':'\u2B50', '1darkstar' :String.fromCodePoint(0x1F311)};
+    const emojify : API.EmojiFn = function(x) {
+      const custom : any = {'1star':'\u2B50', '1darkstar' :String.fromCodePoint(0x1F311)};
       if (custom[x]) {
         return custom[x];
       }
@@ -32,11 +32,9 @@ new moon
         return x.toUpperCase();
       }
     };
-    const boldify = context.boldify;
-    const channel = context.channel;
 
-    function handleName(name, starsArg, level, ssr) {
-      chars.wikiLookup(name, function(err,info) {
+    function handleName(name:string, starsArg:number, level:number, ssr:any) {
+      chars.wikiLookup(name, function(err:any,info:chars.CharInfo) {
         //chars.ssrLookup(name, function(err,info) {
         if (err) {
           fulfill(err);
@@ -48,7 +46,7 @@ new moon
           const char = info.char;
           const wiki = info.wiki.replace('/wiki/','');
 
-          let starStat = function(s) {
+          let starStat = function(s:number) {
             const starStr = _.range(s).map(x => emojify('1star')).join('');
             const darkStr = _.range(stars - s).map(x => emojify('1darkstar')).join('');
             const starSk = _.filter(skill, sk => sk.stars === s && sk.level === level);
@@ -56,8 +54,8 @@ new moon
             return `${starStr}${darkStr} - ${skStr}`;
           };
 
-          const levelStr = (level!==100) ? `Level ${level}: ` : '';
-          let header = `(${char}) - ${levelStr}${info.traits}`;
+          //const levelStr = (level!==100) ? `Level ${level}: ` : '';
+          //let header = `(${char}) - ${levelStr}${info.traits}`;
 
           // Char stats
           let msg = '';
@@ -95,6 +93,11 @@ new moon
               {
                 name: 'Traits',
                 value: info.traits,
+                inline:true
+              },
+              {
+                name: 'More Traits',
+                value: info.traits_hidden.join(', '),
                 inline:true
               },
               {
@@ -156,8 +159,9 @@ new moon
         fulfill(err);
       }
       else {
-        chars.ssrLookup(name, ssr => {
-          handleName(name, argv.flags.stars, argv.flags.level, ssr);
+        let nm = <string>name;
+        chars.ssrLookup(nm, (ssr:any) => {
+          handleName(nm, argv.flags.stars, argv.flags.level, ssr);
         });
 
       }
