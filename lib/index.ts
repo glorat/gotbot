@@ -54,7 +54,7 @@ bot.on('message', msg => {
   if (!winston.loggers.has(channelTag)) {
     console.log(`Creating logger for ${channelTag}`);
 
-    const dir = path.join(process.cwd(),'logs',serverName);
+    const dir = path.join(cfg.dataPath,'logs',serverName);
     mkdirp(dir, function (err:any) {
       if (err) console.error(err);
       else console.log(`${dir} directory made`);

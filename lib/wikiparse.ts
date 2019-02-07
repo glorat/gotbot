@@ -206,7 +206,7 @@ async function parseCategoryCrew() : Promise<Array<any>> {
   let crewLoadPromises = subcatFiles.map(async catfile => {
     const cat = catfile.replace(/\?.*/, '');
     const stars = subcats.indexOf(cat) + 1;
-    const file = `client/stt.wiki/wiki/Category:${catfile}`;
+    const file = `data/stt.wiki/wiki/Category:${catfile}`;
     return await fs.readFile(file, 'utf8')
       .then(cheerio.load)
       .then(function ($) {
@@ -242,7 +242,7 @@ async function parseCategoryCrew() : Promise<Array<any>> {
 
 async function parseEachCharPage() {
   const all = wikidb.crewentries.map(async entry => {
-    const file = `client/stt.wiki${decodeURI(entry.wiki)}`;
+    const file = `data/stt.wiki${decodeURI(entry.wiki)}`;
     if (await fs.exists(file)) {
       return await fs.readFile(file, 'utf8')
         .then(cheerio.load)
