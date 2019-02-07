@@ -166,7 +166,7 @@ async function parseWikiCrew() {
   let crewLoadPromises = subcatFiles.map(async catfile => {
     const cat = catfile.replace(/\?.*/,'');
     const stars = subcats.indexOf(cat)+1;
-    const file = `client/stt.wiki/wiki/Category:${catfile}`;
+    const file = `data/stt.wiki/wiki/Category:${catfile}`;
     return await fs.readFile(file, 'utf8')
       .then(cheerio.load)
       .then(function($) {
@@ -189,7 +189,7 @@ async function parseWikiCrew() {
     console.log("All crew summary were loaded");
   }).then(function() {
     const all = wikidb.crewentries.map(async entry => {
-      const file =`client/stt.wiki/${decodeURI(entry.wiki)}`;
+      const file =`data/stt.wiki/${decodeURI(entry.wiki)}`;
 
       return await fs.readFile(file, 'utf8')
         .then(cheerio.load)
