@@ -71,7 +71,7 @@ then
 fi
 
 echo "Starting cachewiki"
-node lib/cachewiki.js
+node dist/lib/cachewiki.js
 
 echo "Telling bot to restart "
 if [ -f /etc/alpine-release ] 
