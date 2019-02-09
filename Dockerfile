@@ -24,5 +24,6 @@ USER node
 EXPOSE 3030
 
 RUN npm install
+RUN npm test
 
-CMD ./run.sh
+CMD ./run
