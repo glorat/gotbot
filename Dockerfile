@@ -10,8 +10,6 @@ COPY *.ts ./
 
 COPY run ./
 COPY gotcron ./
-COPY gulpfile.js ./
-COPY .gitignore ./
 
 RUN mkdir logs && mkdir data && mkdir client/stt.wiki
 
@@ -26,6 +24,6 @@ USER node
 EXPOSE 3030
 
 RUN npm install
-RUN npm test
+RUN node_modules/typescript/bin/tsc
 
 CMD ./run
