@@ -250,13 +250,42 @@ describe('gotBot', function () {
       });
     });
 
-    it('should vault crew not in roster', function(done) {
+    it('should *not* vault crew not in roster', function(done) {
       sendCommand('-dev bot crew vault cap jane').then(data => {
-        expect(data).to.contain('Captain Janeway has been added to your vault');
+        expect(data).to.contain('There is no Captain Janeway in your roster');
         done();
       }).catch(done);
     });
 
+    it ('should vault someone in the roster', function(done) {
+      sendCommand('-dev bot crew vault kai winn').then(data => {
+        expect(data).to.contain('Rogue Kai Winn has been added to your vault');
+        done();
+      }).catch(done);
+    });
+
+    it ('should *not* vault someone already in the vault', function(done) {
+      sendCommand('-dev bot crew vault kai winn').then(data => {
+        expect(data).to.contain('There is no Rogue Kai Winn in your roster');
+        done();
+      }).catch(done);
+    });
+
+    it ('should unvault someone already in the vault', function(done) {
+      sendCommand('-dev bot crew unvault kai winn').then(data => {
+        expect(data).to.contain('has been taken out of your vault');
+        const qry = { _id: -1 };
+        db.users.findOne(qry, function (err:any, doc:any) {
+          const name = 'Rogue Kai Winn';
+          expect(doc).to.be.ok();
+          var char = _.find(doc.crew, (x:any)=>x.name === name);
+          expect(char).to.be.ok();
+          expect(char.level).to.be(100);
+          expect(char.stars).to.be(5);
+          done();
+        });
+      }).catch(done);
+    });
 
     describe('gcalc command', function() {
       xit('should provide analysis for your crew', function(done) {
@@ -368,6 +397,7 @@ describe('gotBot', function () {
     it('should add and list event chars', function(done) {
       sendCommand('-dev bot event add troi').then(data => {
         expect(data).to.contain('Deanna Troi');
+      }).then(data => sendCommand('-dev bot crew add rakal troi -ff')).then(data => {
       }).then(data => sendCommand('-dev bot crew vault rakal troi')).then(data => {
       }).then(data => sendCommand('-dev bot event')).then(data => {
         expect(data).to.contain('R (Troi)');
