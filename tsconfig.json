@@ -62,7 +62,6 @@
     "test/**/*/",
     "config.ts",
     "package.json",
-    "data/password.js",
     "client/*.js"
   ]
 }
