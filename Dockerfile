@@ -2,7 +2,7 @@ FROM node:10-alpine
 RUN apk update && apk add wget git jq bash && rm -rf /var/cache/apk/*
 
 WORKDIR /usr/src/gotbot
-COPY package*.json ./
+COPY *.json ./
 COPY client client
 COPY lib lib
 COPY test test
@@ -10,6 +10,8 @@ COPY *.ts ./
 
 COPY run ./
 COPY gotcron ./
+COPY gulpfile.js ./
+
 
 RUN mkdir logs && mkdir data && mkdir client/stt.wiki
 
