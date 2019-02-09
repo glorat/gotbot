@@ -11,7 +11,7 @@ COPY *.ts ./
 COPY run ./
 COPY gotcron ./
 COPY gulpfile.js ./
-
+COPY .gitignore ./
 
 RUN mkdir logs && mkdir data && mkdir client/stt.wiki
 
