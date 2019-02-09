@@ -42,6 +42,8 @@ Pre-requisite knowledge for developers
 
 If you need help on the above, please RTM. Otherwise proceed...
 
+Node 10 or higher is required!
+
 Clone this repository, and run:
 ```sh
 $ npm install && npm test
@@ -56,6 +58,16 @@ $ node lib/cachewiki.js
 $ node lib/index.js 
 ```
 If you have daemontools installed, you can also do `supervise .` to run the node apps. You can use cron to schedule `gotcron` to be run at an appropriate interval
+
+## Docker support
+
+A DockerHub image is available to be pulled at [glorat/gotbot](https://hub.docker.com/r/glorat/gotbot). For this image to work you will need
+
+- To mount a persistent volume at /usr/src/gotbot/data
+- Copy a password.js in there (see test-data/ for a sample)
+- You'll need to pre-run ./gotcron before the main CMD can be executed
+
+Obviously, this is very fiddly so it's best to get a bash shell up against the container to set everything up before running the container normally. Patches welcome to bundle all the pre-checks into the run script so it Just Works
 
 ## License
 
