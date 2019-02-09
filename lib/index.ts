@@ -179,3 +179,19 @@ bot.login(cfg.token).then(() => {
   console.log('Failed to connect to discord:\n   ' + e);
   // Now what? In debug, we continue on since the webserver can work...
 });
+
+// Schedule the gotcron
+const schedule = require('node-schedule');
+let crontab = '45 1,5,9,13,17,21 * * *';
+
+console.log(`Scheduling gotcron at ${crontab}`);
+
+schedule.scheduleJob(crontab, function(){
+  console.log('Running gotcron');
+  const { spawn } = require('child_process');
+  const fs = require('fs');
+
+  const got = spawn('./gotcron');
+  got.stdout.pipe(fs.createWriteStream(cfg.dataPath+'logs/gotcron.log', {flags: 'a'}));
+
+});
