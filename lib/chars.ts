@@ -25,6 +25,7 @@ export interface Char {
   stars: number
   maxstars: number
   level: number
+  vaulted: boolean
   // For updating ease... FIXME later
   [index: string]: any;
 }

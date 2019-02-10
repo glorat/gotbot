@@ -85,25 +85,21 @@ module.exports = new Clapp.Command({
           if (err) {
             fulfill(err);
           } else {
-            var charOpt = _.find(doc.crew, x => x.name === name);
+            var charOpt = _.find(doc.crew, x => x.name === name && ! x.vaulted);
             let char : Char;
             if (!charOpt) {
-              // Some auto-vivify shortcut - ignore the types
-              // @ts-ignore
-              char = {name: name};
-              doc.crew.push(char);
+              fulfill(`There is no ${name} in your roster to vault. Add first?`)
             }
             else {
-              char = charOpt
+              char = charOpt;
+              char.vaulted = true;
+              argv.flags.ff = true; // For enrich char
+              enrichChar(char, function () {
+                crewdb.users.update(qry, doc, {upsert: true});
+                const msg = `Hi ${author}, ${name} has been added to your vault`;
+                fulfill(msg);
+              });
             }
-
-            char.vaulted = true;
-            argv.flags.ff = true; // For enrich char
-            enrichChar(char, function () {
-              crewdb.users.update(qry, doc, {upsert: true});
-              const msg = `Hi ${author}, ${name} has been added to your vault`;
-              fulfill(msg);
-            });
           }
         }, args.name1, args.name2, args.name3);
       } else if (args.cmd === 'unvault') {
@@ -114,7 +110,7 @@ module.exports = new Clapp.Command({
           if (err) {
             fulfill(err);
           } else {
-            var char = _.find(doc.crew, x => x.name === name && x.vaulted);
+            let char = _.find(doc.crew, x => x.name === name && x.vaulted);
             if (!char) {
               fulfill(`${name} is not in your vault`);
             }
