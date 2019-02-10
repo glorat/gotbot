@@ -11,7 +11,7 @@ COPY *.ts ./
 COPY run ./
 COPY gotcron ./
 
-RUN mkdir logs && mkdir data && mkdir client/stt.wiki
+RUN mkdir data
 
 RUN chown -R node:node .
 
