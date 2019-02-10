@@ -3,3 +3,7 @@
 # Ensure windows leaves bash/perl scripts with correct eol settings
 gotcron text eol=lf
 run text eol=lf
+*.json  text eol=lf
+*.js    text eol=lf
+*.ts    text eol=lf
+client/trait/*  text eol=lf
