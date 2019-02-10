@@ -47,9 +47,9 @@ const morecrew : Array<CrewEntry> = require('../../client/morecrew.json');
 const moretraitlist = ['StarCap','DiscoCrew']; // TODO: dir list client/trait
 const moretrait : any = {};
 
-moretraitlist.forEach(trait => {
-  let nms = fs.readFile(`client/trait/${trait}`).toString().split("\n");
-  nms.forEach(nm => {
+moretraitlist.forEach(async trait => {
+  let nms = (await fs.readFile(`client/trait/${trait}`)).toString().split("\n");
+  nms.forEach((nm:string) => {
     if (!moretrait[nm]) moretrait[nm] = [];
     moretrait[nm].push(trait);
   });
