@@ -89,7 +89,7 @@ describe('gotBot', function () {
   describe('best command', function() {
     it('should best base eng', function(done) {
       sendCommand('-dev bot best base eng').then(data => {
-        expect(data).to.contain('The Traveler'); // Best at time of writing - should stay top 5 for a while
+        expect(data).to.contain('Ahdar'); // Best at time of writing - should stay top 5 for a while
         done();
       }).catch(done);
     });
@@ -107,7 +107,7 @@ describe('gotBot', function () {
     });
     it('should best base cmd -f1', function(done) {
       sendCommand('-dev bot best base cmd -f1').then(data => {
-        expect(data).to.contain('Captain Sisko'); // Best at time of writing - should stay top 5 for a while
+        expect(data).to.contain('Pah-wraith Keiko'); // Best at time of writing - should stay top 5 for a while
         done();
       }).catch(done);
     });

@@ -179,7 +179,8 @@ module.exports = new Clapp.Command({
           charsToSearch = charsToSearch.filter(e => e.stars === argv.flags.stars);
         }
         // Filter by any supplied traits etc.
-        let res = chars.searchCrewByCharTrait(args, charsToSearch);
+        let criteria = [args.name1, args.name2, args.name3];
+        let res = chars.searchCrewByCharTrait(criteria, charsToSearch);
         // Random sorting?!
         const count = res.entries.length;
         let ordered : Array<CharInfo> = _.first(_.shuffle(res.entries), 5);

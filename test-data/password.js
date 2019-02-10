@@ -5,5 +5,9 @@ module.exports = {
   // The ones here are just samples and won't work
   // then copy this file as password.js into the data directory
   prod: 'Mjg3ODI4NzE0OTQ5OTY3ODcy.C50_zQ.kYciwKYeUQgPqmruFoBIiVgihO0',
-  dev: 'MjkyMzAwOTAwMjA5NTI0NzQ2.C62B8g.3pztd6QerlZO717lsPHE49dnCWc'
+  dev: 'MjkyMzAwOTAwMjA5NTI0NzQ2.C62B8g.3pztd6QerlZO717lsPHE49dnCWc',
+  // A user/pass combo for an account to access STT
+  // Create an STT account specifically for this purpose
+  sttuser: '',
+  sttpass: ''
 };

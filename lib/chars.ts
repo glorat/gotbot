@@ -58,6 +58,7 @@ export interface CharInfo {
   moreChar: Array<string>
   image: string
   headImage: string
+  traits_hidden: Array<string>
 }
 
 export interface WikiDB {
@@ -90,9 +91,12 @@ wikidb.charstars = _.object(wikidb.crewentries.map(x=>x.name), wikidb.crewentrie
 wikidb.charToCrew = _.groupBy(wikidb.crewentries, x=>x.char);
 
 var traitsSet = new Set();
+// Add skills as traits
 wikidb.crewentries.forEach(x=>x.traits += ',' + _.uniq(x.skill.map(x=>x.skill)).join(',') );
+// Add vanilla traits
 wikidb.crewentries.forEach(x=>x.traits.split(',').map(x=>x.trim()).forEach((x:string)=>traitsSet.add(x)));
-
+// Add hidden traits
+wikidb.crewentries.forEach(x => x.traits_hidden.forEach(y=>traitsSet.add(y)));
 wikidb.traits = Array.from(traitsSet);
 
 export function allCrewEntries() : Array<CharInfo>{
@@ -166,7 +170,7 @@ Number.prototype.between = function(a, i, r) {
   return r ? this >= e && this <= o : this > e && this < o;
 };
 
-export function generateDifficulty(a:any, i:any, r:any) {
+export function generateDifficulty(a:any, i?:any, r?:any) {
   var e = a.difficulty
     , o = ""
     , n = "";
@@ -370,7 +374,9 @@ export function createCrewTable(entries: Array<any>, searchParams:Array<string>,
 }
 
 export function searchCrewByCharTrait (criteria: Array<string>, entries: Array<CharInfo>) {
-  const charsAndTraits = allChars().concat(allTraits());
+  let charsAndTraits = allTraits();
+  // Only include chars if we don't already have hidden traits from stt
+  cfg.useSttCrewEntries || (charsAndTraits=charsAndTraits.concat(allChars()));
   let searchParams: Array<string> = [];
   criteria.filter(x => x !== '').forEach(name => {
     matcher.matchOne(function (err:any, res:string) {
@@ -379,9 +385,14 @@ export function searchCrewByCharTrait (criteria: Array<string>, entries: Array<C
       }
       searchParams.push(res);
       entries = entries.filter(
-        entry => _.contains(entry.traits.split(',').map((x:string) => x.trim()), res)
+        entry => {
+          const matchTraits = entry.traits.split(',').map((x:string) => x.trim())
+              .concat(entry.traits_hidden);
+
+          return _.contains(matchTraits, res)
           || (entry.char === res)
-          || _.contains(entry.moreChar, res));
+          || _.contains(entry.moreChar, res);
+        });
 
     }, charsAndTraits, 'char or trait', name);
   });
