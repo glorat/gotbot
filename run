@@ -1,5 +1,4 @@
 #!/bin/bash
 export NODE_ENV=production
-node dist/lib/cachewiki.js
 echo $$ > data/run.pid
 exec node dist/lib/index.js 
