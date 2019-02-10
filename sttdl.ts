@@ -20,7 +20,7 @@ import * as fs from 'async-file';
 import cfg from './config';
 
 import STTApiLite from './lib/modules/STTApiLite/lib/STTApiLite';
-let password = require('./data/password');
+let password = require(cfg.dataPath + 'password');
 
 let STTApi = new STTApiLite();
 
