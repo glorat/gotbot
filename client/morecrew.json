@@ -125,7 +125,7 @@
         "stars": 5
     },
     {
-        "name": "Ikat'Ika",
+        "name": "Ikat'ika",
         "wiki": "/wiki/Ikat'ika",
         "stars": 4
     },
@@ -418,5 +418,150 @@
         "name": "Disguised Chakotay",
         "wiki": "/wiki/Disguised_Chakotay",
         "stars": 4
+    },
+    {
+        "name": "Vice Admiral Dougherty",
+        "wiki": "/wiki/Vice_Admiral_Dougherty",
+        "stars": 4
+    },
+    {
+        "name": "Admiral Owen Paris",
+        "wiki": "/wiki/Admiral_Owen_Paris",
+        "stars": 4
+    },
+    {
+        "name": "Humbled Archer",
+        "wiki": "/wiki/Humbled_Archer",
+        "stars": 5
+    },
+    {
+        "name": "Demora Sulu",
+        "wiki": "/wiki/Demora_Sulu",
+        "stars": 4
+    },
+    {
+        "name": "High Roller Sisko",
+        "wiki": "/wiki/High_Roller_Sisko",
+        "stars": 5
+    },
+    {
+        "name": "Boothby Replicant",
+        "wiki": "/wiki/Boothby_Replicant",
+        "stars": 5
+    },
+    {
+        "name": "Warship EMA",
+        "wiki": "/wiki/Warship_EMA",
+        "stars": 5
+    },
+    {
+        "name": "Juliana Tainer",
+        "wiki": "/wiki/Juliana_Tainer",
+        "stars": 5
+    },
+    {
+        "name": "K'mtar",
+        "wiki": "/wiki/K%27mtar",
+        "stars": 4
+    },
+    {
+        "name": "Assimilated Hawk",
+        "wiki": "/wiki/Assimilated_Hawk",
+        "stars": 5
+    },
+    {
+        "name": "Governor Worf",
+        "wiki": "/wiki/Governor_Worf",
+        "stars": 5
+    },
+    {
+        "name": "B-4",
+        "wiki": "/wiki/B-4",
+        "stars": 4
+    },
+    {
+        "name": "Five of Twelve",
+        "wiki": "/wiki/Five_of_Twelve",
+        "stars": 5
+    },
+    {
+        "name": "Seven in Silver",
+        "wiki": "/wiki/Seven_in_Silver",
+        "stars": 5
+    },
+    {
+        "name": "Lonzak",
+        "wiki": "/wiki/Lonzak",
+        "stars": 5
+    },
+    {
+        "name": "Assimilated Troi",
+        "wiki": "/wiki/Assimilated_Troi",
+        "stars": 4
+    },
+    {
+        "name": "Captain Braxton",
+        "wiki": "/wiki/Captain_Braxton",
+        "stars": 5
+    },
+    {
+        "name": "Dahar Master Koloth",
+        "wiki": "/wiki/Dahar_Master_Koloth",
+        "stars": 5
+    },
+    {
+        "name": "Incognito Kirk",
+        "wiki": "/wiki/Incognito_Kirk",
+        "stars": 4
+    },
+    {
+        "name": "Chancellor L'Rell",
+        "wiki": "/wiki/Chancellor_L%27Rell",
+        "stars": 5
+    },
+    {
+        "name": "Stranded Quark",
+        "wiki": "/wiki/Stranded_Quark",
+        "stars": 5
+    },
+    {
+        "name": "Kol of House Kor",
+        "wiki": "/wiki/Kol_of_House_Kor",
+        "stars": 5
+    },
+    {
+        "name": "Section 31 Philippa Georgiou",
+        "wiki": "/wiki/Section_31_Philippa_Georgiou",
+        "stars": 4
+    },
+    {
+        "name": "L'Rell",
+        "wiki": "/wiki/L'Rell",
+        "stars": 2
+    },
+    {
+        "name": "Bridge Officer Number One",
+        "wiki": "/wiki/Bridge_Officer_Number_One",
+        "stars": 5
+    },
+    {
+        "name": "Irina",
+        "wiki": "/wiki/Irina",
+        "stars": 5
+    },
+    {
+        "name": "Lieutenant Chekov",
+        "wiki": "/wiki/Lieutenant_Chekov",
+        "stars": 4
+    },
+    {
+        "name": "Mirror Stamets",
+        "wiki": "/wiki/Mirror_Stamets",
+        "stars": 5
+    },
+    {
+        "name": "Away Team Number One",
+        "wiki": "/wiki/Away_Team_Number_One",
+        "stars": 5
     }
 ]
