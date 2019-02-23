@@ -39,6 +39,26 @@ download_wiki() {
     grep -A 3 FINISHED data/logs/ssr.log
 }
 
+fix_ssr_crew() {
+    echo "Fixing SSR crew mismatches"
+    pushd data/ssr.izausomecreations.com/crew
+
+    # Handle unicode apostrophe U+2019
+    zhiodo=$'Zhian\xe2\x80\x99tara Odo.json'
+
+    # SSR has these files, but they're not updated
+    rm Emergency\ Medical\ Holoprogram\ Mk.1.json
+    rm \!Q\!Dark\ Ages\!Q\!\ McCoy.json
+    rm "$zhiodo"
+
+    # These are the updated ones!
+    ln -s Emergency\ Medical\ Holoprogram\ Mk.\ 1.json Emergency\ Medical\ Holoprogram\ Mk.1.json
+    ln -s \'\'Dark\ Ages\'\'\ McCoy.json \!Q\!Dark\ Ages\!Q\!\ McCoy.json
+    ln -s Zhian\'tara\ Odo.json "$zhiodo"
+
+    popd
+}
+
 cd "${0%/*}"
 
 echo "Checking for new characters"
@@ -70,6 +90,9 @@ then
     echo "Unable to download all files at this time"
     exit 1
 fi
+
+# Quick hack to fix discrepencies in crew names between SSTApi & Wiki/SSR
+fix_ssr_crew
 
 echo "Starting cachewiki"
 node dist/lib/cachewiki.js
