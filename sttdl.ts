@@ -34,7 +34,11 @@ async function main() {
   let crew = await STTApi.executeGetRequest('character/get_avatar_crew_archetypes');
   // Post-process the data so that gotcron handle this better
   crew.crew_avatars.forEach((e:any)=>{
-    e.name = e.name.replace(/\u2019/g,"'").replace(/\"/g,"''");
+    // Temporary name hacks to fix mismatch between DB STTAPI and stt.wiki
+    // /\u2019/g,"'" - Zhian\u2019tara Odo -> Zhian'tara Odo
+    // /\"/g,"''" - "Dark Ages" McCoy -> ''Dark Ages'' McCoy
+    // /'Prisoner'/g,"Prisoner" - Xindi 'Prisoner' Archer -> Xindi Prisoner Archer
+    e.name = e.name.replace(/\u2019/g,"'").replace(/\"/g,"''").replace(/'Prisoner'/g,"Prisoner");
     e.wiki="/wiki/" + e.name.replace(/ /g,'_');
     e.wikiPath = "https://stt.wiki" + e.wiki;
   });
