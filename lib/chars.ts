@@ -196,7 +196,7 @@ export async function ssrLookup(name:string, cb:any) {
   var wname=name.replace(/"/gi,"!Q!");
   wname=wname.replace(/,/gi,"!C!");
   try {
-    let data = await fs.readFile(`client/ssr.izausomecreations.com/crew/${wname}.json`, 'utf8');
+    let data = await fs.readFile(`${cfg.dataPath}/ssr.izausomecreations.com/crew/${wname}.json`, 'utf8');
     const obj = JSON.parse(data);
     cb (obj.info ? obj.info : {});
   }
