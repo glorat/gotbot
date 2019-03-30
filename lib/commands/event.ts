@@ -1,35 +1,38 @@
-var Clapp = require('../modules/clapp-discord');
-var _ = require('underscore');
+import * as API from '../Interfaces';
+const Clapp = require('../modules/clapp-discord');
+
+
+import * as _ from 'underscore';
+import {CharInfo} from "../chars";
 const chars = require('../chars.js');
-const fleets = require('../fleetdb.js');
 const crewdb = require('../crewdb.js');
-const voyageSkills = ['cmd','dip','sec','eng','sci','med'];
+const fleets = require('../fleetdb.js');
+//const voyageSkills = ['cmd','dip','sec','eng','sci','med'];
 
 module.exports = new Clapp.Command({
   name: 'event',
   desc: 'view or set event crew',
 
 // Command function
-  fn: (argv, context) => new Promise((fulfill) => {
+  fn: (argv:any, context:API.Context) => new Promise((fulfill) => {
     try {
-      const author = context.author.username;
       const userid = context.author.id;
       const fleetId = context.fleetId;
       const args = argv.args;
       const emojify = context.emojify;
       const boldify = context.boldify;
 
-      let appendEventTraitChars = function(lines, doc, fleet) {
+      let appendEventTraitChars = function(lines:Array<string>, doc:any, fleet:API.FleetDoc) {
         let charsToSearch = doc.crew;
-        let entries = chars.allCrewEntries();
+        let entries : Array<CharInfo> = chars.allCrewEntries();
         entries = entries.filter(e => {
-          return _.contains(charsToSearch.map(x => x.name), e.name);
+          return _.contains(charsToSearch.map((x:any) => x.name), e.name);
         });
 
         doc.crew = charsToSearch; // Shove it back in so we can access the bonuses
         crewdb.calcAdjustedSkill(doc, fleet);
-        let matchEntries = []; // Collate an OR query
-        let searchParams = [];
+        let matchEntries :Array<any> = []; // Collate an OR query
+        let searchParams : Array<string> = [];
         fleet.eventTrait.forEach(criteria => {
           let res = chars.searchCrewByCharTrait(criteria, entries);
           searchParams.push(res.searchParams);
@@ -40,18 +43,15 @@ module.exports = new Clapp.Command({
         const tb1 = chars.createCrewTable(charEntries, fleet.eventChar, charsToSearch, emojify, boldify);
         lines.push(tb1);
 
+        // Remove event chars from second list
+        matchEntries = _.filter(matchEntries, e=> !_.contains(charEntries, e));
         const ret = chars.createCrewTable(matchEntries, searchParams, charsToSearch, emojify, boldify);
         lines.push(ret);
 
       };
 
-      let appendEventChars = function(lines, doc, names) {
-
-      };
-
-
-      let fleetProm, crewProm;
-      let lines = [];
+      let fleetProm;
+      let lines : Array<string> = [];
       const criteria = [args.name1, args.name2, args.name3];
       if (args.type === 'add') {
 
@@ -60,10 +60,10 @@ module.exports = new Clapp.Command({
         let res = chars.searchCrewByCharTrait(criteria, entries);
         if (res.entries.length > 0) {
           fleetProm = fleets.addEventTrait(fleetId, criteria);
-          fleetProm.then(fleet => {
+          fleetProm.then((fleet:API.FleetDoc) => {
             lines.push('**Event crew added**');
             lines.push('```');
-            res.entries.forEach(e => lines.push(e.name));
+            res.entries.forEach((e:any) => lines.push(e.name));
             lines.push('```');
             fulfill(lines.join('\n'));
           });
@@ -73,7 +73,7 @@ module.exports = new Clapp.Command({
       }
       else if (args.type === 'char') {
         // Try by specific char
-        chars.matchOne(function (oneErr, name) {
+        chars.matchOne(function (oneErr:string, name:string) {
           if (oneErr) {
             fulfill(oneErr);
           } else {
@@ -84,12 +84,12 @@ module.exports = new Clapp.Command({
         }, args.name1, args.name2, args.name3);
       }
       else if (args.type === 'reset') {
-        fleets.resetEvent(fleetId).then(x => fulfill('Event crew reset'));
+        fleets.resetEvent(fleetId).then(() => fulfill('Event crew reset'));
       }
       else {
         fleetProm = fleets.get(fleetId);
-        fleetProm.then(fleet => {
-          crewdb.get(userid).then(doc => {
+        fleetProm.then((fleet:API.FleetDoc) => {
+          crewdb.get(userid).then((doc:any) => {
 
             appendEventTraitChars(lines, doc, fleet);
             fulfill(lines.join('\n'));

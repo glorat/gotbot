@@ -4,7 +4,8 @@ import cfg from '../config';
 import Datastore from 'nedb-async';
 import * as _ from 'underscore';
 import * as chars from './chars';
-
+import * as api from './Interfaces'
+type FleetDoc = api.FleetDoc
 // @ts-ignore
 const fleets = new Datastore({ filename: cfg.dataPath + 'fleetdb.json', autoload: true });
 
@@ -18,20 +19,10 @@ module.exports = {
   get : get
 };
 
-export interface FleetDoc {
-  _id:any
-  eventChar: Array<string>
-  eventTrait: Array<Array<string>>
-  starbase: Object
-  starprof: Object
-  prefix?: string
-}
-
-
 function update(fleetId:string, fn:any) {
   const qry = {_id: fleetId};
   return get(fleetId).then((doc:FleetDoc) => {
-    const newDoc = fn(doc);
+    const newDoc:FleetDoc = fn(doc);
     fleets.asyncUpdate(qry, newDoc, {upsert: true});
     return newDoc;
   });
