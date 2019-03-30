@@ -13,13 +13,24 @@ module.exports = {
   updateStarbase : updateStarbase,
   updateStarprof : updateStarprof,
   resetEvent: resetEvent,
-  addEvent: addEvent,
+  addEventChar: addEventChar,
+  addEventTrait: addEventTrait,
   get : get
 };
 
+export interface FleetDoc {
+  _id:any
+  eventChar: Array<string>
+  eventTrait: Array<Array<string>>
+  starbase: Object
+  starprof: Object
+  prefix?: string
+}
+
+
 function update(fleetId:string, fn:any) {
   const qry = {_id: fleetId};
-  return get(fleetId).then((doc:any) => {
+  return get(fleetId).then((doc:FleetDoc) => {
     const newDoc = fn(doc);
     fleets.asyncUpdate(qry, newDoc, {upsert: true});
     return newDoc;
@@ -28,39 +39,47 @@ function update(fleetId:string, fn:any) {
 
 function updateStarbase(fleetId:string, stats:any) {
   let filtered = _.pick(stats, chars.skills);
-  const f = (doc:any) => {doc.starbase = filtered; return doc;};
+  const f = (doc:FleetDoc) => {doc.starbase = filtered; return doc;};
   return update(fleetId, f);
 }
 
 function updateStarprof(fleetId:string, stats:any) {
   let filtered = _.pick(stats, chars.skills);
-  const f = (doc:any) => {doc.starprof = filtered; return doc;};
+  const f = (doc:FleetDoc) => {doc.starprof = filtered; return doc;};
   return update(fleetId, f);
 }
 
 function resetEvent(fleetId:string) {
-  const f = (doc:any) => {doc.event = []; return doc;};
+  const f = (doc:FleetDoc) => {doc.eventChar = []; doc.eventTrait=[]; return doc;};
   return update(fleetId, f);
 }
 
-function addEvent(fleetId:string, criteria:Array<string>) {
-  const f = (doc:any) => {doc.event.push(criteria); return doc;};
+function addEventTrait(fleetId:string, criteria:Array<string>) {
+  const f = (doc:FleetDoc) => {doc.eventTrait.push(criteria); return doc;};
   return update(fleetId, f);
 }
+
+function addEventChar(fleetId:string, name:string) {
+  const f = (doc:FleetDoc) => {doc.eventChar.push(name); return doc;};
+  return update(fleetId, f);
+}
+
 
 function get(fleetId:string) {
-  function vivify(doc:any) {
+  const defStarbase = () => { return{cmd:0, dip:0, eng:0, sec:0, med:0, sci:0}};
+  function vivify(doc:FleetDoc) {
     if (doc === null) {
-      doc = {_id: fleetId };
+      doc = {_id: fleetId, starbase:defStarbase(), starprof:defStarbase(), eventChar:[], eventTrait:[] };
     }
     if (!doc.starbase) {
-      doc.starbase = {cmd:0, dip:0, eng:0, sec:0, med:0, sci:0};
+      doc.starbase = defStarbase();
     }
     if (!doc.starprof) {
-      doc.starprof = {cmd:0, dip:0, eng:0, sec:0, med:0, sci:0};
+      doc.starprof = defStarbase();
     }
-    if (!doc.event) {
-      doc.event = []; // Event search criteria
+    if (!doc.eventChar) {
+      doc.eventChar = []; // Event search criteria
+      doc.eventTrait = []
     }
     return doc;
   }
