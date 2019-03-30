@@ -56,3 +56,14 @@ export interface CrewAvatar {
   hide_from_cryo: boolean
   skills: Array<string>
 }
+
+
+export interface FleetDoc {
+  _id:any
+  eventChar: Array<string>
+  eventTrait: Array<Array<string>>
+  starbase: Object
+  starprof: Object
+  prefix?: string
+}
+
