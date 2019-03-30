@@ -11,6 +11,7 @@ WGETSOURCE_CATEGORIES=data/wgetcategories.txt
 WGETSOURCE_MORECREW=data/wgetmorecrew.txt
 
 CATEGORIES=( 'Away_Team_Missions' 'Space_Battle_Missions' )
+TEMPLATES=( 'MissionsNav' 'CCMissionNav' )
 
 generate_wgetsources() {
     echo "Generating source files for wget"
@@ -18,6 +19,10 @@ generate_wgetsources() {
     for item in ${CATEGORIES[*]}
     do
         printf "https://stt.wiki/wiki/Category:%s\n" $item >> $WGETSOURCE_CATEGORIES
+    done
+    for item in ${TEMPLATES[*]}
+    do
+        printf "https://stt.wiki/wiki/Template:%s\n" $item >> $WGETSOURCE_CATEGORIES
     done
 
     # Sort morejson by Category (Stars) then by name
