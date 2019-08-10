@@ -91,7 +91,7 @@ wikidb = obj;
 wikidb.charstars = _.object(wikidb.crewentries.map(x=>x.name), wikidb.crewentries.map(x=>x.stars));
 wikidb.charToCrew = _.groupBy(wikidb.crewentries, x=>x.char);
 
-var traitsSet = new Set();
+var traitsSet = new Set<string>();
 // Add skills as traits
 wikidb.crewentries.forEach(x=>x.traits += ',' + _.uniq(x.skill.map(x=>x.skill)).join(',') );
 // Add vanilla traits

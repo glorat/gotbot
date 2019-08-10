@@ -29,7 +29,7 @@ module.exports = new Clapp.Command({
         .filter(x => x != undefined && x != '')
         .value();
       let featuredTraits:Array<string> = [];
-      _.forEach(traits, name => {
+      _.forEach(traits, (name:string) => {
         matcher.matchOne(function (err, val) {
           if (err) throw err;
           featuredTraits.push(<string>val);

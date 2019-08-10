@@ -19,7 +19,7 @@ console.log(cfg.dataPath);
 
 describe('gotBot', function () {
 
-  function sendCommand(cmd:string, context?:api.Context) : Promise<string> {
+  function sendCommand(cmd:string, context?:api.Context|any) : Promise<string> {
 
     assert(cli.isCliSentence(cmd));
     if (context == null) {
@@ -455,4 +455,3 @@ describe('missions', function() {
   });
 
 });
-
