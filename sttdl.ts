@@ -34,7 +34,10 @@ async function main() {
   let crew = await STTApi.executeGetRequest('character/get_avatar_crew_archetypes');
   // Post-process the data so that gotcron handle this better
   crew.crew_avatars.forEach((e:any)=>{
-    e.name = e.name.replace(/\u2019/g,"'").replace(/\"/g,"''");
+    e.name = e.name.replace(/\u2019/g, "'");
+    if (e.name.match(/^\"/)) {
+      e.name = e.name.replace(/\"/g, "''");
+    }
     e.wiki="/wiki/" + e.name.replace(/ /g,'_');
     e.wikiPath = "https://stt.wiki" + e.wiki;
   });
