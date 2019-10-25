@@ -200,3 +200,13 @@ schedule.scheduleJob(crontab, function(){
     process.exit(code);
   });
 });
+
+// In UTC timezone, gauntlet resets at 20:00
+schedule.scheduleJob('02 20 * * *', function() {
+  console.log('Running sttdl to refresh gcalc');
+  const { spawn } = require('child_process');
+  const fs = require('fs');
+  const got = spawn('node dist/sttdl.js');
+  got.stdout.pipe(fs.createWriteStream(cfg.dataPath+'logs/sttdl.log', {flags: 'a'}));
+
+});
