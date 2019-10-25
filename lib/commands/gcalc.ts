@@ -15,9 +15,22 @@ module.exports = new Clapp.Command({
   fn: (argv:any, context:API.Context) => new Promise((fulfill) => {
     try {
 
+      const args = argv.args;
+      let featuredSkill = args.skill;
+      let traits = _.chain([args.trait1, args.trait2, args.trait3])
+        .filter(x => x != undefined && x != '')
+        .value();
+
+      if (!featuredSkill) {
+        const fs = require('fs');
+        let rawdata = fs.readFileSync(cfg.dataPath +'gauntlet.json');
+        let gauntlet_data = JSON.parse(rawdata);
+        featuredSkill = gauntlet_data.featured_skill.substring(0,3);
+        traits = gauntlet_data.traits;
+      }
+
       const author = context.author.username;
       const userid = context.author.id;
-      const args = argv.args;
       const emojify = context.emojify;
 
       if (!context.isEntitled(userid) && !argv.flags.best) {
@@ -25,9 +38,6 @@ module.exports = new Clapp.Command({
         return;
       }
 
-      const traits = _.chain([args.trait1, args.trait2, args.trait3])
-        .filter(x => x != undefined && x != '')
-        .value();
       let featuredTraits:Array<string> = [];
       _.forEach(traits, (name:string) => {
         matcher.matchOne(function (err, val) {
@@ -46,11 +56,9 @@ module.exports = new Clapp.Command({
         }
         // Create a default doc if user is new
         if (doc === null || !doc.crew) {
-          fulfill(`Sorry ${author}, you do not have any crew for the gauntlet`);
-          return;
+          throw(`Sorry ${author}, you do not have any crew for the gauntlet`);
         }
 
-        const featuredSkill = args.skill;
         const featuredSkillWeight = Gauntlet.featuredSkillWeight;
         let charTraits:any = {};
         chars.allCrewEntries().forEach(x=> {
