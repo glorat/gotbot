@@ -299,7 +299,10 @@ describe('gotBot', function () {
       it('should provide analysis for your best lineup', function(done) {
         this.timeout(10000); // Combinatorics is slow
         sendCommand('-dev bot gcalc --best').then(data=>{
-          expect(data).to.contain('The Caretaker');
+          // Testing for a good calculation
+          expect(data).to.contain('Locutus of Borg');
+          // Testing that gauntlet.json was picked up
+          expect(data).to.contain('Your best 5 crew for dip and traits Crafty, Scoundrel, Costumed');
           done();
         }).catch(done);
       });

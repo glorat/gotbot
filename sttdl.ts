@@ -43,6 +43,8 @@ async function main() {
   });
   await fs.writeFile(cfg.dataPath + "sttcrew.json", JSON.stringify(crew.crew_avatars));
 
+  let gauntlet = await STTApi.executeGetRequest('gauntlet/status');
+  await fs.writeFile(cfg.dataPath + 'gauntlet.json', JSON.stringify(gauntlet.character.gauntlets[0].contest_data));
 }
 
 main();
