@@ -182,7 +182,7 @@ bot.login(cfg.token).then(() => {
 
 // Schedule the gotcron
 const schedule = require('node-schedule');
-let crontab = '45 1,5,9,13,17,21 * * *';
+let crontab = '02 1,5,9,13,17,20 * * *';
 
 console.log(`Scheduling gotcron at ${crontab}`);
 
@@ -199,14 +199,4 @@ schedule.scheduleJob(crontab, function(){
     console.log(`This process will also exit with ${code} to trigger restart`);
     process.exit(code);
   });
-});
-
-// In UTC timezone, gauntlet resets at 20:00
-schedule.scheduleJob('02 20 * * *', function() {
-  console.log('Running sttdl to refresh gcalc');
-  const { spawn } = require('child_process');
-  const fs = require('fs');
-  const got = spawn('node dist/sttdl.js');
-  got.stdout.pipe(fs.createWriteStream(cfg.dataPath+'logs/sttdl.log', {flags: 'a'}));
-
 });
