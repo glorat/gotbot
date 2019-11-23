@@ -26,6 +26,7 @@ module.exports = new Clapp.Command({
         let rawdata = fs.readFileSync(cfg.dataPath +'gauntlet.json');
         let gauntlet_data = JSON.parse(rawdata);
         featuredSkill = gauntlet_data.featured_skill.substring(0,3);
+        featuredSkill = (featuredSkill === 'com' ? 'cmd' : featuredSkill);
         traits = gauntlet_data.traits;
       }
 
