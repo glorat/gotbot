@@ -170,16 +170,6 @@ bot.on("raw", (packet:any) => {
   }
 });
 
-
-bot.login(cfg.token).then(() => {
-  //let got = bot.guilds.get(cfg.gotServer);
-  // TODO: Post something to computer-core channel
-  console.log('Connected to discord!');
-}).catch(function(e) {
-  console.log('Failed to connect to discord:\n   ' + e);
-  // Now what? In debug, we continue on since the webserver can work...
-});
-
 // Schedule the gotcron
 const schedule = require('node-schedule');
 let crontab = '02 1,5,9,13,17,20 * * *';
@@ -200,3 +190,19 @@ schedule.scheduleJob(crontab, function(){
     process.exit(code);
   });
 });
+
+
+function connectToDiscord() {
+  console.log('Connecting to discord...');
+  bot.login(cfg.token).then(() => {
+    //let got = bot.guilds.get(cfg.gotServer);
+    // TODO: Post something to computer-core channel
+    console.log('Connected to discord!');
+  }).catch(function(e) {
+    console.log('Failed to connect to discord:\n   ' + e);
+    // Now what? In debug, we continue on since the webserver can work...
+  });
+}
+
+// Give all the async init some time to happen
+setTimeout(connectToDiscord, 2000);
