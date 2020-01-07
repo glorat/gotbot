@@ -108,6 +108,7 @@ function parseCharForSkillData(entry:CrewEntry, $:CheerioStatic) {
   const table = $('#Away_Team_Skills').first().parent().next().next(); //.parent().next('table').first();
 
   const starsRow = table.find('tr').eq(1);
+  // @ts-ignore
   const skillCount = +starsRow.find('td').eq(1).attr('colspan');
 
   const skillsRow = table.find('tr').eq(2);
@@ -183,7 +184,7 @@ function parseCharPage($:CheerioStatic, entry:CrewEntry) {
 
 
 /** Almighty hack to prevent V8 from holding onto the mega string when parsing */
-function copyString(original_string:string) {
+function copyString(original_string:string|undefined) {
   return (' ' + original_string).slice(1);
 }
 
