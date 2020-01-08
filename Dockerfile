@@ -1,4 +1,4 @@
-FROM node:10-alpine
+FROM node:12-alpine
 RUN apk update && apk add wget git jq bash && rm -rf /var/cache/apk/*
 
 WORKDIR /usr/src/gotbot
