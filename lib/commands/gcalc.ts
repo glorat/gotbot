@@ -86,7 +86,7 @@ module.exports = new Clapp.Command({
           msg = `Your best 5 crew for ${featuredSkill ? emojify(featuredSkill) : 'general'} and traits ${featuredTraits.join(', ')}\n   `
             + res[0].namesMore.join('\n   ') + "\n";
           msg += "Gauntlet strength " + Math.round(res[0].total) + "\n";
-          msg += cfg.baseUrl + '#/gauntlet';
+          // msg += cfg.baseUrl + '#/gauntlet';
         }
         else {
           msg = 'Unable to provide an answer';
