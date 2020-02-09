@@ -17,7 +17,7 @@ module.exports = new Clapp.Command({
 
       const args = argv.args;
       let featuredSkill = args.skill;
-      let traits = _.chain([args.trait1, args.trait2, args.trait3])
+      let traits:string[] = _.chain([args.trait1, args.trait2, args.trait3])
         .filter(x => x != undefined && x != '')
         .value();
 
@@ -28,6 +28,7 @@ module.exports = new Clapp.Command({
         featuredSkill = gauntlet_data.featured_skill.substring(0,3);
         featuredSkill = (featuredSkill === 'com' ? 'cmd' : featuredSkill);
         traits = gauntlet_data.traits;
+        traits = traits.map(x => {return x.replace(/_/g, ' ')});
       }
 
       const author = context.author.username;
