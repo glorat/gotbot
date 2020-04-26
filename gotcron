@@ -68,6 +68,9 @@ cd "${0%/*}"
 
 echo "Checking for new characters"
 node dist/sttdl.js
+# Use jq to remove characters that don't have any skills
+mv data/sttcrew.json data/sttcrew-orig.json
+jq -c '[.[]|select(.skills|length != 0)]' data/sttcrew-orig.json >data/sttcrew.json
 
 echo "Creating wget source files"
 generate_wgetsources
@@ -103,7 +106,7 @@ echo "Starting cachewiki"
 node dist/lib/cachewiki.js
 
 echo "Telling bot to restart "
-if [ -f /etc/alpine-release ] 
+if [ -f /etc/alpine-release ]
 then
     pkill -f lib/index.js
 else
