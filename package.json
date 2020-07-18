@@ -16,8 +16,8 @@
     ""
   ],
   "scripts": {
-    "bot": "node ./lib/index.js",
-    "cachewiki": "node ./lib/cachewiki.js",
+    "bot": "node ./dist/lib/index.js",
+    "cachewiki": "node ./dist/lib/cachewiki.js",
     "dlwiki": "./gotcron",
     "test": "gulp"
   },
@@ -58,20 +58,20 @@
     "cheerio": "^0.22.0",
     "clapp": "^1.3.3",
     "cli-table3": "^0.5.1",
-    "discord.js": "^11.5.1",
+    "discord.js": "^11.6.4",
     "express": "^4.17.1",
-    "gulp-cli": "^2.2.0",
+    "gulp-cli": "^2.3.0",
     "jsonfile": "^5.0.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "longjohn": "^0.2.12",
-    "mkdirp": "^0.5.1",
-    "moment": "^2.22.1",
+    "mkdirp": "^0.5.5",
+    "moment": "^2.27.0",
     "nedb": "^1.8.0",
     "nedb-async": "0.0.5",
     "node-fetch": "^2.6.0",
     "node-schedule": "^1.3.1",
-    "request-json": "^0.6.1",
+    "request-json": "^0.6.5",
     "underscore": "^1.9.2",
-    "winston": "^2.4.4"
+    "winston": "^2.4.5"
   }
 }
