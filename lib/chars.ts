@@ -11,7 +11,7 @@ const matcher = require('./matcher.js');
 const Table = require('cli-table3');
 import cfg from '../config';
 
-export const skills = ['cmd','dip','eng','sec','med','sci'];
+export const skills:string[] = ['cmd','dip','eng','sec','med','sci'];
 
 export interface Skill {
   base: number
@@ -100,7 +100,7 @@ wikidb.crewentries.forEach(x=>x.traits.split(',').map(x=>x.trim()).forEach((x:st
 wikidb.crewentries.forEach(x => x.traits_hidden.forEach(y=>traitsSet.add(y)));
 wikidb.traits = Array.from(traitsSet);
 
-export function allCrewEntries() : Array<CharInfo>{
+export function allCrewEntries() : CharInfo[]{
   return _.clone(wikidb.crewentries);
 }
 

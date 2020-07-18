@@ -1,3 +1,5 @@
+import {CharInfo} from "../chars";
+
 const Clapp = require('../modules/clapp-discord');
 import _ = require('underscore');
 const chars = require('../chars.js');
@@ -40,7 +42,7 @@ module.exports = new Clapp.Command({
       const author = context.author.username;
       const userid = context.author.id;
       const fleetId = context.fleetId;
-      const args = argv.args;
+      const args:Record<string, string> = argv.args;
       const emojify = context.emojify;
       const sks : Array<string> = chars.skills;
 
@@ -50,12 +52,13 @@ module.exports = new Clapp.Command({
       }
 
       // Reorder skills liset to primary/secondary/others
-      const skillList = _.union([args.primary], [args.secondary], _.without(chars.skills, args.primary, args.secondary));
+      const allSkills:string[] = chars.skills;
+      const skillList:string[] = _.union([args.primary], [args.secondary], _.without(allSkills, args.primary, args.secondary));
 
 
       const handleUserDoc = function(doc:any) {
         if (argv.flags.best) {
-          const allInfo = chars.allCrewEntries();
+          const allInfo: CharInfo[] = chars.allCrewEntries();
           const allNms:Array<string> = allInfo.map((x:any) => x.name);
 
           const fullCrew = allNms.map(nm => {
@@ -170,7 +173,9 @@ module.exports = new Clapp.Command({
 
         let crewList = constrainedCrew.crew;
         let totalSkills = calcTotalSkills(crewList, skillList);
-        const startAm = args.start * (args.refill+1);
+        const startArg = parseInt(args.start);
+        const refillArg = parseInt(args.refill)
+        const startAm = startArg * (refillArg+1);
         const hours = voyage.solveTime(totalSkills, startAm);
 
         // Next step, try swapping in and out to improve things
@@ -218,8 +223,8 @@ module.exports = new Clapp.Command({
         //const estlen = formatHrs(bestHours);
 
         let hrsMsg = '';
-        for (let refill=0; refill<=args.refill+1; refill++) {
-          let targetHours = voyage.solveTime(totalSkills, args.start * (refill+1));
+        for (let refill=0; refill<=refillArg+1; refill++) {
+          let targetHours = voyage.solveTime(totalSkills, startArg * (refill+1));
           hrsMsg += `${refill} refills: ${formatHrs(targetHours)}\n`;
         }
 
@@ -239,7 +244,7 @@ module.exports = new Clapp.Command({
 
           msg = `Your best crew for ${emojify(argv.args.primary)}/${emojify(argv.args.secondary)}
     ${names.join('\n    ')}
-with starbase bonus of 
+with starbase bonus of
 Base: ${baseBonuses}
 Prof: ${profBonuses}
 with a ${args.start} ship and ${args.refill} refills
