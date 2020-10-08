@@ -38,7 +38,7 @@ async function main() {
     if (e.name.match(/^\"/)) {
       e.name = e.name.replace(/\"/g, "''");
     }
-    e.wiki="/wiki/" + e.name.replace(/ /g,'_');
+    e.wiki="/wiki/" + e.name.replace(/ /g,'_').replace(/\//g,'-');
     e.wikiPath = "https://stt.wiki" + e.wiki;
   });
   await fs.writeFile(cfg.dataPath + "sttcrew.json", JSON.stringify(crew.crew_avatars));
