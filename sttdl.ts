@@ -35,8 +35,8 @@ async function main() {
   // Post-process the data so that gotcron handle this better
   crew.crew_avatars.forEach((e:any)=>{
     e.name = e.name.replace(/\u2019/g, "'");
-    if (e.name.match(/^\"/)) {
-      e.name = e.name.replace(/\"/g, "''");
+    if (e.name.match(/^\"Dark/)) {
+      e.name = e.name.replace(/\"Dark Ages\"/g, "''Dark Ages''");
     }
     e.wiki="/wiki/" + e.name.replace(/ /g,'_').replace(/\//g,'-');
     e.wikiPath = "https://stt.wiki" + e.wiki;
