@@ -14,22 +14,22 @@ export interface Context {
   fleetId: string; // Snowflake
   author: any;
   bot? : Discord.Client;
-  channel : Discord.TextChannel | Discord.GroupDMChannel | Discord.DMChannel | DummyChannel;
+  channel : Discord.TextChannel | Discord.DMChannel | DummyChannel;
   embed? : any;
   msg? : Discord.Message;
   callback? : any; // FIXME
   isEntitled(userid: string): boolean ;
 }
 
-export function hasGuild(channel : Discord.TextChannel | Discord.GroupDMChannel | Discord.DMChannel | DummyChannel) : channel is Discord.TextChannel {
+export function hasGuild(channel : Discord.TextChannel | Discord.DMChannel | DummyChannel) : channel is Discord.TextChannel {
   return (<Discord.TextChannel>channel).guild !== undefined;
 }
-export function hasChannelName(channel : Discord.TextChannel | Discord.GroupDMChannel | Discord.DMChannel | DummyChannel)
-  : channel is Discord.TextChannel | Discord.GroupDMChannel | DummyChannel{
-  return (<Discord.TextChannel | Discord.GroupDMChannel>channel).name !== undefined;
+export function hasChannelName(channel : Discord.TextChannel | Discord.DMChannel | DummyChannel)
+  : channel is Discord.TextChannel | DummyChannel{
+  return (<Discord.TextChannel>channel).name !== undefined;
 }
-export function canFetchMessages(channel: any) :  channel is Discord.TextBasedChannelFields {
-  return (<Discord.TextBasedChannelFields>channel).send !== undefined;
+export function canFetchMessages(channel: any) :  channel is Discord.TextChannel {
+  return (<Discord.TextChannel>channel).send !== undefined;
 }
 
 

@@ -23,15 +23,15 @@ if (process.env.NODE_ENV !== 'production'){
 }
 
 function isEntitled(id:string) : boolean {
-  let got = bot.guilds.get(cfg.gotServer);
-  return got ? got.members.has(id) : false;
+  let got = bot.guilds.cache.get(cfg.gotServer);
+  return got ? got.members.cache.has(id) : false;
 }
 
 bot.on('message', msg => {
   // Fired when someone sends a message
   function emojify(sym:string) : string|Discord.Emoji {
     const emojis =  hasGuild( msg.channel) ? msg.channel.guild.emojis : msg.client.emojis;
-    const estat = emojis.find(x=> x.name === sym.toLowerCase());
+    const estat = emojis.cache.find(x=> x.name === sym.toLowerCase());
     return estat ? estat : sym;
   }
 
@@ -111,7 +111,7 @@ bot.on('message', msg => {
     if (cli.isCliSentence(content)) {
       cli.sendCommand(content, context).then(trimMessage).then(onReply);
     }
-    else if(msg.isMentioned(bot.user)) {
+    else if(msg.mentions.has(bot.user ?? 'nothing at all')) {
       var str = msg.cleanContent.replace('@' + cfg.botName, '').trim();
       const cmd = cfg.prefix + ' ' + str;
       cli.sendCommand(cmd, context).then(trimMessage).then(onReply);
@@ -147,15 +147,18 @@ bot.on("resume", function () {
 });
 
 // We subscribe to raw because the messageDelete event doesn't work on "old" messages
-bot.on("raw", (packet:any) => {
+bot.on("raw", async (packet:any) => {
   if(packet.t === "MESSAGE_DELETE") {
     let messageID = packet.d.id;
     let channelID = packet.d.channel_id;
-    let channel = bot.channels.get(channelID);
+    await bot.channels.fetch(channelID);
+    let channel = bot.channels.cache.get(channelID);
     if (channel && canFetchMessages(channel)) {
-      channel.fetchMessages({limit:1, after:messageID}).then(msgs => {
+    // if (channel) {
+      // channel.awaitMessages()
+      channel.messages.fetch({limit:1, after:messageID}).then(msgs => {
         msgs.forEach(msg => {
-          if (msg.author.id === bot.user.id) {
+          if (msg.author.id === bot.user!.id) {
             console.log('I replied to a deleted message - will try to delete my reply!' + msg);
             msg.delete();
           }
@@ -192,10 +195,18 @@ schedule.scheduleJob(crontab, function(){
 });
 
 
-function connectToDiscord() {
+async function connectToDiscord() {
   console.log('Connecting to discord...');
-  bot.login(cfg.token).then(() => {
-    //let got = bot.guilds.get(cfg.gotServer);
+  bot.login(cfg.token).then(async () => {
+
+    // Pre-cache
+    const myServer = await bot.guilds.fetch(cfg.gotServer);
+    if (myServer) {
+      await myServer.members.fetch()
+    } else {
+      throw new Error(`No members in my server ${cfg.gotServer}`)
+    }
+
     // TODO: Post something to computer-core channel
     console.log('Connected to discord!');
   }).catch(function(e) {

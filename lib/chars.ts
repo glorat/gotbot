@@ -88,6 +88,7 @@ let json = fssync.readFileSync(cfg.wikidbpath, 'utf8');
 let obj = JSON.parse(json);
 
 wikidb = obj;
+// @ts-ignore
 wikidb.charstars = _.object(wikidb.crewentries.map(x=>x.name), wikidb.crewentries.map(x=>x.stars));
 wikidb.charToCrew = _.groupBy(wikidb.crewentries, x=>x.char);
 

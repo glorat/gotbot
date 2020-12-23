@@ -68,7 +68,7 @@ module.exports = {
   wikidb:wikidb
 };
 
-function parseCharForTraits($:CheerioStatic) {
+function parseCharForTraits($:cheerio.Root) {
   const traitheader = $('b').filter(function() {return $(this).text() === 'Traits';}).first();
   const traitbox = traitheader.parent().parent().next('tr');
   var traits : Array<string> = [];
@@ -79,14 +79,14 @@ function parseCharForTraits($:CheerioStatic) {
   return traits.join(', ');
 }
 
-function parseCharForChar($:CheerioStatic) {
+function parseCharForChar($:cheerio.Root) {
   const traitheader = $('b').filter(function() {return $(this).text() === 'Character';}).first();
   const traitbox = traitheader.parent().parent().next('tr');
   return copyString(traitbox.find('a').text());
 
 }
 
-function parseCharForMoreChar($:CheerioStatic) {
+function parseCharForMoreChar($:cheerio.Root) {
   const moreHeader = $('b').filter(function() : boolean {
     // @ts-ignore
     return $(this).text().match('Other (Versions|Variations|Variants)');
@@ -101,7 +101,7 @@ function parseCharForMoreChar($:CheerioStatic) {
 
 }
 
-function parseCharForSkillData(entry:CrewEntry, $:CheerioStatic) {
+function parseCharForSkillData(entry:CrewEntry, $:cheerio.Root) {
   const stars = entry.stars;
   const name = entry.name;
 
@@ -158,7 +158,7 @@ function parseCharForSkillData(entry:CrewEntry, $:CheerioStatic) {
   }
   return skilldata;
 }
-function parseCharPage($:CheerioStatic, entry:CrewEntry) {
+function parseCharPage($:cheerio.Root, entry:CrewEntry) {
   const name = entry.name;
   const skilldata = parseCharForSkillData(entry, $);
 
@@ -210,7 +210,7 @@ async function parseCategoryCrew() : Promise<Array<any>> {
     const file = `data/stt.wiki/wiki/Category:${catfile}`;
     return await fs.readFile(file, 'utf8')
       .then(cheerio.load)
-      .then(function ($) {
+      .then(function ($: cheerio.Root) {
         console.log('LOADING ' + file);
         const crewlinks = $('.mw-category-generated a');
         crewlinks.each(function (i, elem) {
