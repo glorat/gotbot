@@ -42,13 +42,15 @@ Pre-requisite knowledge for developers
 
 If you need help on the above, please RTM. Otherwise proceed...
 
-Node 10 or higher is required!
+Node 12 or higher is required!
 
 Clone this repository, and run:
 ```sh
 $ npm install && npm test
 ```
 Copy `password_sample.js` to `data/password.js` and supply valid Discord bot tokens
+
+The bot requires the GUILD_MEMBERS privileged intent so please enable that for your bot per https://discord.com/developers/docs/topics/gateway#privileged-intents
 
 ## Usage
 

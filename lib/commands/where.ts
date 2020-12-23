@@ -8,27 +8,45 @@ module.exports = new Clapp.Command({
   desc: "where is the bot deployed",
 
 
-  fn:(argv:any, context: API.Context) => new Promise((fulfill, reject) => {
+  fn:(argv:any, context: API.Context) => new Promise(async(fulfill, reject) => {
     const bot : Discord.Client|undefined = context.bot;
 
-    if (bot) {
-      const botServer = bot.guilds.cache.get(cfg.botServer);
-      if (botServer) {
-        const ret = `I am in the following ${bot.guilds.cache.size} servers\n` + bot.guilds.cache.map(x => {
-          const adminPresent = x.members.cache.has(cfg.adminId);
-          // const thisOwner = bot.users.cache.get(x.ownerID);
-          const thisOwner = x.member(x.ownerID)
-          // const fleetInBotServer = botServer.members.has(thisOwner.id);
-          const mark = adminPresent ? '✓' : '❌';
+    try {
+      if (bot) {
+        const botServer = await bot.guilds.fetch(cfg.botServer);
+        if (!botServer) {
+          console.error("Don't know what server I the bot am managed from");
+          reject("Don't know what server I the bot am managed from");
+        }
+        else {
+          // This line requires GUILD_MEMBERS privileged intents
+          // https://discord.com/developers/docs/topics/gateway#privileged-intents
+          await botServer.members.fetch();
+          if (botServer) {
+            const foo: Promise<string>[] = bot.guilds.cache.map(async x => {
+              const thisOwner = await x.members.fetch(x.ownerID);
+              const fleetInBotServer = botServer.members.cache.has(x.ownerID);
+              const mark = fleetInBotServer ? '✓' : '❌';
 
-          return `${mark} ${x.name} - ${thisOwner?.displayName ?? x.ownerID}`;
-        }).join(`\n`);
-        fulfill (ret);
-      }
-      else {
-        fulfill ('No bot server')
+              return `${mark} ${x.name} - ${thisOwner?.displayName ?? x.ownerID}`;
+            });
+            const lines = await Promise.all(foo);
+
+            const ret = `I am in the following ${bot.guilds.cache.size} servers\n` + lines.join(`\n`);
+            console.log('Done getting list...');
+            fulfill (ret);
+          }
+          else {
+            fulfill ('No bot server')
+          }
+        }
+
       }
     }
+    catch (e) {
+      console.error(e)
+    }
+
   }),
   args: [
 
