@@ -112,7 +112,8 @@ bot.on('message', msg => {
       cli.sendCommand(content, context).then(trimMessage).then(onReply);
     }
     else if(msg.mentions.has(bot.user ?? 'nothing at all')) {
-      var str = msg.cleanContent.replace('@' + cfg.botName, '').trim();
+      const re = new RegExp(`^.*?${cfg.botName}`);
+      const str = msg.cleanContent.replace(re, '').trim();
       const cmd = cfg.prefix + ' ' + str;
       cli.sendCommand(cmd, context).then(trimMessage).then(onReply);
     }
