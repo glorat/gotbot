@@ -111,7 +111,7 @@ bot.on('message', msg => {
     if (cli.isCliSentence(content)) {
       cli.sendCommand(content, context).then(trimMessage).then(onReply);
     }
-    else if(msg.mentions.has(bot.user ?? 'nothing at all')) {
+    else if(msg.mentions.has(bot.user ?? 'nothing at all') && !msg.mentions.everyone) {
       const re = new RegExp(`^.*?${cfg.botName}`);
       const str = msg.cleanContent.replace(re, '').trim();
       const cmd = cfg.prefix + ' ' + str;
