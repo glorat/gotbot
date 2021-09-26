@@ -18,11 +18,11 @@ generate_wgetsources() {
     > $WGETSOURCE_CATEGORIES
     for item in ${CATEGORIES[*]}
     do
-        printf "https://stt.wiki/wiki/Category:%s\n" $item >> $WGETSOURCE_CATEGORIES
+        printf "https://sttwiki.org/wiki/Category:%s\n" $item >> $WGETSOURCE_CATEGORIES
     done
     for item in ${TEMPLATES[*]}
     do
-        printf "https://stt.wiki/wiki/Template:%s\n" $item >> $WGETSOURCE_CATEGORIES
+        printf "https://sttwiki.org/wiki/Template:%s\n" $item >> $WGETSOURCE_CATEGORIES
     done
 
     # Sort morejson by Category (Stars) then by name
@@ -76,19 +76,19 @@ echo "Creating wget source files"
 generate_wgetsources
 
 # Removing Category pages to ensures subpages are refreshed
-rm data/stt.wiki/wiki/Category*
+rm data/sttwiki.org/wiki/Category*
 
 while [ $ATTEMPT -le $MAX_RETRIES ]
 do
     echo "Starting download of wiki - attempt $ATTEMPT"
     download_wiki
-    BADDOWNLOADS=$( find data/stt.wiki/wiki/ -size -10k |wc -l )
+    BADDOWNLOADS=$( find data/sttwiki.org/wiki/ -size -10k |wc -l )
     if [ $BADDOWNLOADS -eq 0 ]
     then
         break
     fi
     echo "Bad downloads detected!"
-    find data/stt.wiki/wiki/ -size -10k -exec rm {} \;
+    find data/sttwiki.org/wiki/ -size -10k -exec rm {} \;
     sleep $SLEEP_SEC
     ATTEMPT=$(( $ATTEMPT + 1 ))
 done

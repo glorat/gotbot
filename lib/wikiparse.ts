@@ -46,6 +46,7 @@ const allcrew: Array<CrewAvatar> = require('../../data/sttcrew.json');
 const morecrew : Array<CrewEntry> = require('../../client/morecrew.json');
 const moretraitlist = ['StarCap','DiscoCrew']; // TODO: dir list client/trait
 const moretrait : any = {};
+const wikiurl = 'sttwiki.org';
 
 moretraitlist.forEach(async trait => {
   let nms = (await fs.readFile(`client/trait/${trait}`)).toString().split("\n");
@@ -207,7 +208,7 @@ async function parseCategoryCrew() : Promise<Array<any>> {
   let crewLoadPromises = subcatFiles.map(async catfile => {
     const cat = catfile.replace(/\?.*/, '');
     const stars = subcats.indexOf(cat) + 1;
-    const file = `data/stt.wiki/wiki/Category:${catfile}`;
+    const file = `data/${wikiurl}/wiki/Category:${catfile}`;
     return await fs.readFile(file, 'utf8')
       .then(cheerio.load)
       .then(function ($: cheerio.Root) {
@@ -243,7 +244,7 @@ async function parseCategoryCrew() : Promise<Array<any>> {
 
 async function parseEachCharPage() {
   const all = wikidb.crewentries.map(async entry => {
-    const file = `data/stt.wiki${decodeURI(entry.wiki)}`;
+    const file = `data/${wikiurl}${decodeURI(entry.wiki)}`;
     if (await fs.exists(file)) {
       return await fs.readFile(file, 'utf8')
         .then(cheerio.load)

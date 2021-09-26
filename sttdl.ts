@@ -39,7 +39,7 @@ async function main() {
       e.name = e.name.replace(/\"Dark Ages\"/g, "''Dark Ages''");
     }
     e.wiki="/wiki/" + e.name.replace(/ /g,'_').replace(/\//g,'-');
-    e.wikiPath = "https://stt.wiki" + e.wiki;
+    e.wikiPath = "https://sttwiki.org" + e.wiki;
   });
   await fs.writeFile(cfg.dataPath + "sttcrew.json", JSON.stringify(crew.crew_avatars));
 

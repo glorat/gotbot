@@ -4,6 +4,7 @@ import chars = require('../chars.js');
 //import cfg from '../../config';
 import * as API from '../Interfaces';
 
+const wikiurl = 'sttwiki.org';
 
 module.exports = new Clapp.Command({
   name: "estats",
@@ -84,10 +85,10 @@ new moon
             color: 3447003,
             /*author: {
               name: name,
-              icon_url: 'https://stt.wiki/w/images/thumb/a/ae/Captain_Kirk_Head.png/180px-Captain_Kirk_Head.png'
+              icon_url: 'https://${wikiurl}/w/images/thumb/a/ae/Captain_Kirk_Head.png/180px-Captain_Kirk_Head.png'
             },*/
             title: name,
-            url: `https://stt.wiki/wiki/${wiki}`,
+            url: `https://${wikiurl}/wiki/${wiki}`,
             //description: 'Description.',
             fields: [
               {
@@ -136,13 +137,13 @@ new moon
               },
               {
                 name: 'Useful links',
-                value: `[stt.wiki](https://stt.wiki/wiki/${wiki}) - [SSR](${ssrLink})`,
+                value: `[${wikiurl}](https://${wikiurl}/wiki/${wiki}) - [SSR](${ssrLink})`,
                 inline: true
                 //value: 'You can put [masked links](http://google.com) and *usual* **__Markdown__**.'+ emojify('cmd')
               }
             ],
             thumbnail:{
-              url:'https://stt.wiki' + info.headImage
+              url:'https://${wikiurl}' + info.headImage
             }
             //timestamp: new Date(),
           };
