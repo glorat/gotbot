@@ -78,9 +78,6 @@ new moon
           let voyageRank = _.findIndex(voyageBest, x=>x.name === info.name) + 1;
 
           // Useful links
-          let ssrChar = name.replace(/"/gi,"!Q!").replace(/,/gi,"!C!");
-          let ssrLink = 'http://ssr.izausomecreations.com/crewcost.html?crew=' + encodeURI(ssrChar);
-
           let embed = {
             color: 3447003,
             /*author: {
@@ -134,12 +131,6 @@ new moon
                 name: 'Difficulty',
                 value: chars.generateDifficulty(ssr),
                 inline:true
-              },
-              {
-                name: 'Useful links',
-                value: `[${wikiurl}](https://${wikiurl}/wiki/${wiki}) - [SSR](${ssrLink})`,
-                inline: true
-                //value: 'You can put [masked links](http://google.com) and *usual* **__Markdown__**.'+ emojify('cmd')
               }
             ],
             thumbnail:{
