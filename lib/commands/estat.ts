@@ -143,7 +143,7 @@ new moon
               }
             ],
             thumbnail:{
-              url:'https://${wikiurl}' + info.headImage
+              url:`https://${wikiurl}` + info.headImage
             }
             //timestamp: new Date(),
           };
