@@ -1,6 +1,6 @@
 #!/bin/bash
 export NODE_ENV=production
-[ -d data/stt.wiki/wiki ] || ./gotcron
+[ -d data/sttwiki.org/wiki ] || ./gotcron
 [ -f ./data/wikidb.json ] || node dist/lib/cachewiki.js
 echo $$ > data/run.pid
-exec node dist/lib/index.js 
+exec node dist/lib/index.js
