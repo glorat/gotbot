@@ -23,6 +23,7 @@ import STTApiLite from './lib/modules/STTApiLite/lib/STTApiLite';
 let password = require(cfg.dataPath + 'password');
 
 let STTApi = new STTApiLite();
+const wikiurl = 'sttwiki.org';
 
 async function main() {
   let token = password.stttoken ? password.stttoken
@@ -39,7 +40,7 @@ async function main() {
       e.name = e.name.replace(/\"Dark Ages\"/g, "''Dark Ages''");
     }
     e.wiki="/wiki/" + e.name.replace(/ /g,'_').replace(/\//g,'-');
-    e.wikiPath = "https://sttwiki.org" + e.wiki;
+    e.wikiPath = `https://${wikiurl}${e.wiki}`;
   });
   await fs.writeFile(cfg.dataPath + "sttcrew.json", JSON.stringify(crew.crew_avatars));
 
