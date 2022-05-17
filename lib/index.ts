@@ -17,6 +17,14 @@ const moment = require('moment');
 const mkdirp = require('mkdirp');
 import * as API from './Interfaces';
 
+// const recentMessages:string[] = [];
+//
+// function recordRecent(msg: string):void {
+//   recentMessages.push(msg)
+//   if (recentMessages.length>10) {
+//     recentMessages.shift()
+//   }
+// }
 
 if (process.env.NODE_ENV !== 'production'){
   require('longjohn');
@@ -51,6 +59,11 @@ bot.on('message', msg => {
   let serverName = hasGuild(msg.channel) ? msg.channel.guild.name : 'direct';
   const channelName = hasChannelName(msg.channel)? msg.channel.name : 'DM';
   let channelTag = hasChannelName(msg.channel)? `${serverName}/${channelName}` : 'DM';
+  let content = msg.content;
+  const fleetId = context.fleetId;
+  const fleetProm = fleets.get(fleetId);
+
+
   if (!winston.loggers.has(channelTag)) {
     console.log(`Creating logger for ${channelTag}`);
 
@@ -73,15 +86,51 @@ bot.on('message', msg => {
       ]
     }).info('Bot restarted');
   }
-  winston.loggers.get(channelTag).info(`${msg.author.username} - ${msg.content}`);
+  winston.loggers.get(channelTag).info(`${msg.author.username} - ${msg.cleanContent}`);
 
-  let onReply = function(msg:string) {
-    if (msg && canFetchMessages(context.channel)) {
-      if (msg === 'EMBED') {
-        context.channel.send( {embed: context.embed});
+  function handleCli(cnt:string) {
+    if (cli.isCliSentence(cnt)) {
+      cli.sendCommand(cnt, context).then(trimMessage).then(onReply);
+    } else if (msg.mentions.has(bot.user ?? 'nothing at all') && !msg.mentions.everyone) {
+      const re = new RegExp(`^.*?${cfg.botName}`);
+      const str = msg.cleanContent.replace(re, '').trim();
+      const cmd = cfg.prefix + ' ' + str;
+      cli.sendCommand(cmd, context).then(trimMessage).then(onReply);
+    } else {
+
+      /*
+       msg.channel.send('I heard someone say ' + msg.content).then(bot_response => {
+       context.msg.delete(cfg.deleteAfterReply.time)
+       .then(msg => console.log(`Deleted message from ${msg.author}`))
+       .catch(console.log);
+       bot_response.delete(cfg.deleteAfterReply.time)
+       .then(msg => console.log(`Deleted message from ${msg.author}`))
+       .catch(console.log);
+
+       });*/
+    }
+  }
+  function addslashes( str:string ) {
+    return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+  }
+  let onReply = async function(response:string) {
+    if (response && canFetchMessages(context.channel)) {
+      if (response === 'EMBED') {
+        await context.channel.send( {embed: context.embed} );
       }
       else {
-        context.channel.send(msg);
+        // This is the capture to redirect to generic chat
+        if (response.startsWith('Error') && process.env.OPENAI_API_KEY) {
+          const re = new RegExp(`^.*?${cfg.botName}`);
+          const str = msg.cleanContent.replace(re, '').trim();
+          const cmd = cfg.prefix + ' chat "' + addslashes(str) + '"';
+          handleCli(cmd); // TODO: Check for infinite reentrancy
+        }
+        else {
+          await context.channel.send(response);
+        }
+        // recordRecent('Got Bot: ' + msg2)
+
       }
 
     }
@@ -95,10 +144,6 @@ bot.on('message', msg => {
     return msg;
   };
 
-  let content = msg.content;
-  const fleetId = context.fleetId;
-  const fleetProm = fleets.get(fleetId);
-
   fleetProm.then( (fleet : any) => {
     // Allow fleet specific prefix if exists
     if (fleet && fleet.prefix) {
@@ -108,28 +153,7 @@ bot.on('message', msg => {
 
     console.log(content);
 
-    if (cli.isCliSentence(content)) {
-      cli.sendCommand(content, context).then(trimMessage).then(onReply);
-    }
-    else if(msg.mentions.has(bot.user ?? 'nothing at all') && !msg.mentions.everyone) {
-      const re = new RegExp(`^.*?${cfg.botName}`);
-      const str = msg.cleanContent.replace(re, '').trim();
-      const cmd = cfg.prefix + ' ' + str;
-      cli.sendCommand(cmd, context).then(trimMessage).then(onReply);
-    }
-    else {
-
-      /*
-       msg.channel.send('I heard someone say ' + msg.content).then(bot_response => {
-       context.msg.delete(cfg.deleteAfterReply.time)
-       .then(msg => console.log(`Deleted message from ${msg.author}`))
-       .catch(console.log);
-       bot_response.delete(cfg.deleteAfterReply.time)
-       .then(msg => console.log(`Deleted message from ${msg.author}`))
-       .catch(console.log);
-
-       });*/
-    }
+    handleCli(content);
   });
 
 });

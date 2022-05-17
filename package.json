@@ -71,6 +71,7 @@
     "nedb-async": "0.0.5",
     "node-fetch": "^2.6.1",
     "node-schedule": "^1.3.1",
+    "openai": "^2.0.5",
     "request-json": "^0.6.5",
     "underscore": "^1.13.1",
     "winston": "^2.4.5"
