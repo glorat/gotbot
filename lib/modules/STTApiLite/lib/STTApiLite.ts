@@ -7,7 +7,7 @@ export class STTApiConfig {
 
     // default client_id of the Steam Windows version of STT
     static readonly CLIENT_ID: string = '4fc852d7-d602-476a-a292-d243022a475d';
-    static readonly CLIENT_API_VERSION: number = 12;
+    static readonly CLIENT_API_VERSION: number = 19;
     static readonly CLIENT_VERSION: string = '7.0.10';
     static readonly CLIENT_PLATFORM: string = 'webgl';
 }

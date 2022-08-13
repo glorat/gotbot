@@ -16,14 +16,15 @@ module.exports = {
   resetEvent: resetEvent,
   addEventChar: addEventChar,
   addEventTrait: addEventTrait,
+  setBossDifficulty : setBossDifficulty,
   get : get
 };
 
-function update(fleetId:string, fn:any) {
+async function update(fleetId:string, fn:any) {
   const qry = {_id: fleetId};
-  return get(fleetId).then((doc:FleetDoc) => {
+  return get(fleetId).then(async (doc:FleetDoc) => {
     const newDoc:FleetDoc = fn(doc);
-    fleets.asyncUpdate(qry, newDoc, {upsert: true});
+    await fleets.asyncUpdate(qry, newDoc, {upsert: true});
     return newDoc;
   });
 }
@@ -55,12 +56,17 @@ function addEventChar(fleetId:string, name:string) {
   return update(fleetId, f);
 }
 
+function setBossDifficulty(fleetId:string, difficulty_id:number) {
+  const f = (doc:FleetDoc) => {doc.bossDifficulty = difficulty_id; return doc;};
+  return update(fleetId, f);
+}
+
 
 function get(fleetId:string) {
   const defStarbase = () => { return{cmd:0, dip:0, eng:0, sec:0, med:0, sci:0}};
   function vivify(doc:FleetDoc) {
     if (doc === null) {
-      doc = {_id: fleetId, starbase:defStarbase(), starprof:defStarbase(), eventChar:[], eventTrait:[] };
+      doc = {_id: fleetId, starbase:defStarbase(), starprof:defStarbase(), eventChar:[], eventTrait:[], bossDifficulty:0 };
     }
     if (!doc.starbase) {
       doc.starbase = defStarbase();

@@ -60,6 +60,7 @@ export interface CharInfo {
   image: string
   headImage: string
   traits_hidden: Array<string>
+  traits_int: string[]
 }
 
 export interface WikiDB {
