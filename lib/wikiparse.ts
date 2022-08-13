@@ -16,6 +16,7 @@ interface CrewEntry {
   headImage? : string,
   skill? : any,
   moreChar? : any
+  traits_int?: string[]
   traits_hidden?: Array<string>
 }
 
@@ -194,7 +195,8 @@ async function parseSttLoadedCrew() : Promise<Array<any>> {
     name:c.name,
     stars:c.max_rarity,
     wiki:c.wiki,
-    traits_hidden: c.traits_hidden.map(snake2PascalCase) // for prettiness
+    traits_hidden: c.traits_hidden.map(snake2PascalCase), // for prettiness
+    traits_int: c.traits // internal system named traits
   });
   wikidb.crewentries = entries;
   return entries;

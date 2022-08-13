@@ -64,6 +64,7 @@ export interface FleetDoc {
   eventTrait: Array<Array<string>>
   starbase: Object
   starprof: Object
+  bossDifficulty: number
   prefix?: string
 }
 
