@@ -103,7 +103,7 @@ async function reportBoss(difficulty_id:number, crew: Char[], excludeChar: strin
     let allCrew = allCrewOrig.filter(c => !excludeChar.includes(c.name))
     // allCrew = allCrew.slice(0,10)
     const recs:any[] = []
-    allCrew.filter( (crew:CharInfo) => {
+    allCrew.forEach( (crew:CharInfo) => {
       let reqMatches = 0
       let optMatches = 0
       const traits = crew.traits_int
