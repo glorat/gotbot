@@ -62,7 +62,7 @@ function setBossDifficulty(fleetId:string, difficulty_id:number) {
 }
 
 
-function get(fleetId:string) {
+async function get(fleetId:string) {
   const defStarbase = () => { return{cmd:0, dip:0, eng:0, sec:0, med:0, sci:0}};
   function vivify(doc:FleetDoc) {
     if (doc === null) {
@@ -81,5 +81,6 @@ function get(fleetId:string) {
     return doc;
   }
   const qry = {_id: fleetId};
-  return fleets.asyncFindOne(qry).then(vivify);
+  const doc:FleetDoc = await fleets.asyncFindOne(qry)
+  return vivify(doc)
 }

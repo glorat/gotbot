@@ -1,0 +1,9 @@
+node_modules
+coverage
+npm-debug.log
+data/
+supervise/
+password.js
+logs
+.morecrew*
+dist

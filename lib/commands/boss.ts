@@ -8,7 +8,7 @@ import cfg from "../../config";
 import STTApiLite from "../modules/STTApiLite/lib/STTApiLite";
 import * as fs from "async-file";
 import {Char, CharInfo, CrewDoc} from "../chars";
-import crewdb from "../crewdb";
+const crewdb = require('../crewdb.js');
 const chars = require('../chars.js');
 // const crewdb = require('../crewdb.js');
 const fleets = require('../fleetdb.js');
