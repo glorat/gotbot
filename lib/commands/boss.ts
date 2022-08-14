@@ -55,7 +55,7 @@ interface BossData {
   nodes: { open_traits:string[], hidden_traits:string[], unlocked_character:any }[]
 }
 
-async function reportBoss(difficulty_id:number, crew: Char[]) {
+async function reportBoss(difficulty_id:number, crew: Char[], excludeChar: string[]) {
   const dataJson = await bossJson()
   const data:BossData[] = JSON.parse(dataJson)
   const strs:string[] = []
@@ -98,7 +98,9 @@ async function reportBoss(difficulty_id:number, crew: Char[]) {
     })
 
 
-    let allCrew = chars.allCrewEntries()
+    const allCrewOrig:CharInfo[] = chars.allCrewEntries()
+    // Apply exclusion
+    let allCrew = allCrewOrig.filter(c => !excludeChar.includes(c.name))
     // allCrew = allCrew.slice(0,10)
     const recs:any[] = []
     allCrew.filter( (crew:CharInfo) => {
@@ -124,7 +126,6 @@ async function reportBoss(difficulty_id:number, crew: Char[]) {
           name: crew.name,
           reqMatches,
           optMatches,
-
         }
         recs.push(rec)
       }
@@ -143,6 +144,9 @@ async function reportBoss(difficulty_id:number, crew: Char[]) {
 
       strs.push(`${nameToPrefix(rec.name)}${rec.name} ${rec.reqMatches} ${rec.optMatches}`)
     })
+    if (excludeChar.length>0) {
+      strs.push(`${excludeChar.length} crew excluded by fleet member`)
+    }
 
 
   } else {
@@ -180,7 +184,9 @@ module.exports = new Clapp.Command({
       // let lines : Array<string> = [];
       // const criteria = [args.arg1, args.arg2, args.arg3];
       if (args.cmd === 'reset') {
-        fulfill(`TODO`);
+        await fleets.resetBossExclude(fleetId)
+        const msg = `Hi ${author}. exclude list is reset`;
+        fulfill(msg)
       }
       else if (args.cmd === 'difficulty') {
         const diff = parseInt(args.arg1)
@@ -203,20 +209,40 @@ module.exports = new Clapp.Command({
         const str = await bossJson()
         fulfill('```' +  str + '```')
       }
+      else if (args.cmd === 'add') {
+        chars.matchOne(async function (err:any, name:any) {
+          if (err) {
+            fulfill(err);
+          } else {
+            const fleet = await fleets.get(fleetId)
+            await fleets.addBossExclude(fleetId, name)
+            const msg = `Hi ${author}. ${name} will be excluded (with ${fleet.bossExclude.length} others)`;
+            fulfill(msg);
+          }
+        }, args.arg1, args.arg2, args.arg3);
+      }
       else if (args.cmd === 'help') {
         const str = `
 help           - Show this text
 _              - Current info
-refresh        - Reload after node hit
+                 ** matching crew you have
+                 ** matching crew in vaule
+                 -  crew you do not have
+add [] [] []   - Add crew to exclusion list
+                 *RUN THIS AFTER YOU TRY A CREW*
+reset          - Reset exclusion list
+                 *RUN RESET WHEN NEW CHAIN STARTS*
+refresh        - Reload boss battle status
+                 *RUN REFRESH AFTER NODE IS HIT*
 difficulty [n] - Our focussed level
+                 *CHANGE THIS IF WE SWITCH DIFFICULTY*
 json           - Debug information`
         fulfill('```' + str + '```')
       }
       else {
         const fleet = await fleets.get(fleetId)
         const crewdoc:CrewDoc = await crewdb.get(userid, context) ?? {_id: userid, username: author, crew: [], base:{}, prof:{}}
-
-        const str = await reportBoss(fleet.bossDifficulty, crewdoc.crew)
+        const str = await reportBoss(fleet.bossDifficulty, crewdoc.crew, fleet.bossExclude)
         fulfill(str)
       }
 
@@ -239,13 +265,13 @@ json           - Debug information`
     default: '',
     required: false
   },{
-    name: 'name2',
+    name: 'arg2',
     desc: 'search criteria',
     type: 'string',
     default: '',
     required: false
   },{
-    name: 'name3',
+    name: 'arg3',
     desc: 'search criteria',
     type: 'string',
     default: '',

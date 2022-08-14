@@ -65,6 +65,7 @@ export interface FleetDoc {
   starbase: Object
   starprof: Object
   bossDifficulty: number
+  bossExclude?: string[]
   prefix?: string
 }
 
