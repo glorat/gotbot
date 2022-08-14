@@ -74,30 +74,30 @@ function reportBossLevelChars(crew: Char[], recs: any[], strs: string[], exclude
   table.push(['own', 'name', 'N', 'O', 'Score'])
 
   recsToReport.forEach(rec => {
-    const nodes = rec.reqMatchNodes.map( (x:number) => `N${x}`).join(' ')
+    const nodes = rec.reqMatchNodes.map( (x:number) => `N${x+1}`).join(' ')
     table.push([nameToPrefix(rec.name), rec.name, nodes, rec.optMatches, rec.score.toFixed(2)])
     //strs.push(`${nameToPrefix(rec.name)}${rec.name} ${nodes} +${rec.optMatches} ${rec.score.toFixed(2)}`)
   })
   strs.push(table.toString())
-  let summary = `Showing ${recsToReport.length}/${recs.length} eligble`
+  let summary = `Showing ${recsToReport.length} of ${recs.length} eligible`
   if (excludeChar.length > 0) {
     summary =  summary + `, ${excludeChar.length} excluded by fleet member`
   }
   strs.push(summary)
 }
 
-function reportBossLevel(strs: string[], level: BossData, excludeChar: string[], crew: Char[]) {
+function reportBossLevel(strs: string[], level: BossData, excludeChar: string[], crew: Char[], flags: {node?:number}) {
   strs.push(`${level.symbol} (${level.difficulty_id})`)
   const requiredTraits: string[] = []
   const completedTraits: string[] = []
 
-  level.nodes.forEach(node => {
+  level.nodes.forEach( (node,idx) => {
     if (node.unlocked_character) {
       node.hidden_traits.forEach(t => completedTraits.push(t))
       // strs.push(`   [${node.open_traits[0]}] (${completedTraits.join(',')})`)
     } else {
       requiredTraits.push(node.open_traits[0])
-      strs.push(`   ${node.open_traits[0]}`)
+      strs.push(`   N${idx+1} ${node.open_traits[0]}`)
     }
   })
   //
@@ -118,16 +118,13 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
     }
   })
 
-  possibleTraits.forEach((trait: string) => {
-    strs.push(`  ${trait}`)
-  })
-
+  strs.push('   ' + possibleTraits.join(', '))
 
   const allCrewOrig: CharInfo[] = chars.allCrewEntries()
   // Apply exclusion
   let allCrew = allCrewOrig.filter(c => !excludeChar.includes(c.name))
   // allCrew = allCrew.slice(0,10)
-  const recs: any[] = []
+  let recs: any[] = []
   allCrew.forEach((crew: CharInfo) => {
     let reqMatches = 0
     let reqMatchNodes:number[] = []
@@ -187,18 +184,24 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
 
   strs.push(`Matches per node: ${nodeTotalHits.join(',')}`)
 
+  // Apply filter and sort after all calculations
+  if (flags.node){
+    recs = recs.filter(rec => rec.reqMatchNodes.includes(flags.node!-1))
+
+  }
+
   recs.sort((a, b) => (b.score - a.score))
   reportBossLevelChars(crew, recs, strs, excludeChar);
 }
 
-async function reportBoss(difficulty_id:number, crew: Char[], excludeChar: string[]) {
+async function reportBoss(difficulty_id:number, crew: Char[], excludeChar: string[], flags: {node?:number}) {
   const dataJson = await bossJson()
   const data:BossData[] = JSON.parse(dataJson)
   const strs:string[] = []
 
   const level = data.find( (rec:any) => rec.difficulty_id == difficulty_id)
   if (level) {
-    reportBossLevel(strs, level, excludeChar, crew);
+    reportBossLevel(strs, level, excludeChar, crew, flags);
 
 
   } else {
@@ -278,7 +281,7 @@ module.exports = new Clapp.Command({
 help           - Show this text
 _              - Current info
                  ** matching crew you have
-                 ** matching crew in vaule
+                 * matching crew in vault
                  -  crew you do not have
 add [] [] []   - Add crew to exclusion list
                  *RUN THIS AFTER YOU TRY A CREW*
@@ -294,7 +297,7 @@ json           - Debug information`
       else {
         const fleet = await fleets.get(fleetId)
         const crewdoc:CrewDoc = await crewdb.get(userid, context) ?? {_id: userid, username: author, crew: [], base:{}, prof:{}}
-        const str = await reportBoss(fleet.bossDifficulty, crewdoc.crew, fleet.bossExclude)
+        const str = await reportBoss(fleet.bossDifficulty, crewdoc.crew, fleet.bossExclude, argv.flags)
         fulfill(str)
       }
 
@@ -328,5 +331,14 @@ json           - Debug information`
     type: 'string',
     default: '',
     required: false
-  }]
+  }],
+  flags: [
+    {
+      name: 'node',
+      desc: 'node to query',
+      alias: 'n',
+      type: 'number',
+      default: 0 // falsey
+    },
+  ]
 });
