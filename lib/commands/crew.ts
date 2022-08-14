@@ -143,7 +143,6 @@ module.exports = new Clapp.Command({
 
 
         let searchCb = function(res:any) {
-
             const ret = chars.createCrewTable(res.entries, res.searchParams, charsToSearch, emojify, boldify);
             fulfill(ret);
         };

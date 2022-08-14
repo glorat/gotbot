@@ -8,6 +8,7 @@ import cfg from "../../config";
 import STTApiLite from "../modules/STTApiLite/lib/STTApiLite";
 import * as fs from "async-file";
 import {Char, CharInfo, CrewDoc} from "../chars";
+import {createDefaultTable} from "../utils";
 const crewdb = require('../crewdb.js');
 const chars = require('../chars.js');
 // const crewdb = require('../crewdb.js');
@@ -69,10 +70,15 @@ function reportBossLevelChars(crew: Char[], recs: any[], strs: string[], exclude
 
   const maxToReport = 30
   const recsToReport = recs.slice(0,maxToReport)
+  const table = createDefaultTable()
+  table.push(['own', 'name', 'N', 'O', 'Score'])
+
   recsToReport.forEach(rec => {
     const nodes = rec.reqMatchNodes.map( (x:number) => `N${x}`).join(' ')
-    strs.push(`${nameToPrefix(rec.name)}${rec.name} ${nodes} +${rec.optMatches}`)
+    table.push([nameToPrefix(rec.name), rec.name, nodes, rec.optMatches, rec.score.toFixed(2)])
+    //strs.push(`${nameToPrefix(rec.name)}${rec.name} ${nodes} +${rec.optMatches} ${rec.score.toFixed(2)}`)
   })
+  strs.push(table.toString())
   let summary = `Showing ${recsToReport.length}/${recs.length} eligble`
   if (excludeChar.length > 0) {
     summary =  summary + `, ${excludeChar.length} excluded by fleet member`
@@ -160,7 +166,28 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
     }
   })
 
-  recs.sort((a, b) => (b.reqMatches - a.reqMatches) || (b.optMatches - a.optMatches))
+  // Apply a scoring to the crew
+  const nodeTotalHits = level.nodes.map((node, idx) => {
+    let nodeHits = 0
+    recs.forEach(rec => {
+      if (rec.reqMatchNodes.includes(idx)) {
+        nodeHits++
+      }
+    })
+    return nodeHits
+  })
+  // Compute some probability of success for each crw
+  recs.forEach(rec => {
+    let score = 0.0
+    rec.reqMatchNodes.forEach( (nodeIdx:number) => {
+      score += 1/nodeTotalHits[nodeIdx]
+    })
+    rec.score = score
+  })
+
+  strs.push(`Matches per node: ${nodeTotalHits.join(',')}`)
+
+  recs.sort((a, b) => (b.score - a.score))
   reportBossLevelChars(crew, recs, strs, excludeChar);
 }
 
