@@ -34,9 +34,8 @@ new moon
       }
     };
 
-    function handleName(name:string, starsArg:number, level:number, ssr:any) {
+    function handleName(name:string, starsArg:number, level:number) {
       chars.wikiLookup(name, function(err:any,info:chars.CharInfo) {
-        //chars.ssrLookup(name, function(err,info) {
         if (err) {
           fulfill(err);
         }
@@ -121,16 +120,6 @@ new moon
                 name: 'Character',
                 value: char,
                 inline:true
-              },
-              {
-                name: 'Avg Chrons',
-                value: ssr.avgChrons + '',
-                inline:true
-              },
-              {
-                name: 'Difficulty',
-                value: chars.generateDifficulty(ssr),
-                inline:true
               }
             ],
             thumbnail:{
@@ -152,10 +141,7 @@ new moon
       }
       else {
         let nm = <string>name;
-        chars.ssrLookup(nm, (ssr:any) => {
-          handleName(nm, argv.flags.stars, argv.flags.level, ssr);
-        });
-
+        handleName(nm, argv.flags.stars, argv.flags.level);
       }
     },args.name1, args.name2, args.name3);
   }),
@@ -200,5 +186,3 @@ new moon
     }
   ]
 });
-
-

@@ -1,6 +1,5 @@
 
 import * as API from './Interfaces';
-import * as fs from 'async-file';
 import * as fssync from 'fs';
 import _ = require('underscore');
 import {Dictionary} from "underscore";
@@ -192,20 +191,6 @@ export function generateDifficulty(a:any, i?:any, r?:any) {
     n = "#62e05e") : e > s + 4 * t && (o = "Super Easy",
     n = "#30e829"),
     r ? n : i ? o : o;
-}
-
-export async function ssrLookup(name:string, cb:any) {
-  var wname=name.replace(/"/gi,"!Q!");
-  wname=wname.replace(/,/gi,"!C!");
-  try {
-    let data = await fs.readFile(`${cfg.dataPath}/ssr.izausomecreations.com/crew/${wname}.json`, 'utf8');
-    const obj = JSON.parse(data);
-    cb (obj.info ? obj.info : {});
-  }
-  catch {
-    cb({});
-  }
-
 }
 
 function shortName(name:string) {

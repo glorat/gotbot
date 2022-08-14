@@ -39,9 +39,9 @@ download_wiki() {
     wget $WGET_PARAMS -x -N -o ./data/logs/morecrew.log -i $WGETSOURCE_MORECREW
     grep -A 3 FINISHED data/logs/morecrew.log
 
-    echo "Fetching SSR"
-    wget $WGET_PARAMS -m -l1 -o ./data/logs/ssr.log "http://ssr.izausomecreations.com/crew/"
-    grep -A 3 FINISHED data/logs/ssr.log
+#    echo "Fetching SSR"
+#    wget $WGET_PARAMS -m -l1 -o ./data/logs/ssr.log "http://ssr.izausomecreations.com/crew/"
+#    grep -A 3 FINISHED data/logs/ssr.log
 }
 
 fix_ssr_crew() {
@@ -100,7 +100,7 @@ then
 fi
 
 # Quick hack to fix discrepencies in crew names between SSTApi & Wiki/SSR
-fix_ssr_crew
+#fix_ssr_crew
 
 echo "Starting cachewiki"
 node dist/lib/cachewiki.js
