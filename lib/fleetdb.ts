@@ -17,6 +17,8 @@ module.exports = {
   addEventChar: addEventChar,
   addEventTrait: addEventTrait,
   setBossDifficulty : setBossDifficulty,
+  addBossExclude,
+  resetBossExclude,
   get : get
 };
 
@@ -61,12 +63,22 @@ function setBossDifficulty(fleetId:string, difficulty_id:number) {
   return update(fleetId, f);
 }
 
+async function addBossExclude(fleetId:string, name:string) {
+  const f = (doc:FleetDoc) => {if (doc.bossExclude) {doc.bossExclude.push(name)} else {doc.bossExclude=[name]}; return doc;};
+  return update(fleetId, f);
+}
+
+function resetBossExclude(fleetId:string) {
+  const f = (doc:FleetDoc) => {doc.bossExclude=[]; return doc;};
+  return update(fleetId, f);
+}
+
 
 async function get(fleetId:string) {
   const defStarbase = () => { return{cmd:0, dip:0, eng:0, sec:0, med:0, sci:0}};
   function vivify(doc:FleetDoc) {
     if (doc === null) {
-      doc = {_id: fleetId, starbase:defStarbase(), starprof:defStarbase(), eventChar:[], eventTrait:[], bossDifficulty:0 };
+      doc = {_id: fleetId, starbase:defStarbase(), starprof:defStarbase(), eventChar:[], eventTrait:[], bossDifficulty:0, bossExclude:[] };
     }
     if (!doc.starbase) {
       doc.starbase = defStarbase();
