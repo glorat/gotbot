@@ -65,13 +65,19 @@ function reportBossLevelChars(crew: Char[], recs: any[], strs: string[], exclude
     }
   }
 
-  recs.forEach(rec => {
+  strs.push('ELIGIBLE CREW PRIORITY')
 
-    strs.push(`${nameToPrefix(rec.name)}${rec.name} ${rec.reqMatches} ${rec.optMatches}`)
+  const maxToReport = 30
+  const recsToReport = recs.slice(0,maxToReport)
+  recsToReport.forEach(rec => {
+    const nodes = rec.reqMatchNodes.map( (x:number) => `N${x}`).join(' ')
+    strs.push(`${nameToPrefix(rec.name)}${rec.name} ${nodes} +${rec.optMatches}`)
   })
+  let summary = `Showing ${recsToReport.length}/${recs.length} eligble`
   if (excludeChar.length > 0) {
-    strs.push(`${excludeChar.length} crew excluded by fleet member`)
+    summary =  summary + `, ${excludeChar.length} excluded by fleet member`
   }
+  strs.push(summary)
 }
 
 function reportBossLevel(strs: string[], level: BossData, excludeChar: string[], crew: Char[]) {
@@ -118,14 +124,10 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
   const recs: any[] = []
   allCrew.forEach((crew: CharInfo) => {
     let reqMatches = 0
+    let reqMatchNodes:number[] = []
     let optMatches = 0
     const traits = crew.traits_int
     console.log(traits.join(':'))
-    requiredTraits.forEach((reqTrait: string) => {
-      if (traits.includes(reqTrait)) {
-        reqMatches++
-      }
-    })
     const matchOptTraits: string[] = []
     possibleTraits.forEach((reqTrait: string) => {
       // The second part of the if clause is to cater for dupe opt traits
@@ -134,11 +136,25 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
         optMatches++
       }
     })
-    if (reqMatches > 0 && optMatches > 1) {
+
+    level.nodes.forEach((node, idx) => {
+      // We match the node trait and it is not yet unlocked
+      if (traits.includes(node.open_traits[0])  && !node.unlocked_character) {
+        // Need to have enough optional traits
+        if (optMatches >= node.hidden_traits.length) {
+          reqMatches++
+          reqMatchNodes.push(idx)
+        }
+
+      }
+    })
+
+    if (reqMatches > 0 && optMatches > 0) {
       const rec = {
         name: crew.name,
         reqMatches,
         optMatches,
+        reqMatchNodes
       }
       recs.push(rec)
     }
