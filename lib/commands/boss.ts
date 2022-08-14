@@ -55,6 +55,99 @@ interface BossData {
   nodes: { open_traits:string[], hidden_traits:string[], unlocked_character:any }[]
 }
 
+function reportBossLevelChars(crew: Char[], recs: any[], strs: string[], excludeChar: string[]) {
+  function nameToPrefix(name: string): string {
+    const m = crew.find(c => c.name === name)
+    if (m) {
+      return m.vaulted ? '*' : '**'
+    } else {
+      return '-'
+    }
+  }
+
+  recs.forEach(rec => {
+
+    strs.push(`${nameToPrefix(rec.name)}${rec.name} ${rec.reqMatches} ${rec.optMatches}`)
+  })
+  if (excludeChar.length > 0) {
+    strs.push(`${excludeChar.length} crew excluded by fleet member`)
+  }
+}
+
+function reportBossLevel(strs: string[], level: BossData, excludeChar: string[], crew: Char[]) {
+  strs.push(`${level.symbol} (${level.difficulty_id})`)
+  const requiredTraits: string[] = []
+  const completedTraits: string[] = []
+
+  level.nodes.forEach(node => {
+    if (node.unlocked_character) {
+      node.hidden_traits.forEach(t => completedTraits.push(t))
+      // strs.push(`   [${node.open_traits[0]}] (${completedTraits.join(',')})`)
+    } else {
+      requiredTraits.push(node.open_traits[0])
+      strs.push(`   ${node.open_traits[0]}`)
+    }
+  })
+  //
+  // level.nodes.forEach( (node:any, i:number) => {
+  //   strs.push(`NODE ${i}`)
+  //   strs.push(`   ${node.open_traits.join(',')}`)
+  //   if (node.unlocked_character) {
+  //     strs.push(`   (${node.hidden_traits.join(',')})`)
+  //   }
+  // })
+  strs.push('OTHER TRAITS')
+  const possibleTraits = _.clone(level.traits)
+  // Remove existing hits
+  completedTraits.forEach(toExclude => {
+    const idx = possibleTraits.indexOf(toExclude)
+    if (idx > -1) {
+      possibleTraits.splice(idx, 1)
+    }
+  })
+
+  possibleTraits.forEach((trait: string) => {
+    strs.push(`  ${trait}`)
+  })
+
+
+  const allCrewOrig: CharInfo[] = chars.allCrewEntries()
+  // Apply exclusion
+  let allCrew = allCrewOrig.filter(c => !excludeChar.includes(c.name))
+  // allCrew = allCrew.slice(0,10)
+  const recs: any[] = []
+  allCrew.forEach((crew: CharInfo) => {
+    let reqMatches = 0
+    let optMatches = 0
+    const traits = crew.traits_int
+    console.log(traits.join(':'))
+    requiredTraits.forEach((reqTrait: string) => {
+      if (traits.includes(reqTrait)) {
+        reqMatches++
+      }
+    })
+    const matchOptTraits: string[] = []
+    possibleTraits.forEach((reqTrait: string) => {
+      // The second part of the if clause is to cater for dupe opt traits
+      if (traits.includes(reqTrait) && !matchOptTraits.includes(reqTrait)) {
+        matchOptTraits.push(reqTrait)
+        optMatches++
+      }
+    })
+    if (reqMatches > 0 && optMatches > 1) {
+      const rec = {
+        name: crew.name,
+        reqMatches,
+        optMatches,
+      }
+      recs.push(rec)
+    }
+  })
+
+  recs.sort((a, b) => (b.reqMatches - a.reqMatches) || (b.optMatches - a.optMatches))
+  reportBossLevelChars(crew, recs, strs, excludeChar);
+}
+
 async function reportBoss(difficulty_id:number, crew: Char[], excludeChar: string[]) {
   const dataJson = await bossJson()
   const data:BossData[] = JSON.parse(dataJson)
@@ -62,91 +155,7 @@ async function reportBoss(difficulty_id:number, crew: Char[], excludeChar: strin
 
   const level = data.find( (rec:any) => rec.difficulty_id == difficulty_id)
   if (level) {
-    strs.push(`${level.symbol} (${level.difficulty_id})`)
-    const requiredTraits:string[] = []
-    const completedTraits:string[] = []
-
-    level.nodes.forEach(node => {
-      if (node.unlocked_character) {
-        node.hidden_traits.forEach(t => completedTraits.push(t))
-        // strs.push(`   [${node.open_traits[0]}] (${completedTraits.join(',')})`)
-      } else {
-        requiredTraits.push(node.open_traits[0])
-        strs.push(`   ${node.open_traits[0]}`)
-      }
-    })
-    //
-    // level.nodes.forEach( (node:any, i:number) => {
-    //   strs.push(`NODE ${i}`)
-    //   strs.push(`   ${node.open_traits.join(',')}`)
-    //   if (node.unlocked_character) {
-    //     strs.push(`   (${node.hidden_traits.join(',')})`)
-    //   }
-    // })
-    strs.push('OTHER TRAITS')
-    const possibleTraits = _.clone(level.traits)
-    // Remove existing hits
-    completedTraits.forEach(toExclude => {
-      const idx = possibleTraits.indexOf(toExclude)
-      if (idx>-1) {
-        possibleTraits.splice(idx, 1)
-      }
-    })
-
-    possibleTraits.forEach( (trait:string) => {
-      strs.push(`  ${trait}`)
-    })
-
-
-    const allCrewOrig:CharInfo[] = chars.allCrewEntries()
-    // Apply exclusion
-    let allCrew = allCrewOrig.filter(c => !excludeChar.includes(c.name))
-    // allCrew = allCrew.slice(0,10)
-    const recs:any[] = []
-    allCrew.forEach( (crew:CharInfo) => {
-      let reqMatches = 0
-      let optMatches = 0
-      const traits = crew.traits_int
-      console.log(traits.join(':'))
-      requiredTraits.forEach((reqTrait:string) => {
-        if (traits.includes(reqTrait)) {
-          reqMatches ++
-        }
-      })
-      const matchOptTraits:string[] = []
-      possibleTraits.forEach((reqTrait:string) => {
-        // The second part of the if clause is to cater for dupe opt traits
-        if (traits.includes(reqTrait) && !matchOptTraits.includes(reqTrait)) {
-          matchOptTraits.push(reqTrait)
-          optMatches ++
-        }
-      })
-      if (reqMatches>0 && optMatches > 1) {
-        const rec = {
-          name: crew.name,
-          reqMatches,
-          optMatches,
-        }
-        recs.push(rec)
-      }
-    })
-
-    recs.sort( (a,b) => (b.reqMatches- a.reqMatches) || (b.optMatches-a.optMatches))
-    function nameToPrefix(name:string):string {
-      const m = crew.find(c => c.name === name)
-      if (m) {
-        return m.vaulted ? '*' : '**'
-      } else {
-        return '-'
-      }
-    }
-    recs.forEach(rec => {
-
-      strs.push(`${nameToPrefix(rec.name)}${rec.name} ${rec.reqMatches} ${rec.optMatches}`)
-    })
-    if (excludeChar.length>0) {
-      strs.push(`${excludeChar.length} crew excluded by fleet member`)
-    }
+    reportBossLevel(strs, level, excludeChar, crew);
 
 
   } else {
