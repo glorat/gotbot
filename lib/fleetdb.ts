@@ -64,7 +64,11 @@ function setBossDifficulty(fleetId:string, difficulty_id:number) {
 }
 
 async function addBossExclude(fleetId:string, name:string) {
-  const f = (doc:FleetDoc) => {if (doc.bossExclude) {doc.bossExclude.push(name)} else {doc.bossExclude=[name]}; return doc;};
+  const f = (doc:FleetDoc) => {
+    if (doc.bossExclude) {doc.bossExclude.push(name)}
+    else {doc.bossExclude=[name]}
+    return doc;
+  };
   return update(fleetId, f);
 }
 
