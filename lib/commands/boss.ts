@@ -7,7 +7,8 @@ import * as _ from 'underscore';
 import cfg from "../../config";
 import STTApiLite from "../modules/STTApiLite/lib/STTApiLite";
 import * as fs from "async-file";
-import {CharInfo} from "../chars";
+import {Char, CharInfo, CrewDoc} from "../chars";
+import crewdb from "../crewdb";
 const chars = require('../chars.js');
 // const crewdb = require('../crewdb.js');
 const fleets = require('../fleetdb.js');
@@ -54,21 +55,21 @@ interface BossData {
   nodes: { open_traits:string[], hidden_traits:string[], unlocked_character:any }[]
 }
 
-async function reportBoss(difficulty_id:number) {
+async function reportBoss(difficulty_id:number, crew: Char[]) {
   const dataJson = await bossJson()
   const data:BossData[] = JSON.parse(dataJson)
-
   const strs:string[] = []
 
   const level = data.find( (rec:any) => rec.difficulty_id == difficulty_id)
   if (level) {
+    strs.push(`${level.symbol} (${level.difficulty_id})`)
     const requiredTraits:string[] = []
     const completedTraits:string[] = []
 
     level.nodes.forEach(node => {
       if (node.unlocked_character) {
         node.hidden_traits.forEach(t => completedTraits.push(t))
-        strs.push(`   [${node.open_traits[0]}] (${completedTraits.join(',')})`)
+        // strs.push(`   [${node.open_traits[0]}] (${completedTraits.join(',')})`)
       } else {
         requiredTraits.push(node.open_traits[0])
         strs.push(`   ${node.open_traits[0]}`)
@@ -130,8 +131,17 @@ async function reportBoss(difficulty_id:number) {
     })
 
     recs.sort( (a,b) => (b.reqMatches- a.reqMatches) || (b.optMatches-a.optMatches))
+    function nameToPrefix(name:string):string {
+      const m = crew.find(c => c.name === name)
+      if (m) {
+        return m.vaulted ? '*' : '**'
+      } else {
+        return '-'
+      }
+    }
     recs.forEach(rec => {
-      strs.push(`${rec.name} ${rec.reqMatches} ${rec.optMatches}`)
+
+      strs.push(`${nameToPrefix(rec.name)}${rec.name} ${rec.reqMatches} ${rec.optMatches}`)
     })
 
 
@@ -155,6 +165,7 @@ module.exports = new Clapp.Command({
     try {
       const userid = context.author.id;
       const fleetId = context.fleetId;
+      const author = context.author.username;
       // const emojify = context.emojify;
       // const boldify = context.boldify;
 
@@ -203,7 +214,9 @@ json           - Debug information`
       }
       else {
         const fleet = await fleets.get(fleetId)
-        const str = await reportBoss(fleet.bossDifficulty)
+        const crewdoc:CrewDoc = await crewdb.get(userid, context) ?? {_id: userid, username: author, crew: [], base:{}, prof:{}}
+
+        const str = await reportBoss(fleet.bossDifficulty, crewdoc.crew)
         fulfill(str)
       }
 
