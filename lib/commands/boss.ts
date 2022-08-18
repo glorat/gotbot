@@ -75,7 +75,8 @@ function reportBossLevelChars(crew: Char[], recs: any[], strs: string[], exclude
 
   recsToReport.forEach(rec => {
     const nodes = rec.reqMatchNodes.map( (x:number) => `N${x+1}`).join(' ')
-    table.push([nameToPrefix(rec.name), rec.name, nodes, rec.optMatches, rec.score.toFixed(2)])
+    const opts = rec.optMatchNodes.map( (x:number) => `O${x+1}`).join(' ')
+    table.push([nameToPrefix(rec.name), rec.name, nodes, opts, rec.score.toFixed(2)])
     //strs.push(`${nameToPrefix(rec.name)}${rec.name} ${nodes} +${rec.optMatches} ${rec.score.toFixed(2)}`)
   })
   strs.push(table.toString())
@@ -87,28 +88,20 @@ function reportBossLevelChars(crew: Char[], recs: any[], strs: string[], exclude
 }
 
 function reportBossLevel(strs: string[], level: BossData, excludeChar: string[], crew: Char[], flags: {node?:number}) {
-  strs.push(`${level.symbol} (${level.difficulty_id})`)
+
   const requiredTraits: string[] = []
   const completedTraits: string[] = []
 
+  // Determine required traits
   level.nodes.forEach( (node,idx) => {
     if (node.unlocked_character) {
       node.hidden_traits.forEach(t => completedTraits.push(t))
-      // strs.push(`   [${node.open_traits[0]}] (${completedTraits.join(',')})`)
     } else {
       requiredTraits.push(node.open_traits[0])
-      strs.push(`   N${idx+1} ${node.open_traits[0]}`)
     }
   })
-  //
-  // level.nodes.forEach( (node:any, i:number) => {
-  //   strs.push(`NODE ${i}`)
-  //   strs.push(`   ${node.open_traits.join(',')}`)
-  //   if (node.unlocked_character) {
-  //     strs.push(`   (${node.hidden_traits.join(',')})`)
-  //   }
-  // })
-  strs.push('OTHER TRAITS')
+
+
   const possibleTraits = _.clone(level.traits)
   // Remove existing hits
   completedTraits.forEach(toExclude => {
@@ -118,7 +111,7 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
     }
   })
 
-  strs.push('   ' + possibleTraits.join(', '))
+
 
   const allCrewOrig: CharInfo[] = chars.allCrewEntries()
   // Apply exclusion
@@ -129,13 +122,15 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
     let reqMatches = 0
     let reqMatchNodes:number[] = []
     let optMatches = 0
+    let optMatchNodes:number[] = []
     const traits = crew.traits_int
-    console.log(traits.join(':'))
+    // console.log(traits.join(':'))
     const matchOptTraits: string[] = []
-    possibleTraits.forEach((reqTrait: string) => {
+    possibleTraits.forEach((reqTrait: string, idx) => {
       // The second part of the if clause is to cater for dupe opt traits
       if (traits.includes(reqTrait) && !matchOptTraits.includes(reqTrait)) {
         matchOptTraits.push(reqTrait)
+        optMatchNodes.push(idx)
         optMatches++
       }
     })
@@ -148,7 +143,6 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
           reqMatches++
           reqMatchNodes.push(idx)
         }
-
       }
     })
 
@@ -157,11 +151,17 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
         name: crew.name,
         reqMatches,
         optMatches,
-        reqMatchNodes
+        reqMatchNodes,
+        optMatchNodes
       }
       recs.push(rec)
     }
   })
+  // Filter further by excluding crew that have subset of traits of existing excluded crew
+  excludeChar.forEach(ex => {
+    console.log(`Processing ${ex} for further exclusion`)
+  })
+
 
   // Apply a scoring to the crew
   const nodeTotalHits = level.nodes.map((node, idx) => {
@@ -182,15 +182,23 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
     rec.score = score
   })
 
-  strs.push(`Matches per node: ${nodeTotalHits.join(',')}`)
+
 
   // Apply filter and sort after all calculations
   if (flags.node){
     recs = recs.filter(rec => rec.reqMatchNodes.includes(flags.node!-1))
 
   }
-
   recs.sort((a, b) => (b.score - a.score))
+
+  // Report required traits
+  strs.push(`${level.symbol} (${level.difficulty_id})`)
+  requiredTraits.forEach((trait, idx) => {
+    strs.push(`   N${idx+1} ${trait}`)
+  })
+  strs.push('OTHER TRAITS')
+  strs.push('   ' + possibleTraits.join(', '))
+  strs.push(`Matches per node: ${nodeTotalHits.join(',')}`)
   reportBossLevelChars(crew, recs, strs, excludeChar);
 }
 
