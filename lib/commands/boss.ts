@@ -14,6 +14,10 @@ const chars = require('../chars.js');
 // const crewdb = require('../crewdb.js');
 const fleets = require('../fleetdb.js');
 
+interface BossCmdFlags {
+  node?: number
+  verbose?: boolean
+}
 //const voyageSkills = ['cmd','dip','sec','eng','sci','med'];
 
 async function downloadBossBattles() {
@@ -56,7 +60,7 @@ interface BossData {
   nodes: { open_traits:string[], hidden_traits:string[], unlocked_character:any }[]
 }
 
-function reportBossLevelChars(crew: Char[], recs: any[], strs: string[], excludeChar: string[]) {
+function reportBossLevelChars(crew: Char[], recs: any[], strs: string[], excludeChar: string[], narvinExcluded: { reqMatches: number; reqMatchNodes: number[]; name: string; optMatches: number; optMatchNodes: number[]; score: number }[], flags: BossCmdFlags) {
   function nameToPrefix(name: string): string {
     const m = crew.find(c => c.name === name)
     if (m) {
@@ -66,49 +70,47 @@ function reportBossLevelChars(crew: Char[], recs: any[], strs: string[], exclude
     }
   }
 
-  strs.push('ELIGIBLE CREW PRIORITY')
+  strs.push('ELIGIBLE CREW')
 
-  const maxToReport = 30
+  // Report fewer if verbose due to display limit
+  const maxToReport = flags.verbose ? 10 : 25 // TODO: Make this a flag
   const recsToReport = recs.slice(0,maxToReport)
   const table = createDefaultTable()
   table.push(['own', 'name', 'N', 'O', 'Score'])
 
   recsToReport.forEach(rec => {
     const nodes = rec.reqMatchNodes.map( (x:number) => `N${x+1}`).join(' ')
-    table.push([nameToPrefix(rec.name), rec.name, nodes, rec.optMatches, rec.score.toFixed(2)])
+    const opts = rec.optMatchNodes.map( (x:number) => `O${x+1}`).join(' ')
+    table.push([nameToPrefix(rec.name), rec.name, nodes, opts, rec.score.toFixed(3)])
     //strs.push(`${nameToPrefix(rec.name)}${rec.name} ${nodes} +${rec.optMatches} ${rec.score.toFixed(2)}`)
   })
   strs.push(table.toString())
   let summary = `Showing ${recsToReport.length} of ${recs.length} eligible`
   if (excludeChar.length > 0) {
-    summary =  summary + `, ${excludeChar.length} excluded by fleet member`
+    summary =  summary + `, ${excludeChar.length} excluded by fleet, ${narvinExcluded.length} by Narvin`
   }
   strs.push(summary)
+  if (flags.verbose) {
+    strs.push('FLEET EXCLUDED: ' + excludeChar.join(', '))
+    strs.push('NARVIN EXCLUDED: ' + narvinExcluded.map(x => x.name).join(', '))
+  }
 }
 
-function reportBossLevel(strs: string[], level: BossData, excludeChar: string[], crew: Char[], flags: {node?:number}) {
-  strs.push(`${level.symbol} (${level.difficulty_id})`)
+function reportBossLevel(strs: string[], level: BossData, excludeChar: string[], crew: Char[], flags: BossCmdFlags) {
+
   const requiredTraits: string[] = []
   const completedTraits: string[] = []
 
+  // Determine required traits
   level.nodes.forEach( (node,idx) => {
     if (node.unlocked_character) {
       node.hidden_traits.forEach(t => completedTraits.push(t))
-      // strs.push(`   [${node.open_traits[0]}] (${completedTraits.join(',')})`)
     } else {
       requiredTraits.push(node.open_traits[0])
-      strs.push(`   N${idx+1} ${node.open_traits[0]}`)
     }
   })
-  //
-  // level.nodes.forEach( (node:any, i:number) => {
-  //   strs.push(`NODE ${i}`)
-  //   strs.push(`   ${node.open_traits.join(',')}`)
-  //   if (node.unlocked_character) {
-  //     strs.push(`   (${node.hidden_traits.join(',')})`)
-  //   }
-  // })
-  strs.push('OTHER TRAITS')
+
+
   const possibleTraits = _.clone(level.traits)
   // Remove existing hits
   completedTraits.forEach(toExclude => {
@@ -118,24 +120,27 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
     }
   })
 
-  strs.push('   ' + possibleTraits.join(', '))
+
 
   const allCrewOrig: CharInfo[] = chars.allCrewEntries()
   // Apply exclusion
-  let allCrew = allCrewOrig.filter(c => !excludeChar.includes(c.name))
+  let allCrew = allCrewOrig // .filter(c => !excludeChar.includes(c.name)) // filter later
+
   // allCrew = allCrew.slice(0,10)
-  let recs: any[] = []
+  let recs: { reqMatches: number; reqMatchNodes: number[]; name: string; optMatches: number; optMatchNodes: number[], score: number }[] = []
   allCrew.forEach((crew: CharInfo) => {
     let reqMatches = 0
     let reqMatchNodes:number[] = []
     let optMatches = 0
+    let optMatchNodes:number[] = []
     const traits = crew.traits_int
-    console.log(traits.join(':'))
+    // console.log(traits.join(':'))
     const matchOptTraits: string[] = []
-    possibleTraits.forEach((reqTrait: string) => {
+    possibleTraits.forEach((reqTrait: string, idx) => {
       // The second part of the if clause is to cater for dupe opt traits
       if (traits.includes(reqTrait) && !matchOptTraits.includes(reqTrait)) {
         matchOptTraits.push(reqTrait)
+        optMatchNodes.push(idx)
         optMatches++
       }
     })
@@ -148,7 +153,6 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
           reqMatches++
           reqMatchNodes.push(idx)
         }
-
       }
     })
 
@@ -157,11 +161,44 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
         name: crew.name,
         reqMatches,
         optMatches,
-        reqMatchNodes
+        reqMatchNodes,
+        optMatchNodes,
+        score: 0.0
       }
       recs.push(rec)
     }
   })
+  // Exclude rows that have already been hit
+  let excludedCrew = recs.filter(c => excludeChar.includes(c.name))
+  recs = recs.filter(c => !excludeChar.includes(c.name))
+
+  // Filter further by excluding crew that have subset of traits of existing excluded crew
+  let beforeNarvin = recs
+  excludedCrew.forEach(ex => {
+    // console.log(`Processing ${ex.name} for further exclusion`)
+    level.nodes.forEach((node, idx) => {
+      const optNodes = ex.optMatchNodes
+      // We match the node trait and it is not yet unlocked
+      if (ex.reqMatchNodes.includes(idx)) {
+        // console.log(`Checking ${ex.name} against other N${idx+1} ${node.open_traits[0]} crew to compare with ${optNodes}`)
+        recs = recs.filter(rec => {
+          // Is also hitting that same node
+          if (rec.reqMatchNodes.includes(idx)) {
+            // console.log(`${rec.name} also hits N${idx+1} with ${rec.optMatchNodes}`)
+            // all optional nodes are included in excluded crew
+            if (_.all(rec.optMatchNodes, opt => optNodes.includes(opt))) {
+              // console.log(`Narvin excluding ${rec.name}`)
+              return false
+            }
+          }
+          return true
+        })
+      }
+    })
+  })
+
+  const narvinExcluded = beforeNarvin.filter(rec => !recs.map(x => x.name).includes(rec.name))
+  narvinExcluded.forEach(rec => console.log(`Narvin excluded ${rec.name}`))
 
   // Apply a scoring to the crew
   const nodeTotalHits = level.nodes.map((node, idx) => {
@@ -176,25 +213,39 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
   // Compute some probability of success for each crw
   recs.forEach(rec => {
     let score = 0.0
+    // Compute sum of expected probability of hitting each node
     rec.reqMatchNodes.forEach( (nodeIdx:number) => {
       score += 1/nodeTotalHits[nodeIdx]
     })
+    // Prioritise hitting many optional nodes (for narvin exclusion)
+    score += rec.optMatchNodes.length / 1000
+    // TODO: an improvement on the above is to prioritise the number of narvin exclusions
+    // but this would be a slower algo with only marginal benefit
+
     rec.score = score
   })
 
-  strs.push(`Matches per node: ${nodeTotalHits.join(',')}`)
+
 
   // Apply filter and sort after all calculations
   if (flags.node){
     recs = recs.filter(rec => rec.reqMatchNodes.includes(flags.node!-1))
 
   }
-
   recs.sort((a, b) => (b.score - a.score))
-  reportBossLevelChars(crew, recs, strs, excludeChar);
+
+  // Report required traits
+  strs.push(`${level.symbol} (${level.difficulty_id})`)
+  requiredTraits.forEach((trait, idx) => {
+    strs.push(`   N${idx+1} ${trait}`)
+  })
+  strs.push('OTHER TRAITS')
+  strs.push('   ' + possibleTraits.join(', '))
+  strs.push(`Matches per node: ${nodeTotalHits.join(',')}`)
+  reportBossLevelChars(crew, recs, strs, excludeChar, narvinExcluded, flags);
 }
 
-async function reportBoss(difficulty_id:number, crew: Char[], excludeChar: string[], flags: {node?:number}) {
+async function reportBoss(difficulty_id:number, crew: Char[], excludeChar: string[], flags: BossCmdFlags) {
   const dataJson = await bossJson()
   const data:BossData[] = JSON.parse(dataJson)
   const strs:string[] = []
@@ -202,8 +253,6 @@ async function reportBoss(difficulty_id:number, crew: Char[], excludeChar: strin
   const level = data.find( (rec:any) => rec.difficulty_id == difficulty_id)
   if (level) {
     reportBossLevel(strs, level, excludeChar, crew, flags);
-
-
   } else {
     strs.push(`No boss battle at difficulty ${difficulty_id}`)
   }
@@ -239,9 +288,17 @@ module.exports = new Clapp.Command({
       // let lines : Array<string> = [];
       // const criteria = [args.arg1, args.arg2, args.arg3];
       if (args.cmd === 'reset') {
+        await downloadBossBattles()
+        await parseBossJson()
         await fleets.resetBossExclude(fleetId)
-        const msg = `Hi ${author}. exclude list is reset`;
+        const msg = `Hi ${author}. exclude list is reset - and battle refreshed`;
         fulfill(msg)
+      }
+      else if (args.cmd === 'refresh') {
+        await downloadBossBattles()
+        await parseBossJson()
+        // TODO: if open_traits have changed, auto reset exclude list
+        fulfill('Refreshed')
       }
       else if (args.cmd === 'difficulty') {
         const diff = parseInt(args.arg1)
@@ -252,13 +309,6 @@ module.exports = new Clapp.Command({
           const fleet = await fleets.get(fleetId)
           fulfill(`Fleet boss difficulty is at ${fleet.bossDifficulty}`)
         }
-
-
-      }
-      else if (args.cmd === 'refresh') {
-        await downloadBossBattles()
-        await parseBossJson()
-        fulfill('Refreshed')
       }
       else if (args.cmd === 'json') {
         const str = await bossJson()
@@ -339,6 +389,13 @@ json           - Debug information`
       alias: 'n',
       type: 'number',
       default: 0 // falsey
+    },
+    {
+      name: 'verbose',
+      desc: 'increase verbosity of report',
+      alias: 'v',
+      type: 'boolean',
+      default: false
     },
   ]
 });
