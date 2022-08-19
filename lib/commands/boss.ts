@@ -288,9 +288,17 @@ module.exports = new Clapp.Command({
       // let lines : Array<string> = [];
       // const criteria = [args.arg1, args.arg2, args.arg3];
       if (args.cmd === 'reset') {
+        await downloadBossBattles()
+        await parseBossJson()
         await fleets.resetBossExclude(fleetId)
-        const msg = `Hi ${author}. exclude list is reset`;
+        const msg = `Hi ${author}. exclude list is reset - and battle refreshed`;
         fulfill(msg)
+      }
+      else if (args.cmd === 'refresh') {
+        await downloadBossBattles()
+        await parseBossJson()
+        // TODO: if open_traits have changed, auto reset exclude list
+        fulfill('Refreshed')
       }
       else if (args.cmd === 'difficulty') {
         const diff = parseInt(args.arg1)
@@ -301,13 +309,6 @@ module.exports = new Clapp.Command({
           const fleet = await fleets.get(fleetId)
           fulfill(`Fleet boss difficulty is at ${fleet.bossDifficulty}`)
         }
-
-
-      }
-      else if (args.cmd === 'refresh') {
-        await downloadBossBattles()
-        await parseBossJson()
-        fulfill('Refreshed')
       }
       else if (args.cmd === 'json') {
         const str = await bossJson()
