@@ -19,16 +19,16 @@ module.exports = {
   setBossDifficulty : setBossDifficulty,
   addBossExclude,
   resetBossExclude,
+  refreshBossSpec,
   get : get
 };
 
 async function update(fleetId:string, fn:any) {
   const qry = {_id: fleetId};
-  return get(fleetId).then(async (doc:FleetDoc) => {
-    const newDoc:FleetDoc = fn(doc);
-    await fleets.asyncUpdate(qry, newDoc, {upsert: true});
-    return newDoc;
-  });
+  const doc = await get(fleetId)
+  const newDoc:FleetDoc = fn(doc);
+  await fleets.asyncUpdate(qry, newDoc, {upsert: true});
+  return newDoc;
 }
 
 function updateStarbase(fleetId:string, stats:any) {
@@ -74,6 +74,11 @@ async function addBossExclude(fleetId:string, name:string) {
 
 function resetBossExclude(fleetId:string) {
   const f = (doc:FleetDoc) => {doc.bossExclude=[]; return doc;};
+  return update(fleetId, f);
+}
+
+function refreshBossSpec(fleetId:string, spec: string[]) {
+  const f = (doc:FleetDoc) => {doc.bossSpec=spec; return doc;};
   return update(fleetId, f);
 }
 
