@@ -220,7 +220,7 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
       // Strictly superset (not equal!)
       if (recIsSupersetOf(rec2, rec) && !_.isEqual(rec2.optMatchNodes, rec.optMatchNodes)) {
         // Big penality if you're supersetted by other eligible crew
-        console.log(`Applying penality to ${rec.name} due to ${rec2.name}`)
+        // console.log(`Applying penality to ${rec.name} due to ${rec2.name}`)
         score -= 0.1
       }
     })
