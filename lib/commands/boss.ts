@@ -96,6 +96,24 @@ function reportBossLevelChars(crew: Char[], recs: any[], strs: string[], exclude
   }
 }
 
+// Returns true if superset including equal
+function recIsSupersetOf(ex: { reqMatches: number; reqMatchNodes: number[]; name: string; optMatches: number; optMatchNodes: number[]; score: number }, rec: { reqMatches: number; reqMatchNodes: number[]; name: string; optMatches: number; optMatchNodes: number[]; score: number }):boolean {
+  // Keep if none of the required node matches meet criteria
+  return _.any(ex.reqMatchNodes, (reqId) => {
+    // Is also hitting that same node
+    if (rec.reqMatchNodes.includes(reqId)) {
+      // console.log(`${rec.name} also hits N${idx+1} with ${rec.optMatchNodes}`)
+      // all optional nodes are included in excluded crew
+      if (_.all(rec.optMatchNodes, opt => ex.optMatchNodes.includes(opt))) {
+        // console.log(`Narvin excluding ${rec.name}`)
+        return true
+      }
+    }
+    return false
+  })
+}
+
+
 function reportBossLevel(strs: string[], level: BossData, excludeChar: string[], crew: Char[], flags: BossCmdFlags) {
 
   const completedTraits: string[] = []
@@ -173,26 +191,8 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
   // Filter further by excluding crew that have subset of traits of existing excluded crew
   let beforeNarvin = recs
   excludedCrew.forEach(ex => {
-    // console.log(`Processing ${ex.name} for further exclusion`)
-    level.nodes.forEach((node, idx) => {
-      const optNodes = ex.optMatchNodes
-      // We match the node trait and it is not yet unlocked
-      if (ex.reqMatchNodes.includes(idx)) {
-        // console.log(`Checking ${ex.name} against other N${idx+1} ${node.open_traits[0]} crew to compare with ${optNodes}`)
-        recs = recs.filter(rec => {
-          // Is also hitting that same node
-          if (rec.reqMatchNodes.includes(idx)) {
-            // console.log(`${rec.name} also hits N${idx+1} with ${rec.optMatchNodes}`)
-            // all optional nodes are included in excluded crew
-            if (_.all(rec.optMatchNodes, opt => optNodes.includes(opt))) {
-              // console.log(`Narvin excluding ${rec.name}`)
-              return false
-            }
-          }
-          return true
-        })
-      }
-    })
+      // Compare excluded crew against all other crew
+      recs = recs.filter(rec => !recIsSupersetOf(ex, rec))
   })
 
   const narvinExcluded = beforeNarvin.filter(rec => !recs.map(x => x.name).includes(rec.name))
@@ -215,6 +215,16 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
     rec.reqMatchNodes.forEach( (nodeIdx:number) => {
       score += 1/nodeTotalHits[nodeIdx]
     })
+
+    recs.forEach(rec2 => {
+      // Strictly superset (not equal!)
+      if (recIsSupersetOf(rec2, rec) && !_.isEqual(rec2.optMatchNodes, rec.optMatchNodes)) {
+        // Big penality if you're supersetted by other eligible crew
+        console.log(`Applying penality to ${rec.name} due to ${rec2.name}`)
+        score -= 0.1
+      }
+    })
+
     // Prioritise hitting many optional nodes (for narvin exclusion)
     score += rec.optMatchNodes.length / 1000
     // TODO: an improvement on the above is to prioritise the number of narvin exclusions
@@ -230,7 +240,12 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
     recs = recs.filter(rec => rec.reqMatchNodes.includes(flags.node!-1))
 
   }
-  recs.sort((a, b) => (b.score - a.score))
+
+  // Sort by desc score, then by opt nodes so that they are grouped together
+  recs.sort((a, b) =>
+    (b.score - a.score) ||
+      a.optMatchNodes.join('').localeCompare(b.optMatchNodes.join(''))
+    )
 
   // Report required traits
   strs.push(`${level.symbol} (${level.difficulty_id})`)
