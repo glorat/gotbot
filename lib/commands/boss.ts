@@ -124,9 +124,7 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
       node.hidden_traits.forEach(t => completedTraits.push(t))
     }
   })
-
-  level.nodes.filter(node => !node.unlocked_character)
-
+  
   const possibleTraits = _.clone(level.traits)
   // Remove existing hits
   completedTraits.forEach(toExclude => {
