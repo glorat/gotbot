@@ -36,16 +36,17 @@ async function downloadBossBattles() {
   await fs.writeFile(cfg.dataPath + 'boss.json', JSON.stringify(boss.fleet_boss_battles_root));
 }
 
-async function parseBossJson() {
+async function parseBossJson(): Promise<BossData[]> {
   const bossJson = await fs.readFile(cfg.dataPath + 'boss.json')
   const boss = JSON.parse(bossJson)
-  const out:any = []
+  const out:BossData[] = []
   boss.statuses.forEach( (level:any) => {
     if (level.hp && level.hp>0 && level.combo) {
       out.push({symbol: level.symbol, difficulty_id: level.difficulty_id, nodes: level.combo.nodes, traits: level.combo.traits})
     }
   })
   await fs.writeFile(cfg.dataPath + 'boss2.json', JSON.stringify(out));
+  return out;
 }
 
 async function bossJson() {
@@ -124,7 +125,7 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
       node.hidden_traits.forEach(t => completedTraits.push(t))
     }
   })
-  
+
   const possibleTraits = _.clone(level.traits)
   // Remove existing hits
   completedTraits.forEach(toExclude => {
@@ -278,6 +279,23 @@ async function reportBoss(difficulty_id:number, crew: Char[], excludeChar: strin
 
 }
 
+async function refreshBossBattleData(fleetId: string) {
+  await downloadBossBattles()
+  const bossData = await parseBossJson()
+  const fleet = await fleets.get(fleetId)
+  const before = fleet.bossSpec
+  const after = bossData[fleet.bossDifficulty]?.traits ?? []
+  if (_.isEqual(before, after)) {
+    // TODO: if open_traits have changed, auto reset exclude list
+    return ('Refreshed')
+  } else {
+    console.log(`Updating spec to ${after}`)
+    await fleets.refreshBossSpec(fleetId, after)
+    await fleets.resetBossExclude(fleetId)
+    return ('Refreshed and resetting for new chain')
+  }
+}
+
 module.exports = new Clapp.Command({
   name: 'boss',
   desc: 'boss battle calculator',
@@ -302,23 +320,21 @@ module.exports = new Clapp.Command({
       // let lines : Array<string> = [];
       // const criteria = [args.arg1, args.arg2, args.arg3];
       if (args.cmd === 'reset') {
-        await downloadBossBattles()
-        await parseBossJson()
         await fleets.resetBossExclude(fleetId)
-        const msg = `Hi ${author}. exclude list is reset - and battle refreshed`;
+        const msg = `Hi ${author}. exclude list is reset`;
         fulfill(msg)
       }
       else if (args.cmd === 'refresh') {
-        await downloadBossBattles()
-        await parseBossJson()
-        // TODO: if open_traits have changed, auto reset exclude list
-        fulfill('Refreshed')
+        let msg = await refreshBossBattleData(fleetId);
+        fulfill(msg)
+
       }
       else if (args.cmd === 'difficulty') {
         const diff = parseInt(args.arg1)
         if (diff) {
           await fleets.setBossDifficulty(fleetId, diff)
-          fulfill(`Setting boss difficulty to ${diff}`)
+          const msg = await refreshBossBattleData(fleetId)
+          fulfill(`Setting boss difficulty to ${diff} - ${msg}`)
         } else {
           const fleet = await fleets.get(fleetId)
           fulfill(`Fleet boss difficulty is at ${fleet.bossDifficulty}`)
@@ -348,14 +364,15 @@ _              - Current info
                  * matching crew in vault
                  -  crew you do not have
 add [] [] []   - Add crew to exclusion list
-                 *RUN THIS AFTER YOU TRY A CREW*
+                 *RUN THIS WHEN YOU TRY A CREW*
 reset          - Reset exclusion list
-                 *RUN RESET WHEN NEW CHAIN STARTS*
+                 *RUN RESET WHEN CREW WERE ADDED IN ERROR*
 refresh        - Reload boss battle status
                  *RUN REFRESH AFTER NODE IS HIT*
 difficulty [n] - Our focussed level
                  *CHANGE THIS IF WE SWITCH DIFFICULTY*
-json           - Debug information`
+json           - Debug information
+                 *RUN THIS IF YOU SEE A BUG*`
         fulfill('```' + str + '```')
       }
       else {
