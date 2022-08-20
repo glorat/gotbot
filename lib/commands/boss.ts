@@ -98,18 +98,16 @@ function reportBossLevelChars(crew: Char[], recs: any[], strs: string[], exclude
 
 function reportBossLevel(strs: string[], level: BossData, excludeChar: string[], crew: Char[], flags: BossCmdFlags) {
 
-  const requiredTraits: string[] = []
   const completedTraits: string[] = []
 
-  // Determine required traits
+  // Determine optional traits
   level.nodes.forEach( (node,idx) => {
     if (node.unlocked_character) {
       node.hidden_traits.forEach(t => completedTraits.push(t))
-    } else {
-      requiredTraits.push(node.open_traits[0])
     }
   })
 
+  level.nodes.filter(node => !node.unlocked_character)
 
   const possibleTraits = _.clone(level.traits)
   // Remove existing hits
@@ -236,8 +234,11 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
 
   // Report required traits
   strs.push(`${level.symbol} (${level.difficulty_id})`)
-  requiredTraits.forEach((trait, idx) => {
-    strs.push(`   N${idx+1} ${trait}`)
+
+  level.nodes.forEach( (node,idx) => {
+    if (!node.unlocked_character) {
+      strs.push(`   N${idx+1} ${node.open_traits[0]}`)
+    }
   })
   strs.push('OTHER TRAITS')
   strs.push('   ' + possibleTraits.join(', '))
