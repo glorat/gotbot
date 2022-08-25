@@ -99,10 +99,10 @@ function reportBossLevelChars(crew: Char[], recs: any[], strs: string[], exclude
 
 // Returns true if superset including equal
 function recIsSupersetOf(ex: { reqMatches: number; reqMatchNodes: number[]; name: string; optMatches: number; optMatchNodes: number[]; score: number }, rec: { reqMatches: number; reqMatchNodes: number[]; name: string; optMatches: number; optMatchNodes: number[]; score: number }):boolean {
-  // Keep if none of the required node matches meet criteria
-  return _.any(ex.reqMatchNodes, (reqId) => {
+  // Supersetted if all of rec's nodes are in ex
+  return _.all(rec.reqMatchNodes, (reqId) => {
     // Is also hitting that same node
-    if (rec.reqMatchNodes.includes(reqId)) {
+    if (ex.reqMatchNodes.includes(reqId)) {
       // console.log(`${rec.name} also hits N${idx+1} with ${rec.optMatchNodes}`)
       // all optional nodes are included in excluded crew
       if (_.all(rec.optMatchNodes, opt => ex.optMatchNodes.includes(opt))) {
