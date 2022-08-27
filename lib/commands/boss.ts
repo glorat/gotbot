@@ -17,6 +17,9 @@ const fleets = require('../fleetdb.js');
 interface BossCmdFlags {
   node?: number
   verbose?: boolean
+  summary?: boolean
+  solve?: boolean
+  own: boolean
 }
 //const voyageSkills = ['cmd','dip','sec','eng','sci','med'];
 
@@ -61,7 +64,7 @@ interface BossData {
   nodes: { open_traits:string[], hidden_traits:string[], unlocked_character:any }[]
 }
 
-function reportBossLevelChars(crew: Char[], recs: any[], strs: string[], excludeChar: string[], narvinExcluded: { reqMatches: number; reqMatchNodes: number[]; name: string; optMatches: number; optMatchNodes: number[]; score: number }[], flags: BossCmdFlags) {
+function reportBossLevelChars(crew: Char[], nodeTotalHits:number[], recs: any[], strs: string[], excludeChar: string[], narvinExcluded: { reqMatches: number; reqMatchNodes: number[]; name: string; optMatches: number; optMatchNodes: number[]; score: number }[], flags: BossCmdFlags) {
   function nameToPrefix(name: string): string {
     const m = crew.find(c => c.name === name)
     if (m) {
@@ -71,26 +74,31 @@ function reportBossLevelChars(crew: Char[], recs: any[], strs: string[], exclude
     }
   }
 
-  strs.push('ELIGIBLE CREW')
-
   // Report fewer if verbose due to display limit
   const maxToReport = flags.verbose ? 10 : 25 // TODO: Make this a flag
   const recsToReport = recs.slice(0,maxToReport)
   const table = createDefaultTable()
-  table.push(['own', 'name', 'N', 'O', 'Score'])
+  const cols = ['NAME', 'N', 'O', 'SCORE']
+  if (flags.own) cols.unshift('OWN')
+  table.push(cols)
 
   recsToReport.forEach(rec => {
     const nodes = rec.reqMatchNodes.map( (x:number) => `N${x+1}`).join(' ')
     const opts = rec.optMatchNodes.map( (x:number) => `O${x+1}`).join(' ')
-    table.push([nameToPrefix(rec.name), rec.name, nodes, opts, rec.score.toFixed(3)])
+    const row = [rec.name, nodes, opts, rec.score.toFixed(3)]
+    if (flags.own) row.unshift(nameToPrefix(rec.name))
+    table.push(row)
     //strs.push(`${nameToPrefix(rec.name)}${rec.name} ${nodes} +${rec.optMatches} ${rec.score.toFixed(2)}`)
   })
   strs.push(table.toString())
+
+  strs.push(`Matches per node: ${nodeTotalHits.join(',')}`)
   let summary = `Showing ${recsToReport.length} of ${recs.length} eligible`
   if (excludeChar.length > 0) {
     summary =  summary + `, ${excludeChar.length} excluded by fleet, ${narvinExcluded.length} by Narvin`
   }
   strs.push(summary)
+
   if (flags.verbose) {
     strs.push('FLEET EXCLUDED: ' + excludeChar.join(', '))
     strs.push('NARVIN EXCLUDED: ' + narvinExcluded.map(x => x.name).join(', '))
@@ -115,37 +123,30 @@ function recIsSupersetOf(ex: { reqMatches: number; reqMatchNodes: number[]; name
 }
 
 
-function reportBossLevel(strs: string[], level: BossData, excludeChar: string[], crew: Char[], flags: BossCmdFlags) {
+function reportBossSummary(strs: string[], level: BossData, possibleTraits: string[]) {
+  // Report required traits
+  strs.push(`${level.symbol} (${level.difficulty_id})`)
 
-  const completedTraits: string[] = []
-
-  // Determine optional traits
-  level.nodes.forEach( (node,idx) => {
-    if (node.unlocked_character) {
-      node.hidden_traits.forEach(t => completedTraits.push(t))
+  level.nodes.forEach((node, idx) => {
+    if (!node.unlocked_character) {
+      strs.push(`   N${idx + 1} ${node.open_traits[0]}`)
     }
   })
+  strs.push('OTHER TRAITS')
+  strs.push('   ' + possibleTraits.join(', '))
+}
 
-  const possibleTraits = _.clone(level.traits)
-  // Remove existing hits
-  completedTraits.forEach(toExclude => {
-    const idx = possibleTraits.indexOf(toExclude)
-    if (idx > -1) {
-      possibleTraits.splice(idx, 1)
-    }
-  })
-
-
+function computeBossSolution(level: BossData, possibleTraits: string[], excludeChar: string[], flags: BossCmdFlags) {
   const difficultToMaxStars = [0, 2, 3, 4, 4, 5, 5]
   const myMaxStars = difficultToMaxStars[level.difficulty_id]
-  let allCrew = chars.allCrewEntries().filter((c:CharInfo) => c.stars <= myMaxStars)
+  let allCrew = chars.allCrewEntries().filter((c: CharInfo) => c.stars <= myMaxStars)
   // allCrew = allCrew.slice(0,10)
   let recs: { reqMatches: number; reqMatchNodes: number[]; name: string; optMatches: number; optMatchNodes: number[], score: number }[] = []
   allCrew.forEach((crew: CharInfo) => {
     let reqMatches = 0
-    let reqMatchNodes:number[] = []
+    let reqMatchNodes: number[] = []
     let optMatches = 0
-    let optMatchNodes:number[] = []
+    let optMatchNodes: number[] = []
     const traits = crew.traits_int
     // console.log(traits.join(':'))
     const matchOptTraits: string[] = []
@@ -160,7 +161,7 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
 
     level.nodes.forEach((node, idx) => {
       // We match the node trait and it is not yet unlocked
-      if (traits.includes(node.open_traits[0])  && !node.unlocked_character) {
+      if (traits.includes(node.open_traits[0]) && !node.unlocked_character) {
         // Need to have enough optional traits
         if (optMatches >= node.hidden_traits.length) {
           reqMatches++
@@ -188,8 +189,8 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
   // Filter further by excluding crew that have subset of traits of existing excluded crew
   let beforeNarvin = recs
   excludedCrew.forEach(ex => {
-      // Compare excluded crew against all other crew
-      recs = recs.filter(rec => !recIsSupersetOf(ex, rec))
+    // Compare excluded crew against all other crew
+    recs = recs.filter(rec => !recIsSupersetOf(ex, rec))
   })
 
   const narvinExcluded = beforeNarvin.filter(rec => !recs.map(x => x.name).includes(rec.name))
@@ -209,8 +210,8 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
   recs.forEach(rec => {
     let score = 0.0
     // Compute sum of expected probability of hitting each node
-    rec.reqMatchNodes.forEach( (nodeIdx:number) => {
-      score += 1/nodeTotalHits[nodeIdx]
+    rec.reqMatchNodes.forEach((nodeIdx: number) => {
+      score += 1 / nodeTotalHits[nodeIdx]
     })
 
     recs.forEach(rec2 => {
@@ -231,31 +232,39 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
   })
 
 
-
   // Apply filter and sort after all calculations
-  if (flags.node){
-    recs = recs.filter(rec => rec.reqMatchNodes.includes(flags.node!-1))
+  if (flags.node) {
+    recs = recs.filter(rec => rec.reqMatchNodes.includes(flags.node! - 1))
 
   }
 
   // Sort by desc score, then by opt nodes so that they are grouped together
   recs.sort((a, b) =>
     (b.score - a.score) ||
-      a.optMatchNodes.join('').localeCompare(b.optMatchNodes.join(''))
-    )
+    a.optMatchNodes.join('').localeCompare(b.optMatchNodes.join(''))
+  )
+  return {recs, narvinExcluded, nodeTotalHits};
+}
 
-  // Report required traits
-  strs.push(`${level.symbol} (${level.difficulty_id})`)
+function computeBossSummary(level: BossData) {
+  const completedTraits: string[] = []
 
-  level.nodes.forEach( (node,idx) => {
-    if (!node.unlocked_character) {
-      strs.push(`   N${idx+1} ${node.open_traits[0]}`)
+  // Determine optional traits
+  level.nodes.forEach((node, idx) => {
+    if (node.unlocked_character) {
+      node.hidden_traits.forEach(t => completedTraits.push(t))
     }
   })
-  strs.push('OTHER TRAITS')
-  strs.push('   ' + possibleTraits.join(', '))
-  strs.push(`Matches per node: ${nodeTotalHits.join(',')}`)
-  reportBossLevelChars(crew, recs, strs, excludeChar, narvinExcluded, flags);
+
+  const possibleTraits = _.clone(level.traits)
+  // Remove existing hits
+  completedTraits.forEach(toExclude => {
+    const idx = possibleTraits.indexOf(toExclude)
+    if (idx > -1) {
+      possibleTraits.splice(idx, 1)
+    }
+  })
+  return possibleTraits;
 }
 
 async function reportBoss(difficulty_id:number, crew: Char[], excludeChar: string[], flags: BossCmdFlags) {
@@ -265,7 +274,14 @@ async function reportBoss(difficulty_id:number, crew: Char[], excludeChar: strin
 
   const level = data.find( (rec:any) => rec.difficulty_id == difficulty_id)
   if (level) {
-    reportBossLevel(strs, level, excludeChar, crew, flags);
+    const possibleTraits = computeBossSummary(level);
+    if (flags.summary) {
+      reportBossSummary(strs, level, possibleTraits);
+    }
+    if (flags.solve) {
+      let {recs, narvinExcluded, nodeTotalHits} = computeBossSolution(level, possibleTraits, excludeChar, flags);
+      reportBossLevelChars(crew, nodeTotalHits, recs, strs, excludeChar, narvinExcluded, flags);
+    }
   } else {
     strs.push(`No boss battle at difficulty ${difficulty_id}`)
   }
@@ -283,6 +299,7 @@ async function refreshBossBattleData(fleetId: string) {
   const fleet = await fleets.get(fleetId)
   const before = fleet.bossSpec
   const after = bossData[fleet.bossDifficulty]?.traits ?? []
+
   if (_.isEqual(before, after)) {
     // TODO: if open_traits have changed, auto reset exclude list
     return ('Refreshed')
@@ -300,6 +317,24 @@ module.exports = new Clapp.Command({
 
 // Command function
   fn: (argv:any, context:API.Context) => new Promise(async (fulfill) => {
+    async function performRefresh(fleetId: string, userid:string, author:string) {
+      let refreshMsg = await refreshBossBattleData(fleetId);
+
+      const flags: BossCmdFlags = argv.flags
+      flags.summary = true
+      const fleet = await fleets.get(fleetId)
+      const crewdoc: CrewDoc = await crewdb.get(userid, context) ?? {
+        _id: userid,
+        username: author,
+        crew: [],
+        base: {},
+        prof: {}
+      }
+      const solveMsg = await reportBoss(fleet.bossDifficulty, crewdoc.crew, fleet.bossExclude, argv.flags)
+      const msg = `${solveMsg}\n${refreshMsg}`
+      return msg;
+    }
+
     try {
       const userid = context.author.id;
       const fleetId = context.fleetId;
@@ -323,7 +358,7 @@ module.exports = new Clapp.Command({
         fulfill(msg)
       }
       else if (args.cmd === 'refresh') {
-        let msg = await refreshBossBattleData(fleetId);
+        const msg = await performRefresh(fleetId, userid, author);
         fulfill(msg)
 
       }
@@ -331,8 +366,8 @@ module.exports = new Clapp.Command({
         const diff = parseInt(args.arg1)
         if (diff) {
           await fleets.setBossDifficulty(fleetId, diff)
-          const msg = await refreshBossBattleData(fleetId)
-          fulfill(`Setting boss difficulty to ${diff} - ${msg}`)
+          const msg = await performRefresh(fleetId, userid, author);
+          fulfill(`${msg}\nSetting boss difficulty to ${diff}`)
         } else {
           const fleet = await fleets.get(fleetId)
           fulfill(`Fleet boss difficulty is at ${fleet.bossDifficulty}`)
@@ -374,6 +409,10 @@ json           - Debug information
         fulfill('```' + str + '```')
       }
       else {
+        const flags :BossCmdFlags = argv.flags
+        flags.solve = true
+        flags.summary = false
+
         const fleet = await fleets.get(fleetId)
         const crewdoc:CrewDoc = await crewdb.get(userid, context) ?? {_id: userid, username: author, crew: [], base:{}, prof:{}}
         const str = await reportBoss(fleet.bossDifficulty, crewdoc.crew, fleet.bossExclude, argv.flags)
@@ -418,6 +457,13 @@ json           - Debug information
       alias: 'n',
       type: 'number',
       default: 0 // falsey
+    },
+    {
+      name: 'own',
+      desc: 'tag owned crew',
+      alias: 'o',
+      type: 'boolean',
+      default: false
     },
     {
       name: 'verbose',
