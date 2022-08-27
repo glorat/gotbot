@@ -136,11 +136,9 @@ function reportBossLevel(strs: string[], level: BossData, excludeChar: string[],
   })
 
 
-
-  const allCrewOrig: CharInfo[] = chars.allCrewEntries()
-  // Apply exclusion
-  let allCrew = allCrewOrig // .filter(c => !excludeChar.includes(c.name)) // filter later
-
+  const difficultToMaxStars = [0, 2, 3, 4, 4, 5, 5]
+  const myMaxStars = difficultToMaxStars[level.difficulty_id]
+  let allCrew = chars.allCrewEntries().filter((c:CharInfo) => c.stars <= myMaxStars)
   // allCrew = allCrew.slice(0,10)
   let recs: { reqMatches: number; reqMatchNodes: number[]; name: string; optMatches: number; optMatchNodes: number[], score: number }[] = []
   allCrew.forEach((crew: CharInfo) => {
