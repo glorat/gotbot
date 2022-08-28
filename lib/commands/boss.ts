@@ -45,7 +45,7 @@ async function parseBossJson(): Promise<BossData[]> {
   const out:BossData[] = []
   boss.statuses.forEach( (level:any) => {
     if (level.hp && level.hp>0 && level.combo) {
-      out.push({symbol: level.symbol, difficulty_id: level.difficulty_id, nodes: level.combo.nodes, traits: level.combo.traits})
+      out.push({symbol: level.symbol, difficulty_id: level.difficulty_id, nodes: level.combo.nodes, traits: level.combo.traits, id: level.id, hp: level.hp, ends_in: level.ends_in})
     }
   })
   await fs.writeFile(cfg.dataPath + 'boss2.json', JSON.stringify(out));
@@ -62,6 +62,10 @@ interface BossData {
   symbol: string
   traits: string[]
   nodes: { open_traits:string[], hidden_traits:string[], unlocked_character:any }[]
+  id: number
+  ends_in: number
+  hp: number
+
 }
 
 function reportBossLevelChars(crew: Char[], nodeTotalHits:number[], recs: any[], strs: string[], excludeChar: string[], narvinExcluded: { reqMatches: number; reqMatchNodes: number[]; name: string; optMatches: number; optMatchNodes: number[]; score: number }[], flags: BossCmdFlags) {
@@ -126,6 +130,8 @@ function recIsSupersetOf(ex: { reqMatches: number; reqMatchNodes: number[]; name
 function reportBossSummary(strs: string[], level: BossData, possibleTraits: string[]) {
   // Report required traits
   strs.push(`${level.symbol} (${level.difficulty_id})`)
+  strs.push(`${level.hp.toLocaleString()} hull remaining`)
+  strs.push(`${(level.ends_in/60).toFixed(0)} minutes remaining`)
 
   level.nodes.forEach((node, idx) => {
     if (!node.unlocked_character) {
@@ -298,7 +304,9 @@ async function refreshBossBattleData(fleetId: string) {
   const bossData = await parseBossJson()
   const fleet = await fleets.get(fleetId)
   const before = fleet.bossSpec
-  const after = bossData[fleet.bossDifficulty]?.traits ?? []
+
+  const level = bossData.find( (rec:any) => rec.difficulty_id == fleet.bossDifficulty)
+  const after = level?.traits ?? []
 
   if (_.isEqual(before, after)) {
     // TODO: if open_traits have changed, auto reset exclude list
