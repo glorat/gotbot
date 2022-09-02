@@ -135,7 +135,7 @@ function reportBossSummary(strs: string[], level: BossData, possibleTraits: stri
 
   level.nodes.forEach((node, idx) => {
     if (!node.unlocked_character) {
-      strs.push(`   N${idx + 1} ${node.open_traits[0]}`)
+      strs.push(`   N${idx + 1} ${node.open_traits.join(', ')}`)
     }
   })
   strs.push('OTHER TRAITS')
@@ -167,7 +167,7 @@ function computeBossSolution(level: BossData, possibleTraits: string[], excludeC
 
     level.nodes.forEach((node, idx) => {
       // We match the node trait and it is not yet unlocked
-      if (traits.includes(node.open_traits[0]) && !node.unlocked_character) {
+      if ((!node.unlocked_character) && _.all(node.open_traits, t=>traits.includes(t))) {
         // Need to have enough optional traits
         if (optMatches >= node.hidden_traits.length) {
           reqMatches++
