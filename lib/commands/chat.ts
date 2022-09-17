@@ -37,7 +37,7 @@ module.exports = new Clapp.Command({
       });
 
       let res:string = response.data!.choices![0].text ?? '';
-      res = ((/^\s*$/g).test(res) ? '????' : res);
+      res = ((/^\s*$/g).test(res) ? argv.args.fallback : res);
       return res;
     }
 
@@ -48,10 +48,10 @@ module.exports = new Clapp.Command({
 
     // const input = `${author}: ${argv.args.message}`;
 
-    if (context.isEntitled(context.author.id)) {
+    if (context.isEntitled(context.author.id) && argv.args.message) {
       return await aiReply();
     } else {
-      return 'Sorry I cannot help you with that'
+      return argv.args.fallback
     }
 
   },
@@ -60,8 +60,15 @@ module.exports = new Clapp.Command({
       name: 'message',
       desc: 'What you want to say to the bot',
       type: 'string',
-      required: false,
+      required: true,
       default: 'message isn\'t defined'
-    }
+    },
+    {
+      name: 'fallback',
+      desc: 'What the bot should say if it has nothing to say',
+      type: 'string',
+      required: false,
+      default: '??????'
+    },
   ]
 });

@@ -123,7 +123,7 @@ bot.on('message', msg => {
         if (response.startsWith('Error') && process.env.OPENAI_API_KEY) {
           const re = new RegExp(`^.*?${cfg.botName}`);
           const str = msg.cleanContent.replace(re, '').trim();
-          const cmd = cfg.prefix + ' chat "' + addslashes(str) + '"';
+          const cmd = `${cfg.prefix} chat "${addslashes(str)}" "${addslashes(response)}"`;
           handleCli(cmd); // TODO: Check for infinite reentrancy
         }
         else {
