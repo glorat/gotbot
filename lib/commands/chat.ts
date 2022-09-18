@@ -1,5 +1,6 @@
 import Clapp = require('../modules/clapp-discord');
 import {Configuration, OpenAIApi} from "openai";
+import Config from '../../config'
 
 module.exports = new Clapp.Command({
   name: "chat",
@@ -10,12 +11,10 @@ module.exports = new Clapp.Command({
 
     async function aiReply(): Promise<string> {
       const userPrompt = `Human: ${argv.args.message}`;
-      // const engineId = 'text-ada-001';
-      // const engineId = 'text-davinci-002'
-    const engineId = 'text-curie-001';
+      const engineId = Config.openAiEngine;
 
       const configuration = new Configuration({
-        apiKey: process.env.OPENAI_API_KEY,
+        apiKey: Config.openAiApiKey,
       });
       const openai = new OpenAIApi(configuration);
 

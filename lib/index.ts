@@ -120,7 +120,7 @@ bot.on('message', msg => {
       }
       else {
         // This is the capture to redirect to generic chat
-        if (response.startsWith('Error') && process.env.OPENAI_API_KEY) {
+        if (response.startsWith('Error') && cfg.openAiApiKey) {
           const re = new RegExp(`^.*?${cfg.botName}`);
           const str = msg.cleanContent.replace(re, '').trim();
           const cmd = `${cfg.prefix} chat "${addslashes(str)}" "${addslashes(response)}"`;
