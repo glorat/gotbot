@@ -18,6 +18,17 @@ console.log(cfg.dataPath);
 
 const fleets = require( "../lib/fleetdb");
 
+function defaultContext() {
+  const channel:Record<string, any> = {id: '-1', name:'test channel', send:()=>{}}
+  return {
+    author: {username:'test', id:-1},
+    channel,
+    fleetId: '-1',
+    isEntitled: function(){return true;},
+    emojify : (x:string)=>x,
+    boldify: (x:string)=>x
+  }
+}
 
 
 describe('gotBot', function () {
@@ -26,14 +37,7 @@ describe('gotBot', function () {
 
     assert(cli.isCliSentence(cmd));
     if (context == null) {
-      context = {
-        author: {username:'test', id:-1},
-        channel: {id: '-1', name:'test channel', send:()=>{}},
-        fleetId: '-1',
-        isEntitled: function(){return true;},
-        emojify : (x:string)=>x,
-        boldify: (x:string)=>x
-      };
+      context = defaultContext()
     }
     return cli.sendCommand(cmd,context);
   }
@@ -404,6 +408,20 @@ describe('gotBot', function () {
       expect(data).to.contain('Showing 25 of 51 eligible');
     })
   });
+
+  describe('manual cmd',  () => {
+    it('should prevent manual for non-admins', async() => {
+      const data = await sendCommand('-dev bot manual');
+      expect(data).to.match(/^Only the server administrator can run this/)
+    })
+
+    it ('should show manual for admins', async() => {
+      const ctx = defaultContext()
+      ctx.channel['guild'] = {ownerID: -1};
+      const data = await sendCommand('-dev bot manual', ctx);
+      expect(data).to.match(/^Server manual done/)
+    })
+  })
 
   describe('event cmd', function() {
     it('should reset event chars', function(done) {
