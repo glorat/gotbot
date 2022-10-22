@@ -233,9 +233,27 @@ function computeBossSolution(level: BossData, possibleTraits: string[], excludeC
     // TODO: an improvement on the above is to prioritise the number of narvin exclusions
     // but this would be a slower algo with only marginal benefit
 
+    const dupeOpts = _.filter(level.traits, (val, i, iteratee) => _.includes(iteratee, val, i + 1))
+
     // Nodes come in alphabetical order so penalise if not enougn
     // optional traits are before the required traits
-    rec.optMatchNodes
+    if (rec.reqMatchNodes.length == 1) {
+      // If exactly one match, eligible for alphabetical penalisation
+      const node = level.nodes[rec.reqMatchNodes[0]]
+      const reqNames = node.open_traits
+      const optNames = rec.optMatchNodes.map(i => level.traits[i])
+      const validOptNames = optNames.filter(nm => _.all(reqNames, reqNm => reqNm.localeCompare(nm)==-1))
+      if (validOptNames.length < node.hidden_traits.length) {
+        console.log(`Penalise ${rec.name} on node ${node.open_traits} against ${optNames}`)
+        score -= 0.25
+      } else {
+        // But if we are hitting a dupe opt, we get a bonus
+        if (_.any(optNames, nm => dupeOpts.includes(nm))) {
+          console.log(`Bonus ${rec.name} as ${optNames} hits ${dupeOpts}`)
+          score += 0.1
+        }
+      }
+    }
 
     rec.score = score
   })
