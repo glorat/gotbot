@@ -43,8 +43,8 @@ export interface CrewAvatar {
   wiki: string // Added by the download script for convenience
 }
 
-const allcrew: Array<CrewAvatar> = require('../../data/sttcrew.json');
-const morecrew : Array<CrewEntry> = require('../../client/morecrew.json');
+const allcrew: Array<CrewAvatar> = require('../data/sttcrew.json');
+const morecrew : Array<CrewEntry> = require('../client/morecrew.json');
 const moretraitlist = ['StarCap','DiscoCrew']; // TODO: dir list client/trait
 const moretrait : any = {};
 const wikiurl = 'sttwiki.org';

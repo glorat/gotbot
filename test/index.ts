@@ -291,6 +291,7 @@ describe('gotBot', function () {
     });
 
     describe('gcalc command', function() {
+      // FIXME: This test can't pass because we haven't added any crew
       xit('should provide analysis for your crew', function(done) {
         this.timeout(10000); // Combinatorics is slow
         sendCommand('-dev bot gcalc').then(data=>{
