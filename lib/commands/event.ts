@@ -4,9 +4,9 @@ const Clapp = require('../modules/clapp-discord');
 
 import * as _ from 'underscore';
 import {CharInfo} from "../chars";
-const chars = require('../chars.js');
-const crewdb = require('../crewdb.js');
-const fleets = require('../fleetdb.js');
+const chars = require('../chars');
+const crewdb = require('../crewdb');
+const fleets = require('../fleetdb');
 //const voyageSkills = ['cmd','dip','sec','eng','sci','med'];
 
 module.exports = new Clapp.Command({

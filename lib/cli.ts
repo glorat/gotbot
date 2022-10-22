@@ -3,7 +3,7 @@
 const pkg     = require(process.cwd() + '/package.json');
 import cfg from '../config';
 import Clapp   = require('./modules/clapp-discord');
-const clilog  = require('./clilog.js');
+const clilog  = require('./clilog');
 
 const fs      = require('fs');
 import * as API from './Interfaces';
@@ -28,7 +28,7 @@ module.exports = {
 // Load every command in the commands folder
 fs.readdirSync('./dist/lib/commands/').forEach((file:string) => {
   if (file.endsWith('.js')) {
-    app.addCommand(require("./commands/" + file));
+    app.addCommand(require("./commands/" + file.replace('.js','')));
   }
 });
 

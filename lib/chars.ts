@@ -6,7 +6,7 @@ import _ = require('underscore');
 import {Dictionary} from "underscore";
 import {MatchCB} from "./matcher";
 
-const matcher = require('./matcher.js');
+const matcher = require('./matcher');
 
 import cfg from '../config';
 import {createDefaultTable} from "./utils";

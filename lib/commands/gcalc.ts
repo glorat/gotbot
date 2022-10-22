@@ -2,8 +2,8 @@ const Clapp = require('../modules/clapp-discord');
 import * as _ from 'underscore';
 import cfg from '../../config';
 import * as chars from '../chars';
-import * as matcher from '../matcher.js';
-const Gauntlet = require('../../client/gauntlet.js');
+import * as matcher from '../matcher';
+const Gauntlet = require('../../client/gauntlet');
 const db = require('../crewdb');
 import * as API from '../Interfaces';
 

@@ -1,9 +1,9 @@
 import Clapp = require('../modules/clapp-discord');
 import _ = require('underscore');
-import chars = require('../chars.js');
-const matcher = require('../matcher.js');
-const crewdb = require('../crewdb.js');
-const fleets = require('../fleetdb.js');
+import chars = require('../chars');
+const matcher = require('../matcher');
+const crewdb = require('../crewdb');
+const fleets = require('../fleetdb');
 import * as API from '../Interfaces';
 import {Char, CharInfo, CrewDoc} from "../chars";
 

@@ -35,7 +35,7 @@ class DropEntry {
   }
 }
 
-const missions = require('./missions.js');
+const missions = require('./missions');
 
 module.exports = {
   drops: drops,

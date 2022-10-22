@@ -3,8 +3,8 @@ import cfg from '../config';
 import express from 'express';
 const http = express();
 const bodyParser = require('body-parser');
-const db      = require('./crewdb.js');
-const cli = require('./cli.js');
+const db      = require('./crewdb');
+const cli = require('./cli');
 //const json2csv = require("json2csv");
 import * as api from './Interfaces'
 
