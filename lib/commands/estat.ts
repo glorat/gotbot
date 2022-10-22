@@ -1,6 +1,6 @@
 const Clapp = require('../modules/clapp-discord');
 import * as _ from 'underscore';
-import chars = require('../chars.js');
+import chars = require('../chars');
 //import cfg from '../../config';
 import * as API from '../Interfaces';
 

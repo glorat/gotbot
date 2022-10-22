@@ -23,7 +23,7 @@ module.exports = {
   get : get
 };
 
-async function update(fleetId:string, fn:any) {
+async function update(fleetId:string, fn:any):Promise<FleetDoc> {
   const qry = {_id: fleetId};
   const doc = await get(fleetId)
   const newDoc:FleetDoc = fn(doc);

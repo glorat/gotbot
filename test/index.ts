@@ -5,16 +5,19 @@ process.env.NODE_ENV = "test";
 const assert = require('assert');
 const expect = require('expect.js');
 const _ = require('underscore');
-const cli   = require('../lib/cli.js');
+const cli   = require('../lib/cli');
 
 import cfg from '../config';
 import * as api from '../lib/Interfaces';
 
 // Override env for testing
 cfg.nedbpath = cfg.nedbpath.replace('stt.json','test_stt.json');
-const db = require('../lib/crewdb.js');
+const db = require('../lib/crewdb');
 console.log(cfg.nedbpath);
 console.log(cfg.dataPath);
+
+const fleets = require( "../lib/fleetdb");
+
 
 
 describe('gotBot', function () {
@@ -389,7 +392,19 @@ describe('gotBot', function () {
   });
 
 
-  describe('event command', function() {
+  describe('boss command', async () => {
+    it('should set correct difficulty', async ()=>{
+      const fleet = await fleets.setBossDifficulty('-1', 5)
+      expect(fleet).to.be.ok();
+    })
+
+    it('should handle boss command', async () => {
+      const data = await sendCommand('-dev bot boss')
+      expect(data).to.contain('Showing 25 of 51 eligible');
+    })
+  });
+
+  describe('event cmd', function() {
     it('should reset event chars', function(done) {
       sendCommand('-dev bot event reset').then(data => {
         expect(data).to.be('Event crew reset');
@@ -411,10 +426,11 @@ describe('gotBot', function () {
     });
 
   });
+
 });
 
 describe('missions', function() {
-  let missions = require('../lib/missions.js');
+  let missions = require('../lib/missions');
 
   it('should have an item list', function(done) {
     missions.ready.then(function() {

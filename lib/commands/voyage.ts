@@ -2,10 +2,10 @@ import {CharInfo} from "../chars";
 
 const Clapp = require('../modules/clapp-discord');
 import _ = require('underscore');
-const chars = require('../chars.js');
-const crewdb = require('../crewdb.js');
-const fleets = require('../fleetdb.js');
-const voyage = require('../voyage.js');
+const chars = require('../chars');
+const crewdb = require('../crewdb');
+const fleets = require('../fleetdb');
+const voyage = require('../voyage');
 import * as API from '../Interfaces';
 
 const voyageSkills = ['cmd','dip','sec','eng','sci','med'];
@@ -186,7 +186,7 @@ module.exports = new Clapp.Command({
         while (improving) {
           improving = false;
           iters++;
-          console.log(`Iteration ${iters} of swapping`);
+          // console.log(`Iteration ${iters} of swapping`);
           bestCrew.forEach(after => {
             if (!_.contains(constrainedCrew.crew, after)) {
               let bestReplace = {name:'NA'};
@@ -207,7 +207,7 @@ module.exports = new Clapp.Command({
               });
               // After trying every slot, how did we do?
               if (bestReplaceHours > bestHours) {
-                console.log(`Swap ${bestReplace.name} with ${after.name} from ${bestHours} to ${bestReplaceHours}`);
+                // console.log(`Swap ${bestReplace.name} with ${after.name} from ${bestHours} to ${bestReplaceHours}`);
                 constrainedCrew = replaceConstrainedCrew(constrainedCrew, bestReplace, after);
                 bestHours = bestReplaceHours;
                 improving = true;
