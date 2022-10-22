@@ -19,7 +19,8 @@
     "bot": "node ./dist/lib/index.js",
     "cachewiki": "node ./dist/lib/cachewiki.js",
     "dlwiki": "./gotcron",
-    "test": "gulp"
+    "test": "gulp",
+    "tsc-watch": "tsc -w"
   },
   "devDependencies": {
     "@types/mocha": "^5.2.7",
