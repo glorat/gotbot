@@ -241,7 +241,8 @@ function computeBossSolution(level: BossData, possibleTraits: string[], excludeC
       // If exactly one match, eligible for alphabetical penalisation
       const node = level.nodes[rec.reqMatchNodes[0]]
       const reqNames = node.open_traits
-      const optNames = rec.optMatchNodes.map(i => level.traits[i])
+      const optNames = rec.optMatchNodes.map(i => possibleTraits[i])
+      // console.log(`${rec.name} has ${optNames}`)
       const validOptNames = optNames.filter(nm => _.all(reqNames, reqNm => reqNm.localeCompare(nm)==-1))
       if (validOptNames.length < node.hidden_traits.length) {
         console.log(`Penalise ${rec.name} on node ${node.open_traits} against ${optNames}`)
