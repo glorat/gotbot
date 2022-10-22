@@ -26,8 +26,9 @@ module.exports = {
 
 
 // Load every command in the commands folder
-fs.readdirSync('./dist/lib/commands/').forEach((file:string) => {
-  if (file.endsWith('.js')) {
+fs.readdirSync('./lib/commands/').forEach((file:string) => {
+  if (file.endsWith('.js') || file.endsWith('.ts')) {
+    // TODO: This would be a good place to capture commands for native discord slash cmds
     app.addCommand(require("./commands/" + file.replace('.js','')));
   }
 });
