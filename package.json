@@ -81,8 +81,7 @@
     ],
     "exclude": [
       "**/*.d.ts",
-      "lib/modules/**",
-      "lib/missionparse.js"
+      "lib/modules/**"
     ],
     "reporter": [
       "text"
