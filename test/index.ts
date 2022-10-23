@@ -1,5 +1,7 @@
 'use strict';
 
+import {Guild} from "discord.js";
+
 process.env.NODE_ENV = "test";
 
 const assert = require('assert');
@@ -20,13 +22,15 @@ const fleets = require( "../lib/fleetdb");
 
 function defaultContext() {
   const channel:Record<string, any> = {id: '-1', name:'test channel', send:()=>{}}
+  const sender = {send: () => {}}
   return {
-    author: {username:'test', id:-1},
+    author: {username:'test', id: '-1'},
     channel,
     fleetId: '-1',
     isEntitled: function(){return true;},
     emojify : (x:string)=>x,
-    boldify: (x:string)=>x
+    boldify: (x:string)=>x,
+    sender
   }
 }
 
@@ -243,7 +247,7 @@ describe('gotBot', function () {
     });
 
     it('should save stars and level in char', function(done) {
-      const qry = { _id: -1 };
+      const qry = { _id: '-1' };
       db.users.findOne(qry, function (err:any, doc:any) {
         const name = 'Rogue Kai Winn';
         expect(doc).to.be.ok();
@@ -281,7 +285,7 @@ describe('gotBot', function () {
     it ('should unvault someone already in the vault', function(done) {
       sendCommand('-dev bot crew unvault kai winn').then(data => {
         expect(data).to.contain('has been taken out of your vault');
-        const qry = { _id: -1 };
+        const qry = { _id: '-1' };
         db.users.findOne(qry, function (err:any, doc:any) {
           const name = 'Rogue Kai Winn';
           expect(doc).to.be.ok();
@@ -416,8 +420,9 @@ describe('gotBot', function () {
     })
 
     it ('should show manual for admins', async() => {
-      const ctx = defaultContext()
-      ctx.channel['guild'] = {ownerId: -1};
+      const ctx = defaultContext() as unknown as api.Context
+
+      ctx.guild= {ownerId: '-1'} as unknown as Guild;
       const data = await sendCommand('-dev bot manual', ctx);
       expect(data).to.match(/^Server manual done/)
     })

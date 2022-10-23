@@ -1,7 +1,5 @@
 'use strict';
 
-import {canFetchMessages} from "./Interfaces";
-
 import cfg from "../config";
 console.log(`crew database: ${cfg.nedbpath}`);
 
@@ -47,6 +45,8 @@ bot.on('messageCreate', msg => {
   const context : API.Context = {
     author:msg.author,
     channel:msg.channel,
+    sender: msg.channel,
+    guild: msg.inGuild() ? msg.guild : undefined,
     fleetId: msg.inGuild() ? msg.channel.guild.id : '0',
     isEntitled:isEntitled,
     emojify : emojify,
@@ -84,7 +84,7 @@ bot.on('messageCreate', msg => {
   winston.loggers.get(channelTag).info(`${msg.author.username} - ${msg.content}`);
 
   let onReply = function(msg:string) {
-    if (msg && canFetchMessages(context.channel)) {
+    if (msg && context.channel.send) {
       if (msg === 'EMBED') {
         context.channel.send( {embeds: [context.embed]});
       }
@@ -162,9 +162,7 @@ bot.on("raw", async (packet:any) => {
     let channelID = packet.d.channel_id;
     await bot.channels.fetch(channelID);
     let channel = bot.channels.cache.get(channelID);
-    if (channel && canFetchMessages(channel)) {
-    // if (channel) {
-      // channel.awaitMessages()
+    if (channel && channel.isTextBased()) {
       channel.messages.fetch({limit:1, after:messageID}).then(msgs => {
         msgs.forEach(msg => {
           if (msg.author.id === bot.user!.id) {

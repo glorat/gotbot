@@ -1,4 +1,5 @@
 import Discord = require('discord.js');
+import {Guild, PartialTextBasedChannelFields} from "discord.js";
 
 export type EmojiFn = (x:string) => string | Discord.Emoji
 export type BoldifyFn = (x:string) => string
@@ -6,7 +7,7 @@ export type BoldifyFn = (x:string) => string
 export interface DummyChannel {
   id : string
   name: string
-
+  send: () => {}
 }
 export interface Context {
   emojify: EmojiFn;
@@ -16,27 +17,12 @@ export interface Context {
   bot? : Discord.Client;
   channel : Discord.GuildTextBasedChannel | Discord.TextBasedChannel | DummyChannel;
   embed? : any;
-  msg? : Discord.Message;
+  // msg? : Discord.Message;
+  guild?: Guild
+  sender: PartialTextBasedChannelFields
   callback? : any; // FIXME
   isEntitled(userid: string): boolean ;
 }
-
-// export function hasGuild(channel : If<Discord.InGuild, Discord.GuildTextBasedChannel, Discord.TextBasedChannel>) : channel is Discord.GuildChannel {
-//   return (<Discord.GuildChannel>channel).guild !== undefined;
-// }
-export function hasChannelName(channel : Discord.TextChannel | Discord.DMChannel | DummyChannel)
-  : channel is Discord.TextChannel | DummyChannel{
-  return (<Discord.GuildChannel>channel).name !== undefined;
-}
-export function canFetchMessages(channel: any) :  channel is Discord.TextBasedChannelFields {
-  return (<any>channel).messages !== undefined;
-}
-
-
-
-
-
-
 
 export interface AssetRef {
   file: string
