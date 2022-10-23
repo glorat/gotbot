@@ -262,7 +262,7 @@ ${hrsMsg}
 
       crewdb.get(userid).then(handleUserDoc);
     }
-    catch (e) {
+    catch (e:any) {
       fulfill('Failed: ' + e.message);
     }
   }),

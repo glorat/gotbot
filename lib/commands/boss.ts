@@ -124,7 +124,7 @@ json           - Debug information
 
 
     }
-    catch (e) {
+    catch (e:any) {
       console.error(JSON.stringify(e))
       fulfill(e?.message ?? e);
     }
