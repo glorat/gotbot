@@ -21,15 +21,15 @@ export interface Context {
   isEntitled(userid: string): boolean ;
 }
 
-export function hasGuild(channel : Discord.TextChannel | Discord.DMChannel | DummyChannel) : channel is Discord.TextChannel {
-  return (<Discord.TextChannel>channel).guild !== undefined;
+export function hasGuild(channel : Discord.TextChannel | Discord.DMChannel | DummyChannel) : channel is Discord.GuildChannel {
+  return (<Discord.GuildChannel>channel).guild !== undefined;
 }
 export function hasChannelName(channel : Discord.TextChannel | Discord.DMChannel | DummyChannel)
   : channel is Discord.TextChannel | DummyChannel{
-  return (<Discord.TextChannel>channel).name !== undefined;
+  return (<Discord.GuildChannel>channel).name !== undefined;
 }
-export function canFetchMessages(channel: any) :  channel is Discord.TextChannel {
-  return (<Discord.TextChannel>channel).send !== undefined;
+export function canFetchMessages(channel: any) :  channel is Discord.TextBasedChannelFields {
+  return (<Discord.TextBasedChannelFields>channel).messages !== undefined;
 }
 
 

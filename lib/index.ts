@@ -7,7 +7,9 @@ console.log(`crew database: ${cfg.nedbpath}`);
 
 //const pkg     = require(process.cwd() + '/package.json');
 import Discord = require('discord.js');
-const bot     = new Discord.Client();
+const intents = ['GUILDS', 'GUILD_MEMBERS', 'DIRECT_MESSAGES', 'GUILD_MESSAGES'];
+const partials: Discord.PartialTypes[] =  ["CHANNEL"];
+const bot     = new Discord.Client({ intents, partials});
 import './webserver';
 const cli = require('./cli');
 const fleets = require('./fleetdb');
@@ -27,11 +29,11 @@ function isEntitled(id:string) : boolean {
   return got ? got.members.cache.has(id) : false;
 }
 
-bot.on('message', msg => {
+bot.on('messageCreate', msg => {
   // Fired when someone sends a message
   function emojify(sym:string) : string|Discord.Emoji {
     const emojis =  hasGuild( msg.channel) ? msg.channel.guild.emojis : msg.client.emojis;
-    const estat = emojis.cache.find(x=> x.name === sym.toLowerCase());
+    const estat = emojis.cache.find( (x:any) => x.name === sym.toLowerCase());
     return estat ? estat : sym;
   }
 
@@ -78,7 +80,7 @@ bot.on('message', msg => {
   let onReply = function(msg:string) {
     if (msg && canFetchMessages(context.channel)) {
       if (msg === 'EMBED') {
-        context.channel.send( {embed: context.embed});
+        context.channel.send( {embeds: [context.embed]});
       }
       else {
         context.channel.send(msg);

@@ -417,7 +417,7 @@ describe('gotBot', function () {
 
     it ('should show manual for admins', async() => {
       const ctx = defaultContext()
-      ctx.channel['guild'] = {ownerID: -1};
+      ctx.channel['guild'] = {ownerId: -1};
       const data = await sendCommand('-dev bot manual', ctx);
       expect(data).to.match(/^Server manual done/)
     })
