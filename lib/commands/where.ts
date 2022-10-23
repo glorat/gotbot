@@ -24,11 +24,11 @@ module.exports = new Clapp.Command({
           await botServer.members.fetch();
           if (botServer) {
             const foo: Promise<string>[] = bot.guilds.cache.map(async x => {
-              const thisOwner = await x.members.fetch(x.ownerID);
-              const fleetInBotServer = botServer.members.cache.has(x.ownerID);
+              const thisOwner = await x.members.fetch(x.ownerId);
+              const fleetInBotServer = botServer.members.cache.has(x.ownerId);
               const mark = fleetInBotServer ? '✓' : '❌';
 
-              return `${mark} ${x.name} - ${thisOwner?.displayName ?? x.ownerID}`;
+              return `${mark} ${x.name} - ${thisOwner?.displayName ?? x.ownerId}`;
             });
             const lines = await Promise.all(foo);
 

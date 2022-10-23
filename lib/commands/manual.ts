@@ -3,6 +3,7 @@ import {canFetchMessages, hasGuild} from "../Interfaces";
 const Clapp = require('../modules/clapp-discord');
 import cfg from '../../config';
 import * as API from '../Interfaces';
+import {PartialTextBasedChannelFields} from "discord.js";
 
 const manual = [
   'Welcome to the manual\nFirstly to get help at any point, use the --help command',
@@ -47,11 +48,13 @@ module.exports = new Clapp.Command({
 
   fn:(argv:any, context:API.Context) => new Promise((fulfill, reject) => {
     //const guild = context.channel.guild;
-    const guildOwner = hasGuild(context.channel) ? context.channel.guild.ownerID : NaN;
+    const guildOwner = hasGuild(context.channel) ? context.channel.guild?.ownerId : NaN;
 
     let doSend = async function(s:string) {
       if (canFetchMessages(context.channel)) {
-        return context.channel.send(s);
+        // Can't figure out the type system
+        const sender = context.channel as unknown as PartialTextBasedChannelFields
+        return sender.send(s);
       }
     };
 
