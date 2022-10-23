@@ -96,7 +96,7 @@ module.exports = new Clapp.Command({
 
       });
     }
-    catch (e) {
+    catch (e:any) {
       fulfill(e.message);
     }
   }),

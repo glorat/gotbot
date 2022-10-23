@@ -14,22 +14,22 @@ export interface Context {
   fleetId: string; // Snowflake
   author: any;
   bot? : Discord.Client;
-  channel : Discord.TextChannel | Discord.DMChannel | DummyChannel;
+  channel : Discord.GuildTextBasedChannel | Discord.TextBasedChannel | DummyChannel;
   embed? : any;
   msg? : Discord.Message;
   callback? : any; // FIXME
   isEntitled(userid: string): boolean ;
 }
 
-export function hasGuild(channel : Discord.TextChannel | Discord.DMChannel | DummyChannel) : channel is Discord.GuildChannel {
-  return (<Discord.GuildChannel>channel).guild !== undefined;
-}
+// export function hasGuild(channel : If<Discord.InGuild, Discord.GuildTextBasedChannel, Discord.TextBasedChannel>) : channel is Discord.GuildChannel {
+//   return (<Discord.GuildChannel>channel).guild !== undefined;
+// }
 export function hasChannelName(channel : Discord.TextChannel | Discord.DMChannel | DummyChannel)
   : channel is Discord.TextChannel | DummyChannel{
   return (<Discord.GuildChannel>channel).name !== undefined;
 }
 export function canFetchMessages(channel: any) :  channel is Discord.TextBasedChannelFields {
-  return (<Discord.TextBasedChannelFields>channel).messages !== undefined;
+  return (<any>channel).messages !== undefined;
 }
 
 

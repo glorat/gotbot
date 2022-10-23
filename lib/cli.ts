@@ -8,15 +8,22 @@ const clilog  = require('./clilog');
 const fs      = require('fs');
 import * as API from './Interfaces';
 
-var app = new Clapp.App({
+interface ClappApp {
+  isCliSentence(cmd:string):boolean
+  commands: any[]
+  addCommand(cmd:any): void
+  parseInput(cmd:any, context: any): void
+}
+
+const app = new Clapp.App({
   name: cfg.botName,
   desc: pkg.description,
   prefix: cfg.prefix,
   version: pkg.version,
-  onReply: (msg:any, context:API.Context) => {
+  onReply: (msg: any, context: API.Context) => {
     context.callback(msg);
   }
-});
+}) as unknown as ClappApp;
 
 module.exports = {
   sendCommand : sendCommand,

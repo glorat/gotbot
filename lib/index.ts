@@ -1,14 +1,20 @@
 'use strict';
 
-import {hasChannelName, hasGuild, canFetchMessages} from "./Interfaces";
+import {canFetchMessages} from "./Interfaces";
 
 import cfg from "../config";
 console.log(`crew database: ${cfg.nedbpath}`);
 
 //const pkg     = require(process.cwd() + '/package.json');
 import Discord = require('discord.js');
-const intents = ['GUILDS', 'GUILD_MEMBERS', 'DIRECT_MESSAGES', 'GUILD_MESSAGES'];
-const partials: Discord.PartialTypes[] =  ["CHANNEL"];
+const intents =   [
+  Discord.GatewayIntentBits.Guilds,
+  Discord.GatewayIntentBits.GuildMembers,
+  Discord.GatewayIntentBits.DirectMessages,
+  Discord.GatewayIntentBits.MessageContent,
+  Discord.GatewayIntentBits.GuildMessages
+];
+const partials: Discord.Partials[] =  [Discord.Partials.Channel];
 const bot     = new Discord.Client({ intents, partials});
 import './webserver';
 const cli = require('./cli');
@@ -32,7 +38,7 @@ function isEntitled(id:string) : boolean {
 bot.on('messageCreate', msg => {
   // Fired when someone sends a message
   function emojify(sym:string) : string|Discord.Emoji {
-    const emojis =  hasGuild( msg.channel) ? msg.channel.guild.emojis : msg.client.emojis;
+    const emojis = msg.inGuild() ? msg.channel.guild.emojis : msg.client.emojis;
     const estat = emojis.cache.find( (x:any) => x.name === sym.toLowerCase());
     return estat ? estat : sym;
   }
@@ -41,7 +47,7 @@ bot.on('messageCreate', msg => {
   const context : API.Context = {
     author:msg.author,
     channel:msg.channel,
-    fleetId: hasGuild(msg.channel) ? msg.channel.guild.id : '0',
+    fleetId: msg.inGuild() ? msg.channel.guild.id : '0',
     isEntitled:isEntitled,
     emojify : emojify,
     boldify: x => `**${x}**`,
@@ -50,9 +56,9 @@ bot.on('messageCreate', msg => {
 
 
 
-  let serverName = hasGuild(msg.channel) ? msg.channel.guild.name : 'direct';
-  const channelName = hasChannelName(msg.channel)? msg.channel.name : 'DM';
-  let channelTag = hasChannelName(msg.channel)? `${serverName}/${channelName}` : 'DM';
+  let serverName = msg.inGuild() ? msg.channel.guild.name : 'direct';
+  const channelName = msg.inGuild()? msg.channel.name : 'DM';
+  let channelTag = msg.inGuild()? `${serverName}/${channelName}` : 'DM';
   if (!winston.loggers.has(channelTag)) {
     console.log(`Creating logger for ${channelTag}`);
 
