@@ -79,7 +79,7 @@ export interface MyStat{
 }
 
 export interface StatsOpts {
-  textOnly?:boolean
+  textonly?:boolean
   table?:boolean
 }
 
@@ -234,7 +234,7 @@ export function statsFor(char:Char, emojify:API.EmojiFn, boldify:API.BoldifyFn, 
   });
   // Sort by base
   mystats = _.sortBy(mystats, x=>-x.base);
-  if (opts.textOnly) {
+  if (opts.textonly) {
     const starStr = char.stars ? `${char.stars}/${char.maxstars}` : '';
     const levelStr = char.level ? `Lvl ${char.level}` : '';
     const skStr = _.map(mystats, sk => `${sk.skill} ${sk.base}`).join(' ');

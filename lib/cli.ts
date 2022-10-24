@@ -1,12 +1,15 @@
 'use strict';
 
+import {SlashCommandBuilder} from "discord.js";
+
 const pkg     = require(process.cwd() + '/package.json');
 import cfg from '../config';
 import Clapp   = require('./modules/clapp-discord');
 const clilog  = require('./clilog');
 
-const fs      = require('fs');
+import fs from 'fs';
 import * as API from './Interfaces';
+import {keys} from "underscore";
 
 interface ClappApp {
   isCliSentence(cmd:string):boolean
@@ -25,22 +28,63 @@ const app = new Clapp.App({
   }
 }) as unknown as ClappApp;
 
-module.exports = {
-  sendCommand : sendCommand,
-  isCliSentence : function(cmd:string) {return app.isCliSentence(cmd);},
-  commands : function(){return app.commands;}
-};
+export function isCliSentence(cmd:string) {return app.isCliSentence(cmd);}
+export function commands() {return app.commands}
 
+function argOrFlagToBuilder(b:SlashCommandBuilder, arg:any) {
+  console.log(arg.name)
+
+  const opts = (opt:any) =>
+    opt.setName(arg.name)
+      .setDescription(arg.desc)
+      .setRequired(arg.required)
+
+  if (arg.type === 'string') {
+    b.addStringOption(opts)
+  } else if (arg.type === 'number') {
+    b.addNumberOption(opts)
+  } else if (arg.type === 'boolean') {
+    b.addBooleanOption(opts)
+  }
+}
+
+function commandToSlashBuilder(cmd:any) : SlashCommandBuilder|undefined {
+  const b = new SlashCommandBuilder()
+  if (cmd.name.match(/\w+/)) {
+    b.setName(cmd.name)
+      .setDescription(cmd.desc)
+    cmd.args?.forEach( (arg:any) => {
+      argOrFlagToBuilder(b, arg)
+    })
+    keys(cmd.flags ?? {}).forEach(flagKey => {
+      argOrFlagToBuilder(b, cmd.flags[flagKey])
+    })
+    // cmd.flags?.forEach((flag:any) => {
+    //   argOrFlagToBuilder(b, flag)
+    // })
+    return b
+  }
+  else {
+    return undefined
+  }
+}
 
 // Load every command in the commands folder
-fs.readdirSync('./lib/commands/').forEach((file:string) => {
-  if (file.endsWith('.js') || file.endsWith('.ts')) {
-    // TODO: This would be a good place to capture commands for native discord slash cmds
-    app.addCommand(require("./commands/" + file.replace('.js','')));
-  }
-});
+export const slashCommands:SlashCommandBuilder[] = []
 
-function sendCommand(cmd:string, context:API.Context) : Promise<string> {
+  fs.readdirSync('./lib/commands/')
+    .forEach((file:string)=> {
+      if (file.endsWith('.js') || file.endsWith('.ts')) {
+        const command = require("./commands/" + file.replace('.js', ''))
+        app.addCommand(command);
+        const s = commandToSlashBuilder(command)
+        if (s) {
+          slashCommands.push(s)
+        }
+      }
+    })
+// console.log(slashCommands.length)
+export function sendCommand(cmd:string, context:API.Context) : Promise<string> {
 
   let msgPromise = new Promise<string>((resolve, reject) => {
     if (app.isCliSentence(cmd)) {

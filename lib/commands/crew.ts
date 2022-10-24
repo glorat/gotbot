@@ -25,7 +25,7 @@ module.exports = new Clapp.Command({
     }
 
     const qry = {_id: userid};
-    let statsOpt = {textOnly: argv.flags.textOnly};
+    let statsOpt = {textonly: argv.flags.textonly};
 
 
     crewdb.get(userid, context).then( (doc:CrewDoc) => {
@@ -280,7 +280,7 @@ module.exports = new Clapp.Command({
       default: 0
     },
     {
-      name: 'textOnly',
+      name: 'textonly',
       desc: 'concise text only display',
       alias: 't',
       type: 'boolean',
