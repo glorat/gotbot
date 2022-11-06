@@ -2,6 +2,7 @@ import {deploySlash, undeploySlash} from "../slashdeploy";
 
 const Clapp = require('../modules/clapp-discord');
 import * as API from '../Interfaces';
+import cfg from '../../config';
 
 module.exports = new Clapp.Command({
   name: "setup",
@@ -12,7 +13,7 @@ module.exports = new Clapp.Command({
     const guildOwner = context.guild?.ownerId ?? NaN;
     const guildId = context.guild?.id;
 
-    if (guildId && context.author.id === guildOwner) {
+    if (guildId && ((context.author.id === guildOwner) || (context.author.id === cfg.adminId))) {
       if (argv.flags.unregister) {
         const ret = await undeploySlash(guildId)
         fulfill(ret)

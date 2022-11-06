@@ -197,6 +197,10 @@ bot.on(Discord.Events.InteractionCreate, async msg => {
           flags[clappArg.name] = msg.options.getBoolean(clappArg.name, false) ?? clappArg.default
         }
       })
+      let cmdHandler = handler.args.find((h:ClappArgument) => h.name === 'cmd')
+      if (cmdHandler) {
+        args['cmd'] = args['cmd'] ?? msg.options.getSubcommand(cmdHandler.required)
+      }
 
       const argv = {flags, args}
       const resp = await fn(argv, context)

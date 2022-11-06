@@ -2,6 +2,8 @@ import * as API from '../Interfaces';
 //import {allCrewEntries} from "../chars";
 import {CrewDoc} from "../chars";
 import {BossCmdFlags, bossJson, refreshBossBattleData, reportBoss} from "../bosscalc";
+import {SlashCommandBuilder} from "discord.js";
+// import {argOrFlagToBuilder} from "../cli";
 
 const Clapp = require('../modules/clapp-discord');
 
@@ -81,6 +83,8 @@ module.exports = new Clapp.Command({
         fulfill('```' +  str + '```')
       }
       else if (args.cmd === 'add') {
+        const matchArgs = argv.flags?.names ? argv.flags.names.split(' ') : [args.name1, args.name2, args.name3]
+
         chars.matchOne(async function (err:any, name:any) {
           if (err) {
             fulfill(err);
@@ -90,7 +94,7 @@ module.exports = new Clapp.Command({
             const msg = `Hi ${author}. ${name} will be excluded (with ${fleet.bossExclude.length} others)`;
             fulfill(msg);
           }
-        }, args.arg1, args.arg2, args.arg3);
+        }, ...matchArgs);
       }
       else if (args.cmd === 'help') {
         const str = `
@@ -156,6 +160,12 @@ json           - Debug information
   }],
   flags: [
     {
+      name: 'names',
+      desc: 'search string',
+      type: 'string',
+      default: ''
+    },
+    {
       name: 'node',
       desc: 'node to query',
       alias: 'n',
@@ -176,5 +186,61 @@ json           - Debug information
       type: 'boolean',
       default: false
     },
-  ]
+  ],
+  opts: {
+    slashCommandBuilder: () => {
+      const b = new SlashCommandBuilder()
+      b.setName('boss').setDescription('boss battle calculator')
+      b.addSubcommand(sc =>
+        sc
+          .setName('report')
+          .setDescription('show current eligible crew for battle')
+      )
+      b.addSubcommand(sc =>
+        sc
+          .setName('add')
+          .setDescription('crew that just been tried')
+          .addStringOption(opts =>
+            opts
+              .setName('names')
+              .setDescription('search string for crew to add')
+              .setRequired(true)
+          )
+      )
+      b.addSubcommand(sc =>
+        sc
+          .setName('refresh')
+          .setDescription('a node has been hit')
+      )
+      b.addSubcommand(sc =>
+        sc
+          .setName('difficulty')
+          .setDescription('set new difficulty level')
+          .addStringOption(opt =>
+            opt
+              .setName('arg1')
+              .setDescription('difficulty level')
+              .addChoices(
+                {name: 'normal', value: '3'},
+                {name: 'brutal', value: '4'},
+                {name: 'nightmare', value: '5'},
+                {name: 'ultra-nightmare', value: '6'},
+              )
+              .setRequired(false)
+          )
+      )
+      b.addSubcommand(sc =>
+        sc
+          .setName('reset')
+          .setDescription('crew were added in error')
+      )
+      b.addSubcommand(sc =>
+        sc
+          .setName('json')
+          .setDescription('something went wrong, show diagnostics')
+      )
+
+      return b
+    }
+  }
 });
