@@ -57,7 +57,7 @@ The bot requires the GUILD_MEMBERS privileged intent so please enable that for y
 ```sh
 $ ./gotcron
 $ node lib/cachewiki.js
-$ node lib/index.js 
+$ npx ts-node lib/index.ts 
 ```
 If you have daemontools installed, you can also do `supervise .` to run the node apps. You can use cron to schedule `gotcron` to be run at an appropriate interval
 

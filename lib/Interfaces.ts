@@ -9,6 +9,12 @@ export interface DummyChannel {
   name: string
   send: () => {}
 }
+
+export interface ClappArgs {
+  args: Record<string, any>
+  flags: Record<string, any>
+}
+
 export interface Context {
   emojify: EmojiFn;
   boldify: BoldifyFn;

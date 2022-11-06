@@ -4,7 +4,7 @@ import Discord = require('discord.js');
 import * as API from '../Interfaces';
 
 module.exports = new Clapp.Command({
-  name: "where",
+  name: "whereami",
   desc: "where is the bot deployed",
 
 

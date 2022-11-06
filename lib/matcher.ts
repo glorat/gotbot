@@ -9,11 +9,11 @@ function reSafe(str:string) {
 // FIXME: How to declare cb in typescript?
 export type MatchCB = (err:string|null, name:string|null) => void
 
-export function matchOne(cb: MatchCB, allNames:Array<string>, desc:string, one:string, two:string="", three:string="") {
-  var names = matchAll(allNames, one, two, three);
+export function matchOne(cb: MatchCB, allNames:Array<string>, desc:string, ...args: string[]) {
+  let names = matchAll(allNames, ...args);
 
   if (names.length === 0) {
-    cb(`Sorry don't know any matching ${desc} from ${[one,two,three].join()}`, null);
+    cb(`Sorry don't know any matching ${desc} from ${args.join()}`, null);
   }
   else if (names.length ===1 ) {
     const name = names[0];
@@ -29,16 +29,16 @@ export function matchOne(cb: MatchCB, allNames:Array<string>, desc:string, one:s
   }
 }
 
-export function matchAll(origNames:Array<string>, one:string, two:string, three:string) {
+export function matchAll(origNames:Array<string>, ...args: string[]) {
   let names = _.uniq(origNames);
 
-  let perfect = [one,two,three].join(' ').trim().toLowerCase();
+  let perfect = args.join(' ').trim().toLowerCase();
   let perfectMatch = names.filter(nm => nm.toLowerCase() === perfect);
   if (perfectMatch.length === 1) {return perfectMatch;}
 
-  var exactNames = names;
+  let exactNames = names;
 
-  [one,two,three].forEach(x => {
+  args.forEach(x => {
     if (x) {
       const re = '\\b' + reSafe(x.toLowerCase()) + '\\b';
       exactNames = _.filter(exactNames, nm => nm.search(new RegExp(re, 'i'))>=0);
@@ -46,7 +46,7 @@ export function matchAll(origNames:Array<string>, one:string, two:string, three:
   });
   if (exactNames.length >0) {return exactNames;}
 
-  [one,two,three].forEach(x => {
+  args.forEach(x => {
     if (x) {
       names = _.filter(names, nm => nm.toLowerCase().includes(x.toLowerCase()));
     }

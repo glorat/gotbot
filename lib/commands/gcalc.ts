@@ -12,7 +12,7 @@ module.exports = new Clapp.Command({
   desc: "gauntlet crew calculator",
 
 // Command function
-  fn: (argv:any, context:API.Context) => new Promise((fulfill) => {
+  fn: (argv:API.ClappArgs, context:API.Context) => new Promise((fulfill) => {
     try {
 
       const args = argv.args;

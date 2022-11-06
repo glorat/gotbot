@@ -22,6 +22,7 @@ const path = require('path');
 const moment = require('moment');
 const mkdirp = require('mkdirp');
 import * as API from './Interfaces';
+import {keys} from "underscore";
 
 
 if (process.env.NODE_ENV !== 'production'){
@@ -141,6 +142,88 @@ bot.on('messageCreate', msg => {
   });
 
 });
+
+interface ClappArgument {
+  name: string
+  desc: string
+  type: "string" | "number"
+  required: boolean
+  default: any
+}
+
+bot.on(Discord.Events.InteractionCreate, async msg => {
+  if (!msg.isChatInputCommand()) return;
+
+  function emojify(sym:string) : string|Discord.Emoji {
+    const emojis = msg.inGuild() ? msg.channel?.guild.emojis ??msg.client.emojis  : msg.client.emojis;
+    const estat = emojis.cache.find( (x:any) => x.name === sym.toLowerCase());
+    return estat ? estat : sym;
+  }
+
+  try {
+    await msg.deferReply()
+    const context : API.Context = {
+      author:msg.user,
+      channel:msg.channel!,
+      sender: msg.channel!,
+      guild: msg.inGuild() ? msg.guild??undefined : undefined,
+      fleetId: msg.inGuild() ? msg.channel?.guild.id??'0' : '0',
+      isEntitled:isEntitled,
+      emojify : emojify,
+      boldify: x => `**${x}**`,
+      bot : bot
+    };
+
+    const commands = cli.commands();
+    const handler = commands[msg.commandName]
+    if (handler) {
+      const fn: (argv:API.ClappArgs, context:API.Context)=>Promise<string> = handler.fn
+      const args:Record<string, any> = {}
+      handler.args.forEach( (clappArg: ClappArgument) =>  {
+        if (clappArg.type === 'string') {
+          args[clappArg.name] = msg.options.getString(clappArg.name)
+        } else if (clappArg.type === 'number') {
+          args[clappArg.name] = msg.options.getNumber(clappArg.name)
+        }
+      })
+      const flags:Record<string, any> = {}
+      keys(handler.flags).forEach(flagKey => {
+        const clappArg: ClappArgument = handler.flags[flagKey]
+        if (clappArg.type === 'string') {
+          flags[clappArg.name] = msg.options.getString(clappArg.name, false) ?? clappArg.default
+        } else if (clappArg.type === 'number') {
+          flags[clappArg.name] = msg.options.getNumber(clappArg.name, false) ?? clappArg.default
+        } else if (clappArg.type === 'boolean') {
+          flags[clappArg.name] = msg.options.getBoolean(clappArg.name, false) ?? clappArg.default
+        }
+      })
+      let cmdHandler = handler.args.find((h:ClappArgument) => h.name === 'cmd')
+      if (cmdHandler) {
+        args['cmd'] = args['cmd'] ?? msg.options.getSubcommand(cmdHandler.required)
+      }
+
+      const argv = {flags, args}
+      const resp = await fn(argv, context)
+      if (resp === 'EMBED') {
+        await msg.editReply( {embeds: [context.embed]})
+      } else {
+        await msg.editReply(resp)
+      }
+
+    } else {
+      await msg.editReply(`TODO: ${msg.commandName}`)
+    }
+
+  }
+  catch(e) {
+    console.error('Interaction handler failed')
+    console.error(e)
+  }
+
+
+
+});
+
 
 bot.on("disconnect", function () {
   console.log("Disconnected from discord!");
