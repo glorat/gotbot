@@ -54,7 +54,7 @@
     "async-file": "^2.0.2",
     "body-parser": "^1.19.0",
     "btoa": "^1.2.1",
-    "cheerio": "^0.22.0",
+    "cheerio": "^1.0.0-rc.12",
     "clapp": "^1.3.3",
     "cli-table3": "^0.5.1",
     "discord.js": "^14.6.0",
