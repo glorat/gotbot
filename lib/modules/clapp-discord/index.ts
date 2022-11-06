@@ -94,7 +94,7 @@ export class App extends Clapp.App {
       wordWrap: true
     });
 
-    for (var i in this.commands) {
+    for (let i in this.commands) {
       table.push([i, this.commands[i].desc]);
     }
 
@@ -123,7 +123,7 @@ export class Command extends Clapp.Command {
 
     // Add every argument to the usage (Only if there are arguments)
     if (Object.keys(this.args).length > 0) {
-      for (var i in this.args) {
+      for (let i in this.args) {
         r += this.args[i].required ? ' (' + i + ')' : ' [' + i + ']';
         args_table.push([
           i,
@@ -143,7 +143,7 @@ export class Command extends Clapp.Command {
     // Add every flag, only if there are flags to add
     if (Object.keys(this.flags).length > 0) {
       const flags_table = discordTable()
-      for (i in this.flags) {
+      for (const i in this.flags) {
         flags_table.push([
           (typeof this.flags[i].alias !== 'undefined' ?
           '-' + this.flags[i].alias + ', ' : '') + '--' + i,
