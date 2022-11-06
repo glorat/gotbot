@@ -14,7 +14,7 @@ module.exports = new Clapp.Command({
 
     if (guildId && context.author.id === guildOwner) {
       const ret = await deploySlash(guildId)
-      await(ret)
+      fulfill(ret)
     }
     else {
       fulfill('Only the server administrator can perform setup');

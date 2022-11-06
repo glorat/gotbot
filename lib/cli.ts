@@ -1,15 +1,14 @@
 'use strict';
 
 import {SlashCommandBuilder} from "discord.js";
-
-const pkg     = require(process.cwd() + '/package.json');
 import cfg from '../config';
-import Clapp   = require('./modules/clapp-discord');
-const clilog  = require('./clilog');
-
+import * as Clapp from './modules/clapp-discord';
 import fs from 'fs';
 import * as API from './Interfaces';
 import {keys} from "underscore";
+
+const pkg     = require(process.cwd() + '/package.json');
+const clilog  = require('./clilog');
 
 interface ClappApp {
   isCliSentence(cmd:string):boolean
@@ -50,7 +49,7 @@ function argOrFlagToBuilder(b:SlashCommandBuilder, arg:any) {
 
 function commandToSlashBuilder(cmd:any) : SlashCommandBuilder|undefined {
   const b = new SlashCommandBuilder()
-  if (cmd.name.match(/\w+/)) {
+  if (cmd.name.match(/\w+/) && ! cmd.opts?.exclude) {
     b.setName(cmd.name)
       .setDescription(cmd.desc)
     cmd.args?.forEach( (arg:any) => {

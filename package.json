@@ -20,6 +20,7 @@
     "cachewiki": "ts-node ./lib/cachewiki.js",
     "dlwiki": "./gotcron",
     "test": "mocha -r ts-node/register test/*.ts",
+    "test-watch": "mocha --watch -r ts-node/register test/*.ts",
     "test-coverage": "nyc mocha -r ts-node/register test/*.ts"
   },
   "devDependencies": {
