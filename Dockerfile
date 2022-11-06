@@ -24,6 +24,5 @@ USER node
 EXPOSE 3030
 
 RUN npm install
-RUN node_modules/typescript/bin/tsc
 
 CMD ./run
