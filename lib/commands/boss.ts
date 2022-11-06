@@ -83,7 +83,7 @@ module.exports = new Clapp.Command({
         fulfill('```' +  str + '```')
       }
       else if (args.cmd === 'add') {
-        const matchArgs = argv.flags?.names ? argv.flags.names.split(' ') : [args.name1, args.name2, args.name3]
+        const matchArgs = argv.flags?.names ? argv.flags.names.split(' ') : [args.arg1, args.arg2, args.arg3]
 
         chars.matchOne(async function (err:any, name:any) {
           if (err) {

@@ -411,6 +411,16 @@ describe('gotBot', function () {
       const data = await sendCommand('-dev bot boss')
       expect(data).to.contain('Showing 25 of 51 eligible');
     })
+
+    it('should handle boss add', async() => {
+      const data = await sendCommand('-dev bot boss add iden')
+      expect(data).to.contain('Iden will be excluded')
+    })
+
+    it('should handle boss reset', async() => {
+      const data = await sendCommand('-dev bot boss reset')
+      expect(data).to.contain('is reset')
+    })
   });
 
   describe('manual cmd',  () => {
