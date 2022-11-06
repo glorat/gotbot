@@ -50,30 +50,47 @@ declare namespace Clapp {
   }
 }
 
+const noTableChars = {
+  'top': '' , 'top-mid': '' , 'top-left': '' , 'top-right': '', 'bottom': '' ,
+  'bottom-mid': '' , 'bottom-left': '' , 'bottom-right': '', 'left': '' ,
+  'left-mid': '' , 'mid': '' , 'mid-mid': '', 'right': '' , 'right-mid': '' ,
+  'middle': ''
+}
+
+const discordTable = () => {
+  const LINE_WIDTH = 80;
+  const table = new Table({
+    chars: noTableChars,
+    head: ['Arg', 'Description', 'Default'],
+    colWidths: [
+      Math.round(0.15*LINE_WIDTH),
+      Math.round(0.45*LINE_WIDTH),
+      Math.round(0.20*LINE_WIDTH)
+    ],
+    style: {
+      head:[] // No "colours" in the text
+    },
+    wordWrap: true
+  });
+  return table
+}
+
 export class App extends Clapp.App {
   constructor(options: ClappAppArguments) {
     super(options);
   }
 
   _getHelp() {
-
     let r =
       //this.name + (typeof this.version !== 'undefined' ? ' v' + this.version : '') + '\n' +
       //this.desc + '\n\n' +
-
       str.help_usage + this.prefix + this.separator + str.help_command + '\n\n' +
-
       str.help_cmd_list + '\n\n'
     ;
 
     // Command list
     const table = new Table({
-      chars: {
-        'top': '', 'top-mid': '', 'top-left': '', 'top-right': '', 'bottom': '',
-        'bottom-mid': '', 'bottom-left': '', 'bottom-right': '', 'left': '',
-        'left-mid': '', 'mid': '', 'mid-mid': '', 'right': '', 'right-mid': '',
-        'middle': ''
-      },
+      chars: noTableChars,
       wordWrap: true
     });
 
@@ -100,26 +117,8 @@ export class Command extends Clapp.Command {
   }
 
   _getHelp(app: App) {
-    const LINE_WIDTH = 80;
-    const args_table = new Table({
-      chars: {
-        'top': '' , 'top-mid': '' , 'top-left': '' , 'top-right': '', 'bottom': '' ,
-        'bottom-mid': '' , 'bottom-left': '' , 'bottom-right': '', 'left': '' ,
-        'left-mid': '' , 'mid': '' , 'mid-mid': '', 'right': '' , 'right-mid': '' ,
-        'middle': ''
-      },
-      head: ['Arg', 'Description', 'Default'],
-      colWidths: [
-        Math.round(0.15*LINE_WIDTH),
-        Math.round(0.45*LINE_WIDTH),
-        Math.round(0.20*LINE_WIDTH)
-      ],
-      style: {
-        head:[] // No "colours" in the text
-      },
-      wordWrap: true
-    });
 
+    const args_table = discordTable()
     let r = str.help_usage + ' ' + app.prefix + ' ' + this.name;
 
     // Add every argument to the usage (Only if there are arguments)
@@ -143,24 +142,7 @@ export class Command extends Clapp.Command {
 
     // Add every flag, only if there are flags to add
     if (Object.keys(this.flags).length > 0) {
-      const flags_table = new Table({
-        chars: {
-          'top': '', 'top-mid': '', 'top-left': '', 'top-right': '', 'bottom': '',
-          'bottom-mid': '', 'bottom-left': '', 'bottom-right': '', 'left': '',
-          'left-mid': '', 'mid': '', 'mid-mid': '', 'right': '', 'right-mid': '',
-          'middle': ''
-        },
-        head: ['Option', 'Description', 'Default'],
-        colWidths: [
-          Math.round(0.15 * LINE_WIDTH),
-          Math.round(0.45 * LINE_WIDTH),
-          Math.round(0.20 * LINE_WIDTH)
-        ],
-        style: {
-          head: [] // No "colours" in the text
-        },
-        wordWrap: true
-      });
+      const flags_table = discordTable()
       for (i in this.flags) {
         flags_table.push([
           (typeof this.flags[i].alias !== 'undefined' ?
