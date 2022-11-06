@@ -2,8 +2,8 @@ const Clapp = require('../modules/clapp-discord');
 import * as _ from 'underscore';
 import cfg from '../../config';
 import * as chars from '../chars';
-import * as matcher from '../matcher.js';
-const Gauntlet = require('../../client/gauntlet.js');
+import * as matcher from '../matcher';
+const Gauntlet = require('../../client/gauntlet');
 const db = require('../crewdb');
 import * as API from '../Interfaces';
 
@@ -12,7 +12,7 @@ module.exports = new Clapp.Command({
   desc: "gauntlet crew calculator",
 
 // Command function
-  fn: (argv:any, context:API.Context) => new Promise((fulfill) => {
+  fn: (argv:API.ClappArgs, context:API.Context) => new Promise((fulfill) => {
     try {
 
       const args = argv.args;
@@ -96,7 +96,7 @@ module.exports = new Clapp.Command({
 
       });
     }
-    catch (e) {
+    catch (e:any) {
       fulfill(e.message);
     }
   }),

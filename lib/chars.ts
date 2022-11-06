@@ -6,10 +6,10 @@ import _ = require('underscore');
 import {Dictionary} from "underscore";
 import {MatchCB} from "./matcher";
 
-const matcher = require('./matcher.js');
+const matcher = require('./matcher');
 
-const Table = require('cli-table3');
 import cfg from '../config';
+import {createDefaultTable} from "./utils";
 
 export const skills:string[] = ['cmd','dip','eng','sec','med','sci'];
 
@@ -60,6 +60,7 @@ export interface CharInfo {
   image: string
   headImage: string
   traits_hidden: Array<string>
+  traits_int: string[]
 }
 
 export interface WikiDB {
@@ -78,7 +79,7 @@ export interface MyStat{
 }
 
 export interface StatsOpts {
-  textOnly?:boolean
+  textonly?:boolean
   table?:boolean
 }
 
@@ -116,8 +117,8 @@ export function charStars() {
   return wikidb.charstars;
 }
 
-export function matchOne(cb:MatchCB, one:string, two:string, three:string) {
-  return matcher.matchOne(cb, _.keys(wikidb.charstars), 'character', one, two, three);
+export function matchOne(cb:MatchCB, ...args: string[]) {
+  return matcher.matchOne(cb, _.keys(wikidb.charstars), 'character', ...args);
 }
 
 export function wikiLookup(name:string, cb:any) {
@@ -233,7 +234,7 @@ export function statsFor(char:Char, emojify:API.EmojiFn, boldify:API.BoldifyFn, 
   });
   // Sort by base
   mystats = _.sortBy(mystats, x=>-x.base);
-  if (opts.textOnly) {
+  if (opts.textonly) {
     const starStr = char.stars ? `${char.stars}/${char.maxstars}` : '';
     const levelStr = char.level ? `Lvl ${char.level}` : '';
     const skStr = _.map(mystats, sk => `${sk.skill} ${sk.base}`).join(' ');
@@ -346,6 +347,7 @@ export function bestChars(entrys:Array<any>, stars:number, fuse:number, category
 }
 
 
+
 export function createCrewTable(entries: Array<any>, searchParams:Array<string>, charsToSearch:Array<any>, emojify: API.EmojiFn, boldify: API.BoldifyFn) {
   const matchingNames = entries.map(x => x.name);
   const matchingRoster = charsToSearch.filter(x => _.contains(matchingNames, x.name));
@@ -353,17 +355,7 @@ export function createCrewTable(entries: Array<any>, searchParams:Array<string>,
   const sortFn = (x:any) => -(_.max(skills.map(sk => x[sk] ? x[sk].base : 0)));
   const sortedRoster = _.first(_.sortBy(matchingRoster, sortFn), 20); // 20 seems a safe arbitrary number
   const totalMatches = matchingRoster.length;
-
-  let table = new Table({
-    chars: {
-      'top': '', 'top-mid': '', 'top-left': '', 'top-right': '', 'bottom': '',
-      'bottom-mid': '', 'bottom-left': '', 'bottom-right': '', 'left': '',
-      'left-mid': '', 'mid': '', 'mid-mid': '', 'right': '', 'right-mid': '',
-      'middle': ''
-    },
-    style: {'padding-left': 0, 'padding-right': 1},
-    wordWrap: true
-  });
+  let table = createDefaultTable();
   table.push(['', 'Name', '*', '*', 'Lvl'].concat(skills));
 
   const lines = sortedRoster.map(char => {

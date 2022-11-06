@@ -1,5 +1,3 @@
-import {canFetchMessages, hasGuild} from "../Interfaces";
-
 const Clapp = require('../modules/clapp-discord');
 import cfg from '../../config';
 import * as API from '../Interfaces';
@@ -47,12 +45,10 @@ module.exports = new Clapp.Command({
 
   fn:(argv:any, context:API.Context) => new Promise((fulfill, reject) => {
     //const guild = context.channel.guild;
-    const guildOwner = hasGuild(context.channel) ? context.channel.guild.ownerID : NaN;
+    const guildOwner = context.guild?.ownerId ?? NaN;
 
     let doSend = async function(s:string) {
-      if (canFetchMessages(context.channel)) {
-        return context.channel.send(s);
-      }
+      await context.sender.send(s)
     };
 
     if (context.author.id === guildOwner) {

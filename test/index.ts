@@ -1,20 +1,38 @@
 'use strict';
 
+import {Guild} from "discord.js";
+
 process.env.NODE_ENV = "test";
 
 const assert = require('assert');
 const expect = require('expect.js');
 const _ = require('underscore');
-const cli   = require('../lib/cli.js');
+const cli   = require('../lib/cli');
 
 import cfg from '../config';
 import * as api from '../lib/Interfaces';
 
 // Override env for testing
 cfg.nedbpath = cfg.nedbpath.replace('stt.json','test_stt.json');
-const db = require('../lib/crewdb.js');
+const db = require('../lib/crewdb');
 console.log(cfg.nedbpath);
 console.log(cfg.dataPath);
+
+const fleets = require( "../lib/fleetdb");
+
+function defaultContext() {
+  const channel:Record<string, any> = {id: '-1', name:'test channel', send:()=>{}}
+  const sender = {send: () => {}}
+  return {
+    author: {username:'test', id: '-1'},
+    channel,
+    fleetId: '-1',
+    isEntitled: function(){return true;},
+    emojify : (x:string)=>x,
+    boldify: (x:string)=>x,
+    sender
+  }
+}
 
 
 describe('gotBot', function () {
@@ -23,14 +41,7 @@ describe('gotBot', function () {
 
     assert(cli.isCliSentence(cmd));
     if (context == null) {
-      context = {
-        author: {username:'test', id:-1},
-        channel: {id: '-1', name:'test channel', send:()=>{}},
-        fleetId: '-1',
-        isEntitled: function(){return true;},
-        emojify : (x:string)=>x,
-        boldify: (x:string)=>x
-      };
+      context = defaultContext()
     }
     return cli.sendCommand(cmd,context);
   }
@@ -236,7 +247,7 @@ describe('gotBot', function () {
     });
 
     it('should save stars and level in char', function(done) {
-      const qry = { _id: -1 };
+      const qry = { _id: '-1' };
       db.users.findOne(qry, function (err:any, doc:any) {
         const name = 'Rogue Kai Winn';
         expect(doc).to.be.ok();
@@ -274,7 +285,7 @@ describe('gotBot', function () {
     it ('should unvault someone already in the vault', function(done) {
       sendCommand('-dev bot crew unvault kai winn').then(data => {
         expect(data).to.contain('has been taken out of your vault');
-        const qry = { _id: -1 };
+        const qry = { _id: '-1' };
         db.users.findOne(qry, function (err:any, doc:any) {
           const name = 'Rogue Kai Winn';
           expect(doc).to.be.ok();
@@ -288,6 +299,7 @@ describe('gotBot', function () {
     });
 
     describe('gcalc command', function() {
+      // FIXME: This test can't pass because we haven't added any crew
       xit('should provide analysis for your crew', function(done) {
         this.timeout(10000); // Combinatorics is slow
         sendCommand('-dev bot gcalc').then(data=>{
@@ -389,7 +401,34 @@ describe('gotBot', function () {
   });
 
 
-  describe('event command', function() {
+  describe('boss command', async () => {
+    it('should set correct difficulty', async ()=>{
+      const fleet = await fleets.setBossDifficulty('-1', 5)
+      expect(fleet).to.be.ok();
+    })
+
+    it('should handle boss command', async () => {
+      const data = await sendCommand('-dev bot boss')
+      expect(data).to.contain('Showing 25 of 51 eligible');
+    })
+  });
+
+  describe('manual cmd',  () => {
+    it('should prevent manual for non-admins', async() => {
+      const data = await sendCommand('-dev bot manual');
+      expect(data).to.match(/^Only the server administrator can run this/)
+    })
+
+    it ('should show manual for admins', async() => {
+      const ctx = defaultContext() as unknown as api.Context
+
+      ctx.guild= {ownerId: '-1'} as unknown as Guild;
+      const data = await sendCommand('-dev bot manual', ctx);
+      expect(data).to.match(/^Server manual done/)
+    })
+  })
+
+  describe('event cmd', function() {
     it('should reset event chars', function(done) {
       sendCommand('-dev bot event reset').then(data => {
         expect(data).to.be('Event crew reset');
@@ -411,10 +450,11 @@ describe('gotBot', function () {
     });
 
   });
+
 });
 
 describe('missions', function() {
-  let missions = require('../lib/missions.js');
+  let missions = require('../lib/missions');
 
   it('should have an item list', function(done) {
     missions.ready.then(function() {

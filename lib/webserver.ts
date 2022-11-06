@@ -3,10 +3,12 @@ import cfg from '../config';
 import express from 'express';
 const http = express();
 const bodyParser = require('body-parser');
-const db      = require('./crewdb.js');
-const cli = require('./cli.js');
+const db      = require('./crewdb');
+const cli = require('./cli');
 //const json2csv = require("json2csv");
 import * as api from './Interfaces'
+import {DummyChannel} from "./Interfaces";
+import {PartialTextBasedChannelFields} from "discord.js";
 
 module.exports = {
 };
@@ -57,14 +59,16 @@ http.get('/usercsv/:userId', function (req, res) {
 
 const emojify : api.EmojiFn = em => `<img src="emoji/${em}.png">`;
 
+const dummyChannel:DummyChannel =  {id:'-2',name:'webserver', send: ()=>{return{}}};
 http.post('/command', function(req,res) {
   let context : api.Context  = {
     author: {username:'test', id:-1},
-    channel: {id:'-2',name:'webserver'},
+    channel: dummyChannel,
     isEntitled: function(){return false;},
     emojify : emojify,
     boldify : x => `<b>${x}</b>`,
-    fleetId : '-1'
+    fleetId : '-1',
+    sender: {send : async () => {return{}}} as unknown as PartialTextBasedChannelFields
   };
 
   let cmd = cfg.prefix + ' ' + req.body.command;

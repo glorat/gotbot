@@ -3,7 +3,7 @@
 import cfg  from '../config';
 import * as fs from 'async-file';
 import * as _ from 'underscore';
-const matcher = require('./matcher.js');
+const matcher = require('./matcher');
 
 interface MissionDB {
   missions : Array<Mission>

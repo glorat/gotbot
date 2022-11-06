@@ -7,5 +7,8 @@ module.exports = new Clapp.Command({
   fn: (argv:any, context:any) => {
     let ret = `<@${cfg.adminId}> ++ deserves the karma for creating me\n`;
     return ret;
+  },
+  opts: {
+    exclude: true
   }
 });

@@ -1,10 +1,37 @@
+import {SlashCommandBuilder} from "discord.js";
+
 const Clapp = require('../modules/clapp-discord');
 import * as _ from 'underscore';
-import chars = require('../chars.js');
+import chars = require('../chars');
 //import cfg from '../../config';
 import * as API from '../Interfaces';
+import {argOrFlagToBuilder} from "../cli";
 
 const wikiurl = 'sttwiki.org';
+
+const flags = [
+  {
+    name: 'names',
+    desc: 'search string',
+    type: 'string',
+    default: '',
+    required: true // only respected for slash commands
+  },
+  {
+    name: 'stars',
+    desc: 'Number of fused stars to query at',
+    alias: 's',
+    type: 'number',
+    default: 0
+  },
+  {
+    name: 'level',
+    desc: 'Skill level to query at. Should be 1,10,20,30,40,50,60,70,80,90,100',
+    alias: 'l',
+    type: 'number',
+    default: 100
+  }
+]
 
 module.exports = new Clapp.Command({
   name: "estats",
@@ -146,6 +173,8 @@ new moon
 
     }
 
+    const matchArgs = argv.flags.names ? argv.flags.names.split(' ') : [args.name1, args.name2, args.name3]
+
     chars.matchOne(function(err,name) {
       if (err) {
         fulfill(err);
@@ -157,7 +186,7 @@ new moon
         });
 
       }
-    },args.name1, args.name2, args.name3);
+    }, ...matchArgs);
   }),
   args: [
     {
@@ -183,22 +212,18 @@ new moon
     }
 
   ],
-  flags: [
-    {
-      name: 'stars',
-      desc: 'Number of fused stars to query at',
-      alias: 's',
-      type: 'number',
-      default: 0
-    },
-    {
-      name: 'level',
-      desc: 'Skill level to query at. Should be 1,10,20,30,40,50,60,70,80,90,100',
-      alias: 'l',
-      type: 'number',
-      default: 100
+  flags,
+  opts: {
+    slashCommandBuilder: () => {
+      const b = new SlashCommandBuilder()
+      b.setName('estats').setDescription('query extended stats for characters')
+      flags.forEach(flag => {
+        argOrFlagToBuilder(b, {required: false, ...flag})
+      })
+      return b
     }
-  ]
+  }
+
 });
 
 

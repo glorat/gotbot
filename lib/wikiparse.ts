@@ -16,6 +16,7 @@ interface CrewEntry {
   headImage? : string,
   skill? : any,
   moreChar? : any
+  traits_int?: string[]
   traits_hidden?: Array<string>
 }
 
@@ -42,8 +43,8 @@ export interface CrewAvatar {
   wiki: string // Added by the download script for convenience
 }
 
-const allcrew: Array<CrewAvatar> = require('../../data/sttcrew.json');
-const morecrew : Array<CrewEntry> = require('../../client/morecrew.json');
+const allcrew: Array<CrewAvatar> = require('../data/sttcrew.json');
+const morecrew : Array<CrewEntry> = require('../client/morecrew.json');
 const moretraitlist = ['StarCap','DiscoCrew']; // TODO: dir list client/trait
 const moretrait : any = {};
 const wikiurl = 'sttwiki.org';
@@ -194,7 +195,8 @@ async function parseSttLoadedCrew() : Promise<Array<any>> {
     name:c.name,
     stars:c.max_rarity,
     wiki:c.wiki,
-    traits_hidden: c.traits_hidden.map(snake2PascalCase) // for prettiness
+    traits_hidden: c.traits_hidden.map(snake2PascalCase), // for prettiness
+    traits_int: c.traits // internal system named traits
   });
   wikidb.crewentries = entries;
   return entries;

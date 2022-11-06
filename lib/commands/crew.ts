@@ -1,9 +1,9 @@
 import Clapp = require('../modules/clapp-discord');
 import _ = require('underscore');
-import chars = require('../chars.js');
-const matcher = require('../matcher.js');
-const crewdb = require('../crewdb.js');
-const fleets = require('../fleetdb.js');
+import chars = require('../chars');
+const matcher = require('../matcher');
+const crewdb = require('../crewdb');
+const fleets = require('../fleetdb');
 import * as API from '../Interfaces';
 import {Char, CharInfo, CrewDoc} from "../chars";
 
@@ -25,7 +25,7 @@ module.exports = new Clapp.Command({
     }
 
     const qry = {_id: userid};
-    let statsOpt = {textOnly: argv.flags.textOnly};
+    let statsOpt = {textonly: argv.flags.textonly};
 
 
     crewdb.get(userid, context).then( (doc:CrewDoc) => {
@@ -143,7 +143,6 @@ module.exports = new Clapp.Command({
 
 
         let searchCb = function(res:any) {
-
             const ret = chars.createCrewTable(res.entries, res.searchParams, charsToSearch, emojify, boldify);
             fulfill(ret);
         };
@@ -281,7 +280,7 @@ module.exports = new Clapp.Command({
       default: 0
     },
     {
-      name: 'textOnly',
+      name: 'textonly',
       desc: 'concise text only display',
       alias: 't',
       type: 'boolean',

@@ -1,21 +1,28 @@
 'use strict';
 
-import {hasChannelName, hasGuild, canFetchMessages} from "./Interfaces";
-
 import cfg from "../config";
 console.log(`crew database: ${cfg.nedbpath}`);
 
 //const pkg     = require(process.cwd() + '/package.json');
 import Discord = require('discord.js');
-const bot     = new Discord.Client();
+const intents =   [
+  Discord.GatewayIntentBits.Guilds,
+  Discord.GatewayIntentBits.GuildMembers,
+  Discord.GatewayIntentBits.DirectMessages,
+  Discord.GatewayIntentBits.MessageContent,
+  Discord.GatewayIntentBits.GuildMessages
+];
+const partials: Discord.Partials[] =  [Discord.Partials.Channel];
+const bot     = new Discord.Client({ intents, partials});
 import './webserver';
-const cli = require('./cli.js');
-const fleets = require('./fleetdb.js');
+const cli = require('./cli');
+const fleets = require('./fleetdb');
 import winston = require('winston');
 const path = require('path');
 const moment = require('moment');
 const mkdirp = require('mkdirp');
 import * as API from './Interfaces';
+import {keys} from "underscore";
 
 // const recentMessages:string[] = [];
 //
@@ -35,11 +42,11 @@ function isEntitled(id:string) : boolean {
   return got ? got.members.cache.has(id) : false;
 }
 
-bot.on('message', msg => {
+bot.on('messageCreate', msg => {
   // Fired when someone sends a message
   function emojify(sym:string) : string|Discord.Emoji {
-    const emojis =  hasGuild( msg.channel) ? msg.channel.guild.emojis : msg.client.emojis;
-    const estat = emojis.cache.find(x=> x.name === sym.toLowerCase());
+    const emojis = msg.inGuild() ? msg.channel.guild.emojis : msg.client.emojis;
+    const estat = emojis.cache.find( (x:any) => x.name === sym.toLowerCase());
     return estat ? estat : sym;
   }
 
@@ -47,7 +54,9 @@ bot.on('message', msg => {
   const context : API.Context = {
     author:msg.author,
     channel:msg.channel,
-    fleetId: hasGuild(msg.channel) ? msg.channel.guild.id : '0',
+    sender: msg.channel,
+    guild: msg.inGuild() ? msg.guild : undefined,
+    fleetId: msg.inGuild() ? msg.channel.guild.id : '0',
     isEntitled:isEntitled,
     emojify : emojify,
     boldify: x => `**${x}**`,
@@ -56,13 +65,15 @@ bot.on('message', msg => {
 
 
 
-  let serverName = hasGuild(msg.channel) ? msg.channel.guild.name : 'direct';
-  const channelName = hasChannelName(msg.channel)? msg.channel.name : 'DM';
-  let channelTag = hasChannelName(msg.channel)? `${serverName}/${channelName}` : 'DM';
-  let content = msg.content;
-  const fleetId = context.fleetId;
-  const fleetProm = fleets.get(fleetId);
 
+
+
+  let serverName = msg.inGuild() ? msg.channel.guild.name : 'direct';
+  const channelName = msg.inGuild()? msg.channel.name : 'DM';
+  let channelTag = msg.inGuild()? `${serverName}/${channelName}` : 'DM';
+  // let content = msg.content;
+  // const fleetId = context.fleetId;
+  // const fleetProm = fleets.get(fleetId);
 
   if (!winston.loggers.has(channelTag)) {
     console.log(`Creating logger for ${channelTag}`);
@@ -87,6 +98,7 @@ bot.on('message', msg => {
     }).info('Bot restarted');
   }
   winston.loggers.get(channelTag).info(`${msg.author.username} - ${msg.cleanContent}`);
+
 
   function handleCli(cnt:string) {
     if (cli.isCliSentence(cnt)) {
@@ -114,9 +126,9 @@ bot.on('message', msg => {
     return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
   }
   let onReply = async function(response:string) {
-    if (response && canFetchMessages(context.channel)) {
+    if (response && context.channel.send) {
       if (response === 'EMBED') {
-        await context.channel.send( {embed: context.embed} );
+        await context.channel.send( {embeds: [context.embed]} );
       }
       else {
         // This is the capture to redirect to generic chat
@@ -158,6 +170,88 @@ bot.on('message', msg => {
 
 });
 
+interface ClappArgument {
+  name: string
+  desc: string
+  type: "string" | "number"
+  required: boolean
+  default: any
+}
+
+bot.on(Discord.Events.InteractionCreate, async msg => {
+  if (!msg.isChatInputCommand()) return;
+
+  function emojify(sym:string) : string|Discord.Emoji {
+    const emojis = msg.inGuild() ? msg.channel?.guild.emojis ??msg.client.emojis  : msg.client.emojis;
+    const estat = emojis.cache.find( (x:any) => x.name === sym.toLowerCase());
+    return estat ? estat : sym;
+  }
+
+  try {
+    await msg.deferReply()
+    const context : API.Context = {
+      author:msg.user,
+      channel:msg.channel!,
+      sender: msg.channel!,
+      guild: msg.inGuild() ? msg.guild??undefined : undefined,
+      fleetId: msg.inGuild() ? msg.channel?.guild.id??'0' : '0',
+      isEntitled:isEntitled,
+      emojify : emojify,
+      boldify: x => `**${x}**`,
+      bot : bot
+    };
+
+    const commands = cli.commands();
+    const handler = commands[msg.commandName]
+    if (handler) {
+      const fn: (argv:API.ClappArgs, context:API.Context)=>Promise<string> = handler.fn
+      const args:Record<string, any> = {}
+      handler.args.forEach( (clappArg: ClappArgument) =>  {
+        if (clappArg.type === 'string') {
+          args[clappArg.name] = msg.options.getString(clappArg.name)
+        } else if (clappArg.type === 'number') {
+          args[clappArg.name] = msg.options.getNumber(clappArg.name)
+        }
+      })
+      const flags:Record<string, any> = {}
+      keys(handler.flags).forEach(flagKey => {
+        const clappArg: ClappArgument = handler.flags[flagKey]
+        if (clappArg.type === 'string') {
+          flags[clappArg.name] = msg.options.getString(clappArg.name, false) ?? clappArg.default
+        } else if (clappArg.type === 'number') {
+          flags[clappArg.name] = msg.options.getNumber(clappArg.name, false) ?? clappArg.default
+        } else if (clappArg.type === 'boolean') {
+          flags[clappArg.name] = msg.options.getBoolean(clappArg.name, false) ?? clappArg.default
+        }
+      })
+      let cmdHandler = handler.args.find((h:ClappArgument) => h.name === 'cmd')
+      if (cmdHandler) {
+        args['cmd'] = args['cmd'] ?? msg.options.getSubcommand(cmdHandler.required)
+      }
+
+      const argv = {flags, args}
+      const resp = await fn(argv, context)
+      if (resp === 'EMBED') {
+        await msg.editReply( {embeds: [context.embed]})
+      } else {
+        await msg.editReply(resp)
+      }
+
+    } else {
+      await msg.editReply(`TODO: ${msg.commandName}`)
+    }
+
+  }
+  catch(e) {
+    console.error('Interaction handler failed')
+    console.error(e)
+  }
+
+
+
+});
+
+
 bot.on("disconnect", function () {
   console.log("Disconnected from discord!");
   process.exit(1); //exit node.js with an error // supervise will kick things back up
@@ -178,9 +272,7 @@ bot.on("raw", async (packet:any) => {
     let channelID = packet.d.channel_id;
     await bot.channels.fetch(channelID);
     let channel = bot.channels.cache.get(channelID);
-    if (channel && canFetchMessages(channel)) {
-    // if (channel) {
-      // channel.awaitMessages()
+    if (channel && channel.isTextBased()) {
       channel.messages.fetch({limit:1, after:messageID}).then(msgs => {
         msgs.forEach(msg => {
           if (msg.author.id === bot.user!.id) {

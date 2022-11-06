@@ -35,7 +35,7 @@ class DropEntry {
   }
 }
 
-const missions = require('./missions.js');
+const missions = require('./missions');
 
 module.exports = {
   drops: drops,
@@ -79,23 +79,23 @@ function reduceEntries(recs: Array<DropEntry>) : Array<DropEntry> {
 
 
 async function findByMissionCode(code:string, level:string) {
-  return drops.asyncFind({code:code, level:level}, {})
-    .then(reduceEntries);
+  const ret = await drops.asyncFind({code:code, level:level}, {}) as DropEntry[]
+  return reduceEntries(ret)
 }
 
 async function findByMissionCodeAndUser(code:string, level:string, userid:string) {
-  return drops.asyncFind({code:code, level:level, userid:userid}, {})
-    .then(reduceEntries);
+  const ret = await drops.asyncFind({code:code, level:level, userid:userid}, {}) as DropEntry[]
+  return reduceEntries(ret)
 }
 
 async function findByStarItem(itemStars:number, itemName:string) {
-  let recs = await drops.asyncFind({itemStars:+itemStars, itemName:itemName}, {});
+  let recs = await drops.asyncFind({itemStars:+itemStars, itemName:itemName}, {}) as DropEntry[];
   let a = reduceEntries(recs);
   return a.filter(e=>e.itemStars === +itemStars && e.itemName === itemName);
 }
 
 
 async function allEntries() {
-  let recs = await drops.asyncFind({},{});
+  let recs = await drops.asyncFind({},{}) as DropEntry[];
   return reduceEntries(recs);
 }

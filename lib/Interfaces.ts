@@ -1,4 +1,5 @@
 import Discord = require('discord.js');
+import {Guild, PartialTextBasedChannelFields} from "discord.js";
 
 export type EmojiFn = (x:string) => string | Discord.Emoji
 export type BoldifyFn = (x:string) => string
@@ -6,37 +7,28 @@ export type BoldifyFn = (x:string) => string
 export interface DummyChannel {
   id : string
   name: string
-
+  send: () => {}
 }
+
+export interface ClappArgs {
+  args: Record<string, any>
+  flags: Record<string, any>
+}
+
 export interface Context {
   emojify: EmojiFn;
   boldify: BoldifyFn;
   fleetId: string; // Snowflake
   author: any;
   bot? : Discord.Client;
-  channel : Discord.TextChannel | Discord.DMChannel | DummyChannel;
+  channel : Discord.GuildTextBasedChannel | Discord.TextBasedChannel | DummyChannel;
   embed? : any;
-  msg? : Discord.Message;
+  // msg? : Discord.Message;
+  guild?: Guild
+  sender: PartialTextBasedChannelFields
   callback? : any; // FIXME
   isEntitled(userid: string): boolean ;
 }
-
-export function hasGuild(channel : Discord.TextChannel | Discord.DMChannel | DummyChannel) : channel is Discord.TextChannel {
-  return (<Discord.TextChannel>channel).guild !== undefined;
-}
-export function hasChannelName(channel : Discord.TextChannel | Discord.DMChannel | DummyChannel)
-  : channel is Discord.TextChannel | DummyChannel{
-  return (<Discord.TextChannel>channel).name !== undefined;
-}
-export function canFetchMessages(channel: any) :  channel is Discord.TextChannel {
-  return (<Discord.TextChannel>channel).send !== undefined;
-}
-
-
-
-
-
-
 
 export interface AssetRef {
   file: string
@@ -64,6 +56,9 @@ export interface FleetDoc {
   eventTrait: Array<Array<string>>
   starbase: Object
   starprof: Object
+  bossDifficulty: number
+  bossSpec?: unknown
+  bossExclude?: string[]
   prefix?: string
 }
 

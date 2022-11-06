@@ -29,6 +29,8 @@ export default class Config {
   static readonly adminId = '232748347860058112'; // id of the bot administrator
   static readonly botServer = '307163779680960512'; // if of bot home server
 
+  static readonly clientId = isProd? '287828714949967872' : '292300900209524746'; // Application ID
+
   static readonly httpport = 3030;
   static readonly baseUrl = 'http://got.glorat.net/';
   static nedbpath =  dataPath + 'stt.json';
