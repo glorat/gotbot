@@ -117,8 +117,8 @@ export function charStars() {
   return wikidb.charstars;
 }
 
-export function matchOne(cb:MatchCB, one:string, two:string, three:string) {
-  return matcher.matchOne(cb, _.keys(wikidb.charstars), 'character', one, two, three);
+export function matchOne(cb:MatchCB, ...args: string[]) {
+  return matcher.matchOne(cb, _.keys(wikidb.charstars), 'character', ...args);
 }
 
 export function wikiLookup(name:string, cb:any) {

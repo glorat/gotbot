@@ -1,4 +1,4 @@
-import {deploySlash} from "../slashdeploy";
+import {deploySlash, undeploySlash} from "../slashdeploy";
 
 const Clapp = require('../modules/clapp-discord');
 import * as API from '../Interfaces';
@@ -13,8 +13,14 @@ module.exports = new Clapp.Command({
     const guildId = context.guild?.id;
 
     if (guildId && context.author.id === guildOwner) {
-      const ret = await deploySlash(guildId)
-      fulfill(ret)
+      if (argv.flags.unregister) {
+        const ret = await undeploySlash(guildId)
+        fulfill(ret)
+      } else {
+        const ret = await deploySlash(guildId)
+        fulfill(ret)
+      }
+
     }
     else {
       fulfill('Only the server administrator can perform setup');
@@ -23,6 +29,15 @@ module.exports = new Clapp.Command({
   }),
   args: [
 
+  ],
+  flags: [
+    {
+      name : 'unregister',
+      desc: 'unregister slash commands',
+      alias: 'u',
+      type: 'boolean',
+      default: false
+    }
   ]
 });
 

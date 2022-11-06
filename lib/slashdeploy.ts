@@ -29,6 +29,19 @@ export const deploySlash = async (guildId:string):Promise<string> => {
   }
 };
 
+export const undeploySlash = async(guildId: string): Promise<string> => {
+  const clientId = cfg.clientId
+  const data = await rest.get(Routes.applicationGuildCommands(clientId, guildId))
+  const promises = data.map(async (command:any) => {
+    const deleteUrl = `${Routes.applicationGuildCommands(clientId, guildId)}/${command.id}`;
+    console.log(deleteUrl)
+    await rest.delete(deleteUrl)
+    console.log(`${command.id} deleted`)
+  })
+  await Promise.all(promises);
+  return "Slash commands unregistered"
+}
+
 // sample script
 // const main = async () => {
 //   const guildId = cfg.botServer

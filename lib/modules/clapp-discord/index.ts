@@ -1,6 +1,7 @@
 "use strict";
 
 import {Context} from "../../Interfaces";
+import {SlashCommandBuilder} from "discord.js";
 
 const Clapp = require('clapp')
   , Table = require('cli-table3')
@@ -16,6 +17,7 @@ interface ClappAppArguments {
 
 interface ClappCommandOpts {
   exclude?: boolean
+  slashCommandBuilder?() : SlashCommandBuilder
 }
 
 interface ClappCommandArguments {
@@ -36,6 +38,7 @@ interface ClappCommandArguments {
   fn (argv: any, context: Context) : Promise<any>
 
   opts? : ClappCommandOpts
+
 }
 
 declare namespace Clapp {
@@ -89,6 +92,8 @@ export class App extends Clapp.App {
 }
 
 export class Command extends Clapp.Command {
+  opts?: ClappCommandOpts
+
   constructor(options: ClappCommandArguments) {
     super(options);
     this.opts = options.opts;

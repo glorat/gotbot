@@ -190,11 +190,11 @@ bot.on(Discord.Events.InteractionCreate, async msg => {
       keys(handler.flags).forEach(flagKey => {
         const clappArg: ClappArgument = handler.flags[flagKey]
         if (clappArg.type === 'string') {
-          flags[clappArg.name] = msg.options.getString(clappArg.name)
+          flags[clappArg.name] = msg.options.getString(clappArg.name, false) ?? clappArg.default
         } else if (clappArg.type === 'number') {
-          flags[clappArg.name] = msg.options.getNumber(clappArg.name)
+          flags[clappArg.name] = msg.options.getNumber(clappArg.name, false) ?? clappArg.default
         } else if (clappArg.type === 'boolean') {
-          flags[clappArg.name] = msg.options.getBoolean(clappArg.name)
+          flags[clappArg.name] = msg.options.getBoolean(clappArg.name, false) ?? clappArg.default
         }
       })
 

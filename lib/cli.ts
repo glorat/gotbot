@@ -6,6 +6,7 @@ import * as Clapp from './modules/clapp-discord';
 import fs from 'fs';
 import * as API from './Interfaces';
 import {keys} from "underscore";
+import {Command} from "./modules/clapp-discord";
 
 const pkg     = require(process.cwd() + '/package.json');
 const clilog  = require('./clilog');
@@ -30,7 +31,7 @@ const app = new Clapp.App({
 export function isCliSentence(cmd:string) {return app.isCliSentence(cmd);}
 export function commands() {return app.commands}
 
-function argOrFlagToBuilder(b:SlashCommandBuilder, arg:any) {
+export function argOrFlagToBuilder(b:SlashCommandBuilder, arg:{name: string, desc:string, required: boolean, type: string}) {
   console.log(arg.name)
 
   const opts = (opt:any) =>
@@ -47,21 +48,26 @@ function argOrFlagToBuilder(b:SlashCommandBuilder, arg:any) {
   }
 }
 
-function commandToSlashBuilder(cmd:any) : SlashCommandBuilder|undefined {
-  const b = new SlashCommandBuilder()
+function commandToSlashBuilder(cmd:Command) : SlashCommandBuilder|undefined {
+
   if (cmd.name.match(/\w+/) && ! cmd.opts?.exclude) {
-    b.setName(cmd.name)
-      .setDescription(cmd.desc)
-    cmd.args?.forEach( (arg:any) => {
-      argOrFlagToBuilder(b, arg)
-    })
-    keys(cmd.flags ?? {}).forEach(flagKey => {
-      argOrFlagToBuilder(b, cmd.flags[flagKey])
-    })
-    // cmd.flags?.forEach((flag:any) => {
-    //   argOrFlagToBuilder(b, flag)
-    // })
-    return b
+    if (cmd.opts?.slashCommandBuilder) {
+      return cmd.opts.slashCommandBuilder()
+    } else {
+      const b = new SlashCommandBuilder()
+      b.setName(cmd.name)
+        .setDescription(cmd.desc)
+      cmd.args?.forEach( (arg:any) => {
+        argOrFlagToBuilder(b, arg)
+      })
+      keys(cmd.flags ?? {}).forEach(flagKey => {
+        argOrFlagToBuilder(b, cmd.flags[flagKey])
+      })
+      // cmd.flags?.forEach((flag:any) => {
+      //   argOrFlagToBuilder(b, flag)
+      // })
+      return b
+    }
   }
   else {
     return undefined
