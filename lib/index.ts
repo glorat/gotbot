@@ -71,9 +71,9 @@ bot.on('messageCreate', msg => {
   let serverName = msg.inGuild() ? msg.channel.guild.name : 'direct';
   const channelName = msg.inGuild()? msg.channel.name : 'DM';
   let channelTag = msg.inGuild()? `${serverName}/${channelName}` : 'DM';
-  // let content = msg.content;
-  // const fleetId = context.fleetId;
-  // const fleetProm = fleets.get(fleetId);
+  let content = msg.content;
+  const fleetId = context.fleetId;
+  const fleetProm = fleets.get(fleetId);
 
   if (!winston.loggers.has(channelTag)) {
     console.log(`Creating logger for ${channelTag}`);
