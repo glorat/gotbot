@@ -246,7 +246,7 @@ function computeBossSolution(level: BossData, possibleTraits: string[], excludeC
       const validOptNames = optNames.filter(nm => _.all(reqNames, reqNm => reqNm.localeCompare(nm)==-1))
       if (validOptNames.length < node.hidden_traits.length) {
         console.log(`Penalise ${rec.name} on node ${node.open_traits} against ${optNames}`)
-        score -= 0.25
+        score -= 0.5
       } else {
         // But if we are hitting a dupe opt, we get a bonus
         if (_.any(optNames, nm => dupeOpts.includes(nm))) {
