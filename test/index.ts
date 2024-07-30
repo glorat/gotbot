@@ -409,7 +409,7 @@ describe('gotBot', function () {
 
     it('should handle boss command', async () => {
       const data = await sendCommand('-dev bot boss')
-      expect(data).to.contain('Showing 25 of 51 eligible');
+      expect(data).to.contain('Showing 25 of 43 eligible');
     })
 
     it('should handle boss add', async() => {
