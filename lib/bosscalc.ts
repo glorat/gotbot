@@ -179,7 +179,8 @@ function computeBossSolution(level: BossData, possibleTraits: string[], excludeC
   const myMaxStars = difficultToMaxStars[level.difficulty_id]
   let allCrew: CharInfo[] = chars.allCrewEntries().filter((c: CharInfo) => c.stars <= myMaxStars)
   let excludeCrew = allCrew.filter(crew => excludeChar.includes(crew.name))
-
+ 
+  // stats for each crew member to cacluclate `narvinExcluded`
   let initialRecs = new Map<string, { reqMatchNodes: number[]; optMatchTraits: string[]; }>()
 
   // Find all potential solutions for each node
@@ -191,10 +192,6 @@ function computeBossSolution(level: BossData, possibleTraits: string[], excludeC
       solutions.set(node.hidden_traits.join(":"), [])
       return {
         solutions,
-        unlocked_character: node.unlocked_character,
-        open_traits: node.open_traits,
-        hidden_traits: node.hidden_traits,
-        solved_traits: ([] as string[])
       }
     }
 
@@ -240,9 +237,9 @@ function computeBossSolution(level: BossData, possibleTraits: string[], excludeC
     Array.from(solutions).forEach(([solutionKey, crewList]) => {
       // console.log(`prune: checking ${solutionKey} ${crewList.map(it => it.name)}`)
 
-      // exclude solutions with only one crew
-      // todo: change to "if only one crew in portal"
-      if (crewList.length === 1) {
+      // exclude solutions with less than two crew
+      // todo: change to "if less than two crew in portal"
+      if (crewList.length < 2) {
         // console.log(`prune: pruned by one crew rule`)
         solutions.delete(solutionKey)
         return
@@ -260,59 +257,8 @@ function computeBossSolution(level: BossData, possibleTraits: string[], excludeC
 
     return {
       solutions,
-      unlocked_character: node.unlocked_character,
-      open_traits: node.open_traits,
-      hidden_traits: node.hidden_traits,
-      solved_traits: []
     }
   })
-
-  let uneliminatedTraits = _.clone(possibleTraits)
-  while (true) {
-    let changed = false
-
-    nodes.forEach(node => {
-      if (node.unlocked_character) {
-        // skip, node is fully solved and all traits were removed from `possibleTraits` in advance
-        return
-      }
-
-      // solved traits are removed from uneliminatedTrais, add them back for this node
-      let nodePossibleTraits = uneliminatedTraits.concat(node.solved_traits)
-
-      let newSolutions = new Map([...node.solutions].filter(([solutionKey, crew]) => isSubsetOf(solutionKey.split(':'), nodePossibleTraits)))
-
-      // todo: it might be possible to add early return here if nothing changed, except on the first iteration we expect no change in solutions
-
-      let hiddenParts = [...newSolutions.keys()].map(solutionKey => solutionKey.split(":"))
-      let newSolvedTraits = _.intersection(...hiddenParts)
-      // keep only traits that must be part of solution, but weren't added to `solved_traits` yet
-      let newUneliminatedSolvedTraits = _.intersection(uneliminatedTraits, newSolvedTraits)
-
-      if (newUneliminatedSolvedTraits.length === 0) {
-        return
-      }
-      // console.log(`New solved traits ${newUneliminatedSolvedTraits}`)
-
-      changed = true
-      node.solutions = newSolutions
-      node.solved_traits = node.solved_traits.concat(newUneliminatedSolvedTraits)
-
-      // delete only first occurence of trait in case it's a duplicate trait
-      newUneliminatedSolvedTraits.forEach(trait => {
-        let idx = uneliminatedTraits.indexOf(trait)
-        if (idx >= 0) {
-          uneliminatedTraits.splice(idx, 1)
-        } else {
-          console.log(`added ${trait} to solved, but it's not in uneliminatedTraits`)
-        }
-      })
-    })
-
-    if (!changed) {
-      break
-    }
-  }
 
   let recsMap = new Map<string, { hiddenMatches: string[], nodeMatches: number[] }>()
   nodes.forEach((node, idx) => {
