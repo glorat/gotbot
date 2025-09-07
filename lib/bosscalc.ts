@@ -206,7 +206,9 @@ function computeBossSolution(level: BossData, possibleTraits: string[], excludeC
         return
       }
 
-      let traits = _.intersection(crew.traits_int, possibleTraits)
+      // make sure trait can't be both open and hidden
+      let unusedTraits = _.difference(crew.traits_int, node.open_traits)
+      let traits = _.intersection(unusedTraits, possibleTraits)
       // console.log(`checking crew ${crew.name} traits ${traits}`)
       if (traits.length < node.hidden_traits.length) {
         // skip, not enough crew traits are in possible list to solve the node
