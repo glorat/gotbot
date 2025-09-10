@@ -48,7 +48,9 @@ Clone this repository, and run:
 ```sh
 $ npm install && npm test
 ```
-Copy `password_sample.js` to `data/password.js` and supply valid Discord bot tokens
+Copy `test-data/password.js` to `data/password.js` and supply valid Discord bot tokens
+
+Update values in `config.ts`
 
 The bot requires the GUILD_MEMBERS privileged intent so please enable that for your bot per https://discord.com/developers/docs/topics/gateway#privileged-intents
 

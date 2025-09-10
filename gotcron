@@ -31,6 +31,8 @@ generate_wgetsources() {
 }
 
 download_wiki() {
+    mkdir -p ./data/logs
+
     echo "Fetching Wiki Categories"
     wget $WGET_PARAMS -m -l1 -o ./data/logs/categories.log -i $WGETSOURCE_CATEGORIES
     grep -A 3 FINISHED data/logs/categories.log
