@@ -141,65 +141,173 @@ function reportBossSummary(strs: string[], level: BossData, possibleTraits: stri
   strs.push('   ' + possibleTraits.join(', '))
 }
 
+function isSubsetOf(lhs: string[], rhs: string[]) {
+  return _.all(lhs, x => rhs.includes(x))
+}
+
+// todo: write tests that this preserves order
+function combinations(arr: string[], n: number): string[][] {
+  if (n == 0) {
+    return []
+  }
+  if (n == 1) {
+    return arr.map(x => [x])
+  }
+
+  let result: string[][] = []
+  let prefixes: string[][] = []
+
+  arr.forEach(x => {
+    let newPrefixes = [[x]]
+    prefixes.forEach(prefix => {
+      newPrefixes.push(_.clone(prefix))
+      prefix.push(x)
+      if (prefix.length == n) {
+        result.push(prefix)
+      } else {
+        newPrefixes.push(prefix)
+      }
+    })
+    prefixes = newPrefixes
+  })
+
+  return result
+}
+
 function computeBossSolution(level: BossData, possibleTraits: string[], excludeChar: string[], flags: BossCmdFlags) {
   const difficultToMaxStars = [0, 2, 3, 4, 4, 5, 5]
   const myMaxStars = difficultToMaxStars[level.difficulty_id]
-  let allCrew = chars.allCrewEntries().filter((c: CharInfo) => c.stars <= myMaxStars)
-  // allCrew = allCrew.slice(0,10)
-  let recs: { reqMatches: number; reqMatchNodes: number[]; name: string; optMatches: number; optMatchNodes: number[], score: number }[] = []
-  allCrew.forEach((crew: CharInfo) => {
-    let reqMatches = 0
-    let reqMatchNodes: number[] = []
-    let optMatches = 0
-    let optMatchNodes: number[] = []
-    const traits = crew.traits_int
-    // console.log(traits.join(':'))
-    const matchOptTraits: string[] = []
-    possibleTraits.forEach((reqTrait: string, idx) => {
-      // The second part of the if clause is to cater for dupe opt traits
-      if (traits.includes(reqTrait) && !matchOptTraits.includes(reqTrait)) {
-        matchOptTraits.push(reqTrait)
-        optMatchNodes.push(idx)
-        optMatches++
+  let allCrew: CharInfo[] = chars.allCrewEntries().filter((c: CharInfo) => c.stars <= myMaxStars)
+  let excludeCrew = allCrew.filter(crew => excludeChar.includes(crew.name))
+ 
+  // stats for each crew member to cacluclate `narvinExcluded`
+  let initialRecs = new Map<string, { reqMatchNodes: number[]; optMatchTraits: string[]; }>()
+
+  // Find all potential solutions for each node
+  let nodes = level.nodes.map((node, nodeIdx) => {
+    if (node.unlocked_character) {
+      // skip, node is already solved
+      // console.log(`init: skip node ${node.unlocked_character}`)
+      let solutions = new Map<string, CharInfo[]>()
+      solutions.set(node.hidden_traits.join(":"), [])
+      return {
+        solutions,
       }
+    }
+
+    // map from "list of traits that can be solution for hidden part" to "list of crew who would match this solution"
+    // we use string of traits joined by ':' because map doesn't allow string[] as keys
+    let solutions = new Map<string, CharInfo[]>()
+    allCrew.forEach(crew => {
+      // console.log(`checking crew ${crew.name}`)
+      if (!isSubsetOf(node.open_traits, crew.traits_int)) {
+        // skip, crew doesn't match required traits
+        // console.log(`checking crew ${crew.name}: not subset`)
+        return
+      }
+
+      // make sure trait can't be both open and hidden
+      let unusedTraits = _.difference(crew.traits_int, node.open_traits)
+      let traits = _.intersection(unusedTraits, possibleTraits)
+      // console.log(`checking crew ${crew.name} traits ${traits}`)
+      if (traits.length < node.hidden_traits.length) {
+        // skip, not enough crew traits are in possible list to solve the node
+        // console.log(`checking crew ${crew.name}: not enough`)
+        return
+      }
+
+      traits.sort() // sort, we rely on traits order for map keys
+      combinations(traits, node.hidden_traits.length).forEach(hiddenPart => {
+        // console.log(`init: node ${node.open_traits} crew ${crew.name} adding ${hiddenPart}`)
+        let solutionKey = hiddenPart.join(":")
+        let matches = solutions.get(solutionKey) || []
+        matches.push(crew)
+        solutions.set(solutionKey, matches)
+      })
+
+      // save crew to calculate `narvinExcluded` later
+      let initialRec = initialRecs.get(crew.name) || {
+        reqMatchNodes: [] as number[],
+        optMatchTraits: [] as string[] 
+      }
+      initialRec.reqMatchNodes = _.union(initialRec.reqMatchNodes, [nodeIdx])
+      initialRec.optMatchTraits = _.union(initialRec.optMatchTraits, traits)
+      initialRecs.set(crew.name, initialRec)
     })
 
-    level.nodes.forEach((node, idx) => {
-      // We match the node trait and it is not yet unlocked
-      if ((!node.unlocked_character) && _.all(node.open_traits, t => traits.includes(t))) {
-        // Need to have enough optional traits
-        if (optMatches >= node.hidden_traits.length) {
-          reqMatches++
-          reqMatchNodes.push(idx)
-        }
-      }
-    })
+    // prune solutions
+    Array.from(solutions).forEach(([solutionKey, crewList]) => {
+      // console.log(`prune: checking ${solutionKey} ${crewList.map(it => it.name)}`)
 
-    if (reqMatches > 0 && optMatches > 0) {
-      const rec = {
-        name: crew.name,
-        reqMatches,
-        optMatches,
-        reqMatchNodes,
-        optMatchNodes,
-        score: 0.0
+      // exclude solutions with less than two crew
+      // todo: change to "if less than two crew in portal"
+      if (crewList.length < 2) {
+        // console.log(`prune: pruned by one crew rule`)
+        solutions.delete(solutionKey)
+        return
       }
-      recs.push(rec)
+
+      // exclude if traits are covered by an already attempted crew
+      // todo: also do this check for crew that are `unlocked_character` for other nodes
+      let hiddenPart = solutionKey.split(":")
+      if (_.any(excludeCrew, crew => isSubsetOf(_.union(node.open_traits, hiddenPart), crew.traits_int))) {
+        // console.log(`prune: pruned by excludeCrew`)
+        solutions.delete(solutionKey)
+        return
+      }
+    });
+
+    return {
+      solutions,
     }
   })
-  // Exclude rows that have already been hit
-  let excludedCrew = recs.filter(c => excludeChar.includes(c.name))
-  recs = recs.filter(c => !excludeChar.includes(c.name))
 
-  // Filter further by excluding crew that have subset of traits of existing excluded crew
-  let beforeNarvin = recs
-  excludedCrew.forEach(ex => {
-    // Compare excluded crew against all other crew
-    recs = recs.filter(rec => !recIsSupersetOf(ex, rec))
+  let recsMap = new Map<string, { hiddenMatches: string[], nodeMatches: number[] }>()
+  nodes.forEach((node, idx) => {
+    node.solutions.forEach((crews, hiddenPart) => {
+      crews.forEach(crew => {
+        let rec = recsMap.get(crew.name) || {
+          hiddenMatches: [] as string[],
+          nodeMatches: [] as number[],
+        }
+
+        rec.nodeMatches = _.union(rec.nodeMatches, [idx])
+        rec.hiddenMatches = _.union(rec.hiddenMatches, hiddenPart.split(":"))
+
+        recsMap.set(crew.name, rec)
+      });
+    })
   })
 
-  const narvinExcluded = beforeNarvin.filter(rec => !recs.map(x => x.name).includes(rec.name))
-  narvinExcluded.forEach(rec => console.log(`Narvin excluded ${rec.name}`))
+  let recs: { reqMatches: number; reqMatchNodes: number[]; name: string; optMatches: number; optMatchNodes: number[], score: number }[] = []
+  recsMap.forEach((rec, name) => {
+    let optMatchNodes = rec.hiddenMatches.map(trait => possibleTraits.indexOf(trait))
+    rec.nodeMatches.sort((a, b) => a - b)
+    optMatchNodes.sort((a, b) => a - b)
+    recs.push({
+      name: name,
+      reqMatches: rec.nodeMatches.length,
+      reqMatchNodes: rec.nodeMatches,
+      optMatches: optMatchNodes.length,
+      optMatchNodes,
+      score: 0.0
+    })
+  })
+
+  let narvinExcluded: { reqMatches: number; reqMatchNodes: number[]; name: string; optMatches: number; optMatchNodes: number[]; score: number; }[] = []
+  initialRecs.forEach((initialRec, name) => {
+    if (!recsMap.has(name)) {
+      let optMatchNodes = initialRec.optMatchTraits.map(trait => possibleTraits.indexOf(trait))
+      narvinExcluded.push({ 
+        name,
+        reqMatches: initialRec.reqMatchNodes.length,
+        reqMatchNodes: initialRec.reqMatchNodes,
+        optMatches: initialRec.optMatchTraits.length,
+        optMatchNodes,
+        score: 0
+      })
+    }
+  })
 
   // Apply a scoring to the crew
   const nodeTotalHits = level.nodes.map((node, idx) => {
