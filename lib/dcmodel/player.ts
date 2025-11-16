@@ -1,64 +1,89 @@
+import { ReferenceShip, Ship } from './ship'
+import { BossBattlesRoot, Energy } from './boss'
+import { CaptainsBridgeRoot } from './bridge'
+import {
+  BaseSkills,
+  ComputedSkill,
+  CapAchiever,
+  CrewMember,
+  CrossFuseTarget,
+  EquipmentSlot,
+  IntermediateSkillData,
+  Skill,
+} from './crew'
+import { ShipAction, ShipBonus } from './ship'
+import { EquipmentItem } from './equipment'
+import { Collection, Icon } from './game-elements'
+import { ShuttleAdventure, StaticFaction } from './shuttle'
+import { IVoyageEventContent } from './voyage'
+import { ArchetypeRoot20 } from './archetype'
+import { Cost } from './offers'
 
+export const ISM_ID = 14152
 
-import { ReferenceShip, Ship } from "./ship";
-import { BossBattlesRoot, Energy } from "./boss";
-import { CaptainsBridgeRoot } from "./bridge";
-import { BaseSkills, ComputedSkill, CapAchiever, CrewMember, CrossFuseTarget, EquipmentSlot, IntermediateSkillData, Skill } from "./crew";
-import { ShipAction, ShipBonus } from "./ship";
-import { EquipmentItem } from "./equipment";
-import { Collection, Icon } from "./game-elements";
-import { ShuttleAdventure, StaticFaction } from "./shuttle";
-import { IVoyageEventContent } from "./voyage";
-import { ArchetypeRoot20 } from "./archetype";
-import { Cost } from "./offers";
+export type TranslateMethod = (
+  key: string,
+  options?: { [key: string]: string | number }
+) => string
 
-export const ISM_ID = 14152;
+export type PlayerBuffMode = 'none' | 'player' | 'max' | 'quipment'
 
-export type TranslateMethod = (key: string, options?: { [key: string]: string | number }) => string;
+export type GauntletPlayerBuffMode =
+  | 'none'
+  | 'player'
+  | 'max'
+  | 'quipment'
+  | 'max_quipment_2'
+  | 'max_quipment_3'
+  | 'max_quipment_best'
 
-export type PlayerBuffMode = 'none' | 'player' | 'max' | 'quipment';
+export type PlayerImmortalMode =
+  | 'owned'
+  | 'min'
+  | 2
+  | 3
+  | 4
+  | 'full'
+  | 'frozen'
+  | 'shown_full'
 
-export type GauntletPlayerBuffMode = 'none' | 'player' | 'max' | 'quipment' | 'max_quipment_2' | 'max_quipment_3' | 'max_quipment_best';
-
-export type PlayerImmortalMode = 'owned' | 'min' | 2 | 3 | 4 | 'full' | 'frozen' | 'shown_full';
-
-export type CiteEngine = 'original' | 'beta_tachyon_pulse';
+export type CiteEngine = 'original' | 'beta_tachyon_pulse'
 
 export interface CiteMode {
-  rarities?: number[],
-  portal?: boolean,
-  nameFilter?: string,
-  customSorter?: (left: PlayerCrew, right: PlayerCrew) => number;
-  priSkills?: string[];
-  secSkills?: string[];
-  seatSkills?: string[];
-  engine?: CiteEngine;
+  rarities?: number[]
+  portal?: boolean
+  nameFilter?: string
+  customSorter?: (left: PlayerCrew, right: PlayerCrew) => number
+  priSkills?: string[]
+  secSkills?: string[]
+  seatSkills?: string[]
+  engine?: CiteEngine
 }
 
 export interface ForteItem {
-  id: number;
-  quantity: number;
+  id: number
+  quantity: number
 }
 export interface ForteRoot {
-  id: number;
-  items: ForteItem[];
+  id: number
+  items: ForteItem[]
 }
 
 export interface PlayerData {
-  player: Player;
-  fleet_boss_battles_root?: BossBattlesRoot;
-  captains_bridge_root?: CaptainsBridgeRoot;
-  calc?: { lastImported?: string, lastModified?: Date; numImmortals?: number; };
-  archetype_cache?: ArchetypeRoot20;
-  [key: string]: any;
-  forte_root: ForteRoot;
-  version?: 17 | 20;
-  stripped?: boolean;
-  citeMode?: CiteMode;
-  calculatedDemands?: EquipmentItem[];
-  buyback_well: PlayerCrew[];
-  crew_crafting_root?: CrewCraftingRoot;
-  objective_event_root?: ObjectiveEventRoot;
+  player: Player
+  fleet_boss_battles_root?: BossBattlesRoot
+  captains_bridge_root?: CaptainsBridgeRoot
+  calc?: { lastImported?: string; lastModified?: Date; numImmortals?: number }
+  archetype_cache?: ArchetypeRoot20
+  [key: string]: any
+  forte_root: ForteRoot
+  version?: 17 | 20
+  stripped?: boolean
+  citeMode?: CiteMode
+  calculatedDemands?: EquipmentItem[]
+  buyback_well: PlayerCrew[]
+  crew_crafting_root?: CrewCraftingRoot
+  objective_event_root?: ObjectiveEventRoot
 }
 
 export interface Player {
@@ -96,10 +121,7 @@ export interface Player {
   consent: boolean
   ccpa_opted_out: boolean
   u_13: boolean
-
 }
-
-
 
 export interface CurrencyExchange {
   id: number
@@ -131,11 +153,11 @@ export interface ReplicatorRationType {
 }
 
 export interface GalaxyCrewCooldown {
-    crew_id: number;
-    disabled_until: Date;
+  crew_id: number
+  disabled_until: Date
 
-    /** Used internally. Not part of game data. */
-    is_disabled?: boolean;
+  /** Used internally. Not part of game data. */
+  is_disabled?: boolean
 }
 
 export interface Character {
@@ -172,8 +194,8 @@ export interface Character {
   pvp_divisions?: PvpDivision[]
   pvp_timer?: PvpTimer
   fbb_difficulties: FbbDifficulty[]
-  crew: PlayerCrew[];
-  unOwnedCrew?: PlayerCrew[];
+  crew: PlayerCrew[]
+  unOwnedCrew?: PlayerCrew[]
   items: PlayerEquipmentItem[]
   crew_borrows?: any[]
   crew_shares?: any[]
@@ -216,8 +238,8 @@ export interface Character {
   all_buffs_cap_hash: AllBuffsCapHash
   all_buffs: AllBuff[]
   total_marketplace_claimables: number
-  seasons: Season[];
-  galaxy_crew_cooldowns?: GalaxyCrewCooldown[];
+  seasons: Season[]
+  galaxy_crew_cooldowns?: GalaxyCrewCooldown[]
 }
 
 export interface ClientAsset {
@@ -274,7 +296,7 @@ export interface AcceptedMission extends DisputeHistory {
   accepted: boolean
   state: number
   main_story?: boolean
-  cadet?: any;
+  cadet?: any
 }
 
 export interface CrewAvatar {
@@ -348,12 +370,12 @@ export interface PvpDivision {
 }
 
 export interface Setup {
-  ship_id: number;
-  slots: number[];
+  ship_id: number
+  slots: number[]
 }
 
 export interface PvpRefSetup extends Setup {
-  slot_info?: { [key: string]: PlayerCrew };
+  slot_info?: { [key: string]: PlayerCrew }
 }
 
 export interface PvpTimer {
@@ -374,7 +396,6 @@ export interface FbbDifficulty {
   setup?: Setup
 }
 export enum CompletionState {
-
   /**
    * Display as immortal, no way to reference.
    * (Same as -2/DisplayAsImmortal but with different wording)
@@ -422,7 +443,7 @@ export enum CompletionState {
   /**
    * Crew is owned, not completed.
    */
-  NotComplete = 0
+  NotComplete = 0,
 }
 
 /**
@@ -432,24 +453,24 @@ export enum CompletionState {
  * PlayerCrew derives from this and CrewMember
  */
 export interface CompactCrew {
-  id: number;
-  symbol: string;
-  name?: string;
-  archetype_id?: number;
-  level: number;
-  max_level?: number;
-  rarity: number;
-  max_rarity: number;
-  traits?: string[];
-  equipment: number[][] | number[];
-  skill_order: string[];
-  base_skills?: BaseSkills;
-  skills?: BaseSkills;
-  favorite?: boolean;
-  ship_battle?: ShipBonus;
-  active_status?: number;
-  active_id?: number;
-  active_index?: number;
+  id: number
+  symbol: string
+  name?: string
+  archetype_id?: number
+  level: number
+  max_level?: number
+  rarity: number
+  max_rarity: number
+  traits?: string[]
+  equipment: number[][] | number[]
+  skill_order: string[]
+  base_skills?: BaseSkills
+  skills?: BaseSkills
+  favorite?: boolean
+  ship_battle?: ShipBonus
+  active_status?: number
+  active_id?: number
+  active_index?: number
 }
 
 /**
@@ -459,7 +480,10 @@ export interface CompactCrew {
  *
  * This interface inherits from both CrewMember and CompactCrew
  */
-export interface PlayerCrew extends CrewMember, CompactCrew, IntermediateSkillData {
+export interface PlayerCrew
+  extends CrewMember,
+    CompactCrew,
+    IntermediateSkillData {
   id: number
   symbol: string
   name: string
@@ -486,7 +510,7 @@ export interface PlayerCrew extends CrewMember, CompactCrew, IntermediateSkillDa
   equipment_slots: EquipmentSlot[]
 
   /** Used internally by DataCore, not part of game data */
-  local_slots?: EquipmentSlot[];
+  local_slots?: EquipmentSlot[]
 
   /**
    * Input equipment slots are nested arrays,
@@ -494,16 +518,16 @@ export interface PlayerCrew extends CrewMember, CompactCrew, IntermediateSkillDa
    */
   equipment: number[][] | number[]
 
-  kwipment: number[][] | number[];
-  kwipment_expiration: number[][] | number[];
+  kwipment: number[][] | number[]
+  kwipment_expiration: number[][] | number[]
 
   /** Used internally, not part of game data */
-  kwipment_prospects?: boolean;
+  kwipment_prospects?: boolean
 
   //kwipment_expirations?: Date[];
-  q_bits: number;
+  q_bits: number
 
-  kwipment_slots?: EquipmentSlot[];
+  kwipment_slots?: EquipmentSlot[]
 
   icon: Icon
   portrait: Icon
@@ -530,14 +554,14 @@ export interface PlayerCrew extends CrewMember, CompactCrew, IntermediateSkillDa
   action: ShipAction
   default_avatar: boolean
   /** If this crew can be fused with other crew */
-  cross_fuse_targets: CrossFuseTarget;
+  cross_fuse_targets: CrossFuseTarget
   cap_achiever: CapAchiever
 
   /** Highest rarity from out of all copies of crew owned by the player */
-  highest_owned_rarity?: number;
+  highest_owned_rarity?: number
 
   /** Highest level from out of all copies of crew owned by the player */
-  highest_owned_level?: number;
+  highest_owned_level?: number
 
   /**
    * Immortalized count or CompletionState.
@@ -551,138 +575,136 @@ export interface PlayerCrew extends CrewMember, CompactCrew, IntermediateSkillDa
    *
    * To determine a specific value other than a positive number, consult CompletionState
    */
-  immortal: CompletionState | number;
+  immortal: CompletionState | number
 
   /** Used internally. Not part of source data.  */
-  unmaxedIds?: number[];
+  unmaxedIds?: number[]
 
   /** Collection rewards for immortalizing this crew. Used internally. Not part of source data.  */
-  immortalRewards?: ImmortalReward[];
+  immortalRewards?: ImmortalReward[]
 
   /** Collection improvement score. Used internally. Not part of source data.  */
-  collectionScore?: number;
-  collectionScoreN?: number;
+  collectionScore?: number
+  collectionScoreN?: number
 
   /** Crew is an inserted prospect on the crew table. Used internally. Not part of source data.  */
-  prospect?: boolean;
+  prospect?: boolean
 
   /**
    * Indicates whether the crew is owned by the player or not.
    * Used internally. Not part of source data.
    */
-  have?: boolean;
+  have?: boolean
 
   /** Used internally. Not part of source data.  */
-  traits_matched?: string[];
+  traits_matched?: string[]
   /** Used internally. Not part of source data.  */
-  only_frozen?: boolean;
+  only_frozen?: boolean
 
   /** Reserved for Combo Matches  */
-  nodes?: number[];
+  nodes?: number[]
   /** Reserved for Combo Matches  */
-  node_matches?: NodeMatches;
+  node_matches?: NodeMatches
   /** Reserved for Combo Matches  */
-  nodes_rarity?: number;
+  nodes_rarity?: number
 
   /** Used internally. Not part of source data.  */
-  variants?: string[];
-
+  variants?: string[]
 
   /** Citation Optimizer */
 
   /** Used internally. Not part of source data.  */
-  addedEV?: number;
+  addedEV?: number
   /** Used internally. Not part of source data.  */
-  totalEVContribution?: number;
+  totalEVContribution?: number
   /** Used internally. Not part of source data.  */
-  totalEVRemaining?: number;
+  totalEVRemaining?: number
   /** Used internally. Not part of source data.  */
-  evPerCitation?: number;
+  evPerCitation?: number
   /** Used internally. Not part of source data.  */
-  voyagesImproved?: string[];
+  voyagesImproved?: string[]
   /** Used internally. Not part of source data.  */
-  amTraits?: string[];
+  amTraits?: string[]
   /** Used internally. Not part of source data.  */
-  voyScores?: { [key: string]: number };
+  voyScores?: { [key: string]: number }
   /** Used internally. Not part of source data.  */
-  collectionsIncreased?: string[];
+  collectionsIncreased?: string[]
   /** Used internally. Not part of source data.  */
-  groupSparsity?: number;
+  groupSparsity?: number
   /** Used internally. Not part of source data.  */
-  ssId?: string;
+  ssId?: string
 
   /** Used internally by gauntlets. Not part of source data.  */
-  score?: number;
+  score?: number
 
   /** Used internally by gauntlets. Not part of source data.  */
-  scoreTrip?: number;
+  scoreTrip?: number
 
   /** Used internally by gauntlets. Not part of source data.  */
-  pairScores?: GauntletPairScore[];
+  pairScores?: GauntletPairScore[]
 
   /** Used internally by gauntlets. Not part of source data.  */
-  isOpponent?: boolean;
+  isOpponent?: boolean
 
   /** Used internally by gauntlets. Not part of source data.  */
-  isDebuffed?: boolean;
+  isDebuffed?: boolean
 
   /** Used internally by gauntlets. Not part of source data.  */
-  isDisabled?: boolean;
+  isDisabled?: boolean
 
   /** Used internally by gauntlets. Not part of source data.  */
-  isSelected?: boolean;
+  isSelected?: boolean
 
   /** Used internally. Not part of source data.  */
   utility?: PlayerUtility
 
   // used for exports
   /** Used for exports and internally. Not part of source data.  */
-  command_skill?: ComputedSkill;
+  command_skill?: ComputedSkill
   /** Used for exports and internally. Not part of source data.  */
-  diplomacy_skill?: ComputedSkill;
+  diplomacy_skill?: ComputedSkill
   /** Used for exports and internally. Not part of source data.  */
-  security_skill?: ComputedSkill;
+  security_skill?: ComputedSkill
   /** Used for exports and internally. Not part of source data.  */
-  science_skill?: ComputedSkill;
+  science_skill?: ComputedSkill
   /** Used for exports and internally. Not part of source data.  */
-  medicine_skill?: ComputedSkill;
+  medicine_skill?: ComputedSkill
   /** Used for exports and internally. Not part of source data.  */
-  engineering_skill?: ComputedSkill;
+  engineering_skill?: ComputedSkill
 
-  data: any;
+  data: any
 
-  is_new?: boolean;
+  is_new?: boolean
 }
 
 export interface GauntletPairScore {
-  score: number;
-  pair: Skill[];
+  score: number
+  pair: Skill[]
 }
 export interface PlayerUtilityRanks {
-  [key: string]: number[];
+  [key: string]: number[]
 }
 
 export interface PlayerUtility {
-  ranks: PlayerUtilityRanks;
-  thresholds: string[];
+  ranks: PlayerUtilityRanks
+  thresholds: string[]
   counts: {
-    shuttle: number;
-    gauntlet: number;
-    voyage: number;
+    shuttle: number
+    gauntlet: number
+    voyage: number
   }
 }
 
 export interface NodeMatch {
-  index: number,
-  traits: string[];
-  combos: string[][];
-  nodes?: number[];
+  index: number
+  traits: string[]
+  combos: string[][]
+  nodes?: number[]
 }
 
 export interface NodeMatches {
-  [key: string]: NodeMatch;
+  [key: string]: NodeMatch
 }
-
 
 export interface PlayerEquipmentItem extends ItemArchetypeBase {
   id?: number
@@ -701,11 +723,11 @@ export interface PlayerEquipmentItem extends ItemArchetypeBase {
   cr_modifier?: number
   reward_modifier?: number
   crafting_bonuses?: Bonuses
-  imageUrl?: string;
+  imageUrl?: string
 }
 
 export interface Bonuses {
-  [key: number]: number;
+  [key: number]: number
 }
 
 export interface NextCrewLimitIncreaseCost {
@@ -761,7 +783,6 @@ export interface DailyActivity {
   status?: string
 }
 
-
 export interface FleetActivity {
   id: number
   name: string
@@ -777,13 +798,12 @@ export interface FleetActivity {
 }
 
 export interface Milestone {
-  goal: number | "n/a"
+  goal: number | 'n/a'
   rewards?: Reward[]
   claimed?: boolean
   claimable?: boolean
-  buffs?: MilestoneBuff[];
+  buffs?: MilestoneBuff[]
 }
-
 
 export interface DailyRewardsState {
   seconds_until_next_reward: number
@@ -829,10 +849,9 @@ export interface GameEvent {
   last_threshold_points?: number
   next_threshold_points?: number
   next_threshold_rewards?: any[]
-  bonus?: string[];
-  discovered?: Date;
+  bonus?: string[]
+  discovered?: Date
 }
-
 
 export interface FeaturedCrew extends CrewMember {
   type: number
@@ -871,75 +890,75 @@ export interface SquadronRankedBracket {
 }
 
 export interface SpecialistMission {
-  id: number;
-  event_run_id: number;
-  desc_id: number;
-  crew_id?: number;
-  start_time?: Date;
-  completion_time?: Date;
-  progress_speed?: number;
-  state:	"available" | "started";
-  event_instance_id: number;
-  vp_rewards_amount: number;
-  title: string;
-  description: string;
-  icon: Icon;
-  bonus_traits: string[];
-  requirements: string[];
-  min_req_threshold: number;
+  id: number
+  event_run_id: number
+  desc_id: number
+  crew_id?: number
+  start_time?: Date
+  completion_time?: Date
+  progress_speed?: number
+  state: 'available' | 'started'
+  event_instance_id: number
+  vp_rewards_amount: number
+  title: string
+  description: string
+  icon: Icon
+  bonus_traits: string[]
+  requirements: string[]
+  min_req_threshold: number
 }
 
 export interface SpecialistMainMission {
-  progress: number;
-  bonus_failures: number;
-  title: string;
-  description: string;
-  icon: Icon;
-  victory_points_reward: number;
+  progress: number
+  bonus_failures: number
+  title: string
+  description: string
+  icon: Icon
+  victory_points_reward: number
 }
 
 export interface Content {
-    content_type: string
-    crew_bonuses?: CrewBonuses
-    gather_pools?: GatherPool[]
-    craft_bonus?: number
-    refresh_cost?: RefreshCost
-    supports_buffs?: boolean
-    shuttles?: Shuttle[]
-    bonus_crew?: string[]
-    bonus_traits?: string[]
+  content_type: string
+  crew_bonuses?: CrewBonuses
+  gather_pools?: GatherPool[]
+  craft_bonus?: number
+  refresh_cost?: RefreshCost
+  supports_buffs?: boolean
+  shuttles?: Shuttle[]
+  bonus_crew?: string[]
+  bonus_traits?: string[]
 
-    // Specialist voyages
-    missions?: SpecialistMission[];
-    completion_progress?: number;
-    passive_progress_interval?: number;
-    featured_crew_bonus_chance?: number;
-    featured_trait_bonus_chance?: number;
-    start_mission_cost?: number;
-    galaxy_cooldown_reset_cost?: Cost;
-    reroll_cost?: Cost;
-    skip_mission_cost_interval?: number;
-    skip_mission_cost_per_interval?: number;
-    bonus_chance_inc?: number;
-    main_mission?: SpecialistMainMission;
-    featured_traits?: string[];
+  // Specialist voyages
+  missions?: SpecialistMission[]
+  completion_progress?: number
+  passive_progress_interval?: number
+  featured_crew_bonus_chance?: number
+  featured_trait_bonus_chance?: number
+  start_mission_cost?: number
+  galaxy_cooldown_reset_cost?: Cost
+  reroll_cost?: Cost
+  skip_mission_cost_interval?: number
+  skip_mission_cost_per_interval?: number
+  bonus_chance_inc?: number
+  main_mission?: SpecialistMainMission
+  featured_traits?: string[]
 
-    voyage_symbol?: string;	// encounter_voyage
-    primary_skill?: string;
-    secondary_skill?: string;
-    antimatter_bonus_per_crew_trait?: number;
-    antimatter_bonus_crew_traits?: string[];
-    antimatter_bonus_for_featured_crew?: number;
-    featured_crews?: string[];
-    antimatter_bonus_per_ship_trait?: number;
-    antimatter_bonus_ship_traits?: string[];
-    antimatter_bonus_for_featured_ship?: number;
-    featured_ships?: string[];
-    event_ships?: number[];
-  }
+  voyage_symbol?: string // encounter_voyage
+  primary_skill?: string
+  secondary_skill?: string
+  antimatter_bonus_per_crew_trait?: number
+  antimatter_bonus_crew_traits?: string[]
+  antimatter_bonus_for_featured_crew?: number
+  featured_crews?: string[]
+  antimatter_bonus_per_ship_trait?: number
+  antimatter_bonus_ship_traits?: string[]
+  antimatter_bonus_for_featured_ship?: number
+  featured_ships?: string[]
+  event_ships?: number[]
+}
 
 export interface CrewBonuses {
-  [key: string]: number;
+  [key: string]: number
 }
 
 export interface GatherPool {
@@ -1101,7 +1120,7 @@ export interface DisputeHistory {
   stars_earned: number
   total_stars: number
   exclude_from_timeline?: boolean
-  faction_id?: number;
+  faction_id?: number
 }
 
 export interface Stimpack {
@@ -1119,7 +1138,7 @@ export interface Tutorial {
 
 export interface VoyageDescription {
   id: number
-  voyage_type: 'dilemma' | 'encounter';
+  voyage_type: 'dilemma' | 'encounter'
   symbol: string
   name: string
   description: string
@@ -1145,7 +1164,7 @@ export interface CrewSlot {
 export interface Voyage {
   id: number
   name: string
-  voyage_type: 'dilemma' | 'encounter';
+  voyage_type: 'dilemma' | 'encounter'
   description: string
   icon: string
   skills: VoyageSkills
@@ -1167,32 +1186,32 @@ export interface Voyage {
   seconds_since_last_dilemma: number
   first_leave: boolean
   time_to_next_event: number
-  ship_id: number;
-  next_interaction: number;
+  ship_id: number
+  next_interaction: number
   crew_slots: VoyageCrewSlot[]
-  event_content?: IVoyageEventContent;
+  event_content?: IVoyageEventContent
 }
 
 export interface EncounterVoyage extends Voyage {
-    phase_id: number;
-    event_instance_id: number;
-    encounter: number;
-    encounter_skip_boost?: {
-        boost_duration: number;
-        boost_archetype: number;
-    }
-    fast_forward_boost?: {
-        estimated_hp: number;
-    }
+  phase_id: number
+  event_instance_id: number
+  encounter: number
+  encounter_skip_boost?: {
+    boost_duration: number
+    boost_archetype: number
+  }
+  fast_forward_boost?: {
+    estimated_hp: number
+  }
 }
 
 export interface Aggregates {
-	command_skill: Skill;
-	science_skill: Skill;
-	security_skill: Skill;
-	engineering_skill: Skill;
-	diplomacy_skill: Skill;
-	medicine_skill: Skill;
+  command_skill: Skill
+  science_skill: Skill
+  security_skill: Skill
+  engineering_skill: Skill
+  diplomacy_skill: Skill
+  medicine_skill: Skill
 }
 
 export interface PendingRewards {
@@ -1241,7 +1260,7 @@ export interface CryoCollection extends Collection {
   name: string
   image?: string
   description?: string
-  progress: number | "n/a"
+  progress: number | 'n/a'
   traits?: string[]
   extra_crew?: number[]
   claimable_milestone_index?: number
@@ -1249,31 +1268,31 @@ export interface CryoCollection extends Collection {
 }
 
 export interface PlayerCollection extends CryoCollection {
-  crew?: string[];
-  simpleDescription?: string;
-  progressPct?: number;
-  neededPct?: number;
-  needed?: number;
-  neededCost?: number;
-  totalRewards?: number;
-  owned: number;
+  crew?: string[]
+  simpleDescription?: string
+  progressPct?: number
+  neededPct?: number
+  needed?: number
+  neededCost?: number
+  totalRewards?: number
+  owned: number
 }
 
 export interface ItemArchetypeBase {
   symbol?: string
   name?: string
-  icon?: Icon | Icon;
+  icon?: Icon | Icon
   flavor?: string
-  quantity?: number;
-  rarity?: number;
+  quantity?: number
+  rarity?: number
 
   /** Used internally by DataCore. Not part of game data */
-  data?: any;
+  data?: any
 }
 
 export interface ImmortalReward extends ItemArchetypeBase {
-  quantity: number;
-  icon?: Icon;
+  quantity: number
+  icon?: Icon
 }
 
 export interface Reward extends ItemArchetypeBase {
@@ -1288,7 +1307,7 @@ export interface Reward extends ItemArchetypeBase {
   traits?: string[]
   action?: ShipAction
   ship?: Ship
-  icon?: Icon;
+  icon?: Icon
   item_type?: number
   bonuses?: Bonuses
   faction_id?: number
@@ -1311,98 +1330,97 @@ export interface AdvancementBuff extends ItemArchetypeBase {
 }
 
 export interface CollectionBuffsCapHash {
-  "science_skill_core,percent_increase": number
-  "engineering_skill_core,percent_increase": number
-  "medicine_skill_range_min,percent_increase": number
-  "medicine_skill_range_max,percent_increase": number
-  "science_skill_range_min,percent_increase": number
-  "science_skill_range_max,percent_increase": number
-  "engineering_skill_range_min,percent_increase": number
-  "engineering_skill_range_max,percent_increase": number
-  "diplomacy_skill_core,percent_increase": number
-  "command_skill_core,percent_increase": number
-  "diplomacy_skill_range_min,percent_increase": number
-  "diplomacy_skill_range_max,percent_increase": number
-  "command_skill_range_min,percent_increase": number
-  "command_skill_range_max,percent_increase": number
-  "security_skill_core,percent_increase": number
-  "security_skill_range_min,percent_increase": number
-  "security_skill_range_max,percent_increase": number
-  "medicine_skill_core,percent_increase": number
-  "replicator_fuel_cost,percent_decrease": number
-  "chroniton_max,increment": number
-  "crew_experience_training,percent_increase": number
-  "replicator_uses,increment": number
+  'science_skill_core,percent_increase': number
+  'engineering_skill_core,percent_increase': number
+  'medicine_skill_range_min,percent_increase': number
+  'medicine_skill_range_max,percent_increase': number
+  'science_skill_range_min,percent_increase': number
+  'science_skill_range_max,percent_increase': number
+  'engineering_skill_range_min,percent_increase': number
+  'engineering_skill_range_max,percent_increase': number
+  'diplomacy_skill_core,percent_increase': number
+  'command_skill_core,percent_increase': number
+  'diplomacy_skill_range_min,percent_increase': number
+  'diplomacy_skill_range_max,percent_increase': number
+  'command_skill_range_min,percent_increase': number
+  'command_skill_range_max,percent_increase': number
+  'security_skill_core,percent_increase': number
+  'security_skill_range_min,percent_increase': number
+  'security_skill_range_max,percent_increase': number
+  'medicine_skill_core,percent_increase': number
+  'replicator_fuel_cost,percent_decrease': number
+  'chroniton_max,increment': number
+  'crew_experience_training,percent_increase': number
+  'replicator_uses,increment': number
 }
 
 export interface StarbaseBuffsCapHash {
-  "replicator_uses,increment": number
-  "replicator_cost,percent_decrease": number
-  "chroniton_max,increment": number
-  "command_skill_core,percent_increase": number
-  "command_skill_range_min,percent_increase": number
-  "command_skill_range_max,percent_increase": number
-  "diplomacy_skill_core,percent_increase": number
-  "diplomacy_skill_range_min,percent_increase": number
-  "diplomacy_skill_range_max,percent_increase": number
-  "security_skill_core,percent_increase": number
-  "security_skill_range_min,percent_increase": number
-  "security_skill_range_max,percent_increase": number
-  "science_skill_core,percent_increase": number
-  "science_skill_range_min,percent_increase": number
-  "science_skill_range_max,percent_increase": number
-  "medicine_skill_core,percent_increase": number
-  "medicine_skill_range_min,percent_increase": number
-  "medicine_skill_range_max,percent_increase": number
-  "engineering_skill_core,percent_increase": number
-  "engineering_skill_range_min,percent_increase": number
-  "engineering_skill_range_max,percent_increase": number
+  'replicator_uses,increment': number
+  'replicator_cost,percent_decrease': number
+  'chroniton_max,increment': number
+  'command_skill_core,percent_increase': number
+  'command_skill_range_min,percent_increase': number
+  'command_skill_range_max,percent_increase': number
+  'diplomacy_skill_core,percent_increase': number
+  'diplomacy_skill_range_min,percent_increase': number
+  'diplomacy_skill_range_max,percent_increase': number
+  'security_skill_core,percent_increase': number
+  'security_skill_range_min,percent_increase': number
+  'security_skill_range_max,percent_increase': number
+  'science_skill_core,percent_increase': number
+  'science_skill_range_min,percent_increase': number
+  'science_skill_range_max,percent_increase': number
+  'medicine_skill_core,percent_increase': number
+  'medicine_skill_range_min,percent_increase': number
+  'medicine_skill_range_max,percent_increase': number
+  'engineering_skill_core,percent_increase': number
+  'engineering_skill_range_min,percent_increase': number
+  'engineering_skill_range_max,percent_increase': number
 }
 
-
 export interface CaptainsBridgeBuffsCapHash {
-  "ship_attack,percent_increase": number
-  "ship_shields,percent_increase": number
-  "fbb_player_ship_attack,percent_increase": number
-  "ship_accuracy,percent_increase": number
-  "ship_hull,percent_increase": number
-  "ship_evasion,percent_increase": number
-  "fbb_boss_ship_attack,percent_decrease": number
-  "ship_antimatter,percent_increase": number
+  'ship_attack,percent_increase': number
+  'ship_shields,percent_increase': number
+  'fbb_player_ship_attack,percent_increase': number
+  'ship_accuracy,percent_increase': number
+  'ship_hull,percent_increase': number
+  'ship_evasion,percent_increase': number
+  'fbb_boss_ship_attack,percent_decrease': number
+  'ship_antimatter,percent_increase': number
 }
 
 export interface AllBuffsCapHash {
-  "science_skill_core,percent_increase": number
-  "engineering_skill_core,percent_increase": number
-  "medicine_skill_range_min,percent_increase": number
-  "medicine_skill_range_max,percent_increase": number
-  "science_skill_range_min,percent_increase": number
-  "science_skill_range_max,percent_increase": number
-  "engineering_skill_range_min,percent_increase": number
-  "engineering_skill_range_max,percent_increase": number
-  "diplomacy_skill_core,percent_increase": number
-  "command_skill_core,percent_increase": number
-  "diplomacy_skill_range_min,percent_increase": number
-  "diplomacy_skill_range_max,percent_increase": number
-  "command_skill_range_min,percent_increase": number
-  "command_skill_range_max,percent_increase": number
-  "security_skill_core,percent_increase": number
-  "security_skill_range_min,percent_increase": number
-  "security_skill_range_max,percent_increase": number
-  "medicine_skill_core,percent_increase": number
-  "replicator_fuel_cost,percent_decrease": number
-  "chroniton_max,increment": number
-  "crew_experience_training,percent_increase": number
-  "replicator_uses,increment": number
-  "replicator_cost,percent_decrease": number
-  "ship_attack,percent_increase": number
-  "ship_shields,percent_increase": number
-  "fbb_player_ship_attack,percent_increase": number
-  "ship_accuracy,percent_increase": number
-  "ship_hull,percent_increase": number
-  "ship_evasion,percent_increase": number
-  "fbb_boss_ship_attack,percent_decrease": number
-  "ship_antimatter,percent_increase": number
+  'science_skill_core,percent_increase': number
+  'engineering_skill_core,percent_increase': number
+  'medicine_skill_range_min,percent_increase': number
+  'medicine_skill_range_max,percent_increase': number
+  'science_skill_range_min,percent_increase': number
+  'science_skill_range_max,percent_increase': number
+  'engineering_skill_range_min,percent_increase': number
+  'engineering_skill_range_max,percent_increase': number
+  'diplomacy_skill_core,percent_increase': number
+  'command_skill_core,percent_increase': number
+  'diplomacy_skill_range_min,percent_increase': number
+  'diplomacy_skill_range_max,percent_increase': number
+  'command_skill_range_min,percent_increase': number
+  'command_skill_range_max,percent_increase': number
+  'security_skill_core,percent_increase': number
+  'security_skill_range_min,percent_increase': number
+  'security_skill_range_max,percent_increase': number
+  'medicine_skill_core,percent_increase': number
+  'replicator_fuel_cost,percent_decrease': number
+  'chroniton_max,increment': number
+  'crew_experience_training,percent_increase': number
+  'replicator_uses,increment': number
+  'replicator_cost,percent_decrease': number
+  'ship_attack,percent_increase': number
+  'ship_shields,percent_increase': number
+  'fbb_player_ship_attack,percent_increase': number
+  'ship_accuracy,percent_increase': number
+  'ship_hull,percent_increase': number
+  'ship_evasion,percent_increase': number
+  'fbb_boss_ship_attack,percent_decrease': number
+  'ship_antimatter,percent_increase': number
 }
 
 export interface AllBuff {
@@ -1458,7 +1476,6 @@ export interface Tier {
   supremium_rewards: Reward[]
 }
 
-
 export interface Fleet {
   id: number
   rlevel: number
@@ -1492,7 +1509,7 @@ export interface Mailbox {
 }
 
 export interface Stores {
-  [key: string]: number;
+  [key: string]: number
 }
 
 export interface FleetInvite {
@@ -1560,7 +1577,7 @@ export interface Cwin {
   close: number
 }
 
-export interface Chats { }
+export interface Chats {}
 
 export interface Environment {
   tutorials: string[]
@@ -1652,7 +1669,7 @@ export interface Environment {
   fleet_boss_battles_enabled: boolean
   fleet_boss_battles: FleetBossBattles
   continuum_mission_enabled: boolean
-  continuum_containers?: ContinuumContainer[];
+  continuum_containers?: ContinuumContainer[]
   use_v2_activities_panel: boolean
   grant_current_season_entitlement: boolean
   should_reject_disabled_activities: boolean
@@ -1724,7 +1741,7 @@ export interface BattleStartDisabled {
 }
 
 export interface Message {
-  [key: string]: string;
+  [key: string]: string
 }
 
 export interface ScanningV2 {
@@ -1760,35 +1777,33 @@ export interface LinkImage {
 }
 
 export interface CrewRoster {
-  key: number;
-  rarity: number;
-  name: string;
-  total: number;
-  owned: number;
-  ownedPct: number;
-  portalPct?: number;
-  progress: number;
-  progressPct: number;
-  immortal: number;
-  unfrozen: number;
-  frozen: number;
-  dupes: number;
-
+  key: number
+  rarity: number
+  name: string
+  total: number
+  owned: number
+  ownedPct: number
+  portalPct?: number
+  progress: number
+  progressPct: number
+  immortal: number
+  unfrozen: number
+  frozen: number
+  dupes: number
 }
 export interface ContinuumContainer {
-  fill_cap: number;
-  fill_rate: FillRate;
-  cooldown_time: number;
-  cooldown_skip_cost_per_hour: number;
-  unlock_cost: number;
-  unlock_currency: string;
+  fill_cap: number
+  fill_rate: FillRate
+  cooldown_time: number
+  cooldown_skip_cost_per_hour: number
+  unlock_cost: number
+  unlock_currency: string
 }
 
 export interface FillRate {
-  quantity: number;
-  time_unit: string;
+  quantity: number
+  time_unit: string
 }
-
 
 export interface CrewCraftingRoot {
   id: number
@@ -1804,11 +1819,11 @@ export interface CraftingConfig {
 }
 
 export interface CostDiscountByPoolSize {
-  [key: string]: number;
+  [key: string]: number
 }
 
 export interface CostByRarity {
-  [key: string]: CraftCost;
+  [key: string]: CraftCost
 }
 
 export interface CraftCost {
@@ -1836,75 +1851,80 @@ export interface CraftingRegeneration {
 }
 
 export interface ObjectiveEventRoot {
-  id: number;
-  statuses: ObjectiveEvent[];
+  id: number
+  statuses: ObjectiveEvent[]
 }
 
-
 export interface ObjectiveEvent {
-  id: number;
-  symbol: string;
-  name: string;
-  description: string;
-  image: Icon;
-  rewards: Reward[];
-  participation_rewards: ParticipationReward[];
-  objective_archetype_ids: number[];
-  level_gate: number;
-  prerequisites: Prerequisite[];
-  announce_at: number;
-  start_at: number;
-  end_at: number;
-  opened: boolean;
-  concluded?: boolean;
-  completion_rewards_claimed?: boolean;
-  participation_rewards_claimed?: boolean;
-  eligible_for_completion_rewards?: boolean;
-  eligible_for_participation_rewards?: boolean;
-  objectives?: Objective[];
-  objective_archetypes: ObjectiveArchetype[];
+  id: number
+  symbol: string
+  name: string
+  description: string
+  image: Icon
+  rewards: Reward[]
+  participation_rewards: ParticipationReward[]
+  objective_archetype_ids: number[]
+  level_gate: number
+  prerequisites: Prerequisite[]
+  announce_at: number
+  start_at: number
+  end_at: number
+  opened: boolean
+  concluded?: boolean
+  completion_rewards_claimed?: boolean
+  participation_rewards_claimed?: boolean
+  eligible_for_completion_rewards?: boolean
+  eligible_for_participation_rewards?: boolean
+  objectives?: Objective[]
+  objective_archetypes: ObjectiveArchetype[]
 }
 
 export interface ParticipationReward {
-  type: number;
-  id: number;
-  symbol: string;
-  name: string;
-  full_name: string;
-  flavor: string;
-  icon: Icon;
-  quantity: number;
-  rarity: number;
+  type: number
+  id: number
+  symbol: string
+  name: string
+  full_name: string
+  flavor: string
+  icon: Icon
+  quantity: number
+  rarity: number
 }
 
 export interface Prerequisite {
-  dependent: string;
-  dependencies: string[];
+  dependent: string
+  dependencies: string[]
 }
 
 export interface Objective {
-  id: number;
-  archetype_id: number;
-  status: number;
-  current_value: number;
-  target_value: number;
-  milestone_claimed?: number;
+  id: number
+  archetype_id: number
+  status: number
+  current_value: number
+  target_value: number
+  milestone_claimed?: number
 }
 
-export type OERefType = CrewMember | PlayerCrew | ReferenceShip | Ship | StaticFaction | { id: number, name: string, symbol: string };
+export type OERefType =
+  | CrewMember
+  | PlayerCrew
+  | ReferenceShip
+  | Ship
+  | StaticFaction
+  | { id: number; name: string; symbol: string }
 
 export interface ObjectiveArchetype {
-  id: number;
-  symbol: string;
-  type: string;
-  area: string;
-  milestones: ObjectiveMilestone[];
-  target?: OERefType;
-  objective?: Objective;
+  id: number
+  symbol: string
+  type: string
+  area: string
+  milestones: ObjectiveMilestone[]
+  target?: OERefType
+  objective?: Objective
 }
 
 export interface ObjectiveMilestone {
-  rewards: Reward[];
-  requirement: string;
-  target_value: number;
+  rewards: Reward[]
+  requirement: string
+  target_value: number
 }

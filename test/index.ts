@@ -1,352 +1,424 @@
-'use strict';
+'use strict'
 
-import {Guild} from "discord.js";
+import { Guild } from 'discord.js'
 
-process.env.NODE_ENV = "test";
+process.env.NODE_ENV = 'test'
 
-const assert = require('assert');
-const expect = require('expect.js');
-const _ = require('underscore');
-const cli   = require('../lib/cli');
+const assert = require('assert')
+const expect = require('expect.js')
+const _ = require('underscore')
+const cli = require('../lib/cli')
 
-import cfg from '../config';
-import * as api from '../lib/Interfaces';
+import cfg from '../config'
+import * as api from '../lib/Interfaces'
 
 // Override env for testing
-cfg.nedbpath = cfg.nedbpath.replace('stt.json','test_stt.json');
-const db = require('../lib/crewdb');
-console.log(cfg.nedbpath);
-console.log(cfg.dataPath);
+cfg.nedbpath = cfg.nedbpath.replace('stt.json', 'test_stt.json')
+const db = require('../lib/crewdb')
+console.log(cfg.nedbpath)
+console.log(cfg.dataPath)
 
-const fleets = require( "../lib/fleetdb");
+const fleets = require('../lib/fleetdb')
 
 function defaultContext() {
-  const channel:Record<string, any> = {id: '-1', name:'test channel', send:()=>{}}
-  const sender = {send: () => {}}
+  const channel: Record<string, any> = {
+    id: '-1',
+    name: 'test channel',
+    send: () => {},
+  }
+  const sender = { send: () => {} }
   return {
-    author: {username:'test', id: '-1'},
+    author: { username: 'test', id: '-1' },
     channel,
     fleetId: '-1',
-    isEntitled: function(){return true;},
-    emojify : (x:string)=>x,
-    boldify: (x:string)=>x,
-    sender
+    isEntitled: function () {
+      return true
+    },
+    emojify: (x: string) => x,
+    boldify: (x: string) => x,
+    sender,
   }
 }
 
-
 describe('gotBot', function () {
-
-  function sendCommand(cmd:string, context?:api.Context|any) : Promise<string> {
-
-    assert(cli.isCliSentence(cmd));
+  function sendCommand(
+    cmd: string,
+    context?: api.Context | any
+  ): Promise<string> {
+    assert(cli.isCliSentence(cmd))
     if (context == null) {
       context = defaultContext()
     }
-    return cli.sendCommand(cmd,context);
+    return cli.sendCommand(cmd, context)
   }
 
-  describe('stats command', function() {
-
+  describe('stats command', function () {
     it('should have Rakal Troi stats!', function () {
-      const cmd = '-dev bot stats rakal';
-      sendCommand(cmd).then(function(msg) {
-        expect(msg).to.contain('Rakal Troi');
-      });
-    });
+      const cmd = '-dev bot stats rakal'
+      sendCommand(cmd).then(function (msg) {
+        expect(msg).to.contain('Rakal Troi')
+      })
+    })
 
     it('should not have unknown stats!', function (done) {
-      const cmd = '-dev bot stats unknownnnn';
-      sendCommand(cmd).then(data => {
-        expect(data).to.contain('don\'t know any matching character from unknownnnn');
-        done();
-      }).catch(done);
-    });
+      const cmd = '-dev bot stats unknownnnn'
+      sendCommand(cmd)
+        .then((data) => {
+          expect(data).to.contain(
+            "don't know any matching character from unknownnnn"
+          )
+          done()
+        })
+        .catch(done)
+    })
 
-    it('should show choices for multi-match', function(done) {
-      sendCommand('-dev bot stats mirr sisko').then(data => {
-        expect(data).to.contain('2 character matches. Did you mean');
-        done();
-      }).catch(done);
-    });
+    it('should show choices for multi-match', function (done) {
+      sendCommand('-dev bot stats mirr sisko')
+        .then((data) => {
+          expect(data).to.contain('2 character matches. Did you mean')
+          done()
+        })
+        .catch(done)
+    })
 
-    it('should match exact names', function(done) {
-      sendCommand('-dev bot stats mirror sisko').then(data => {
-        expect(data).to.contain('Mirror Sisko');
-        expect(data).to.contain('Scoundrel');
-        done();
-      }).catch(done);
-    });
-  });
+    it('should match exact names', function (done) {
+      sendCommand('-dev bot stats mirror sisko')
+        .then((data) => {
+          expect(data).to.contain('Mirror Sisko')
+          expect(data).to.contain('Scoundrel')
+          done()
+        })
+        .catch(done)
+    })
+  })
 
-  describe('estats command', function() {
-    it('should return an embed object', function(done) {
-      sendCommand('-dev bot estats mirror sisko').then(data => {
-        expect(data).to.be('EMBED');
-        done();
-      }).catch(done);
-    });
-  });
+  describe('estats command', function () {
+    it('should return an embed object', function (done) {
+      sendCommand('-dev bot estats mirror sisko')
+        .then((data) => {
+          expect(data).to.be('EMBED')
+          done()
+        })
+        .catch(done)
+    })
+  })
 
+  it('should fail unknown commands', function (done) {
+    const cmd = '-dev bot unknowncommand'
+    sendCommand(cmd)
+      .then((data) => {
+        expect(data).to.contain('unknown command unknowncommand')
+        done()
+      })
+      .catch(done)
+  })
 
-  it('should fail unknown commands', function(done) {
-    const cmd = '-dev bot unknowncommand';
-    sendCommand(cmd).then(data => {
-      expect(data).to.contain('unknown command unknowncommand');
-      done();
-    }).catch(done);
-  });
+  describe('best command', function () {
+    it('should best base eng', function (done) {
+      sendCommand('-dev bot best base eng')
+        .then((data) => {
+          expect(data).to.contain('Ahdar') // Best at time of writing - should stay top 5 for a while
+          done()
+        })
+        .catch(done)
+    })
+    it('should best gauntlet med', function (done) {
+      sendCommand('-dev bot best gauntlet med')
+        .then((data) => {
+          expect(data).to.contain('Mirror Phlox') // Best at time of writing - should stay top 5 for a while
+          done()
+        })
+        .catch(done)
+    })
+    it('should best gauntlet med sec', function (done) {
+      sendCommand('-dev bot best gauntlet med sec')
+        .then((data) => {
+          expect(data).to.contain('Mirror Phlox') // Best at time of writing - should stay top 5 for a while
+          done()
+        })
+        .catch(done)
+    })
+    it('should best base cmd -f1', function (done) {
+      sendCommand('-dev bot best base cmd -f1')
+        .then((data) => {
+          expect(data).to.contain('Pah-wraith Keiko') // Best at time of writing - should stay top 5 for a while
+          done()
+        })
+        .catch(done)
+    })
+    it('should best gauntlet', function (done) {
+      sendCommand('-dev bot best gauntlet')
+        .then((data) => {
+          expect(data).to.contain('Locutus') // Best at time of writing - should stay top 5 for a while
+          done()
+        })
+        .catch(done)
+    })
+    it('should validate query type', function (done) {
+      sendCommand('-dev bot best foo')
+        .then((data) => {
+          expect(data).to.contain('Must be base|gauntlet') // Best at time of writing - should stay top 5 for a while
+          done()
+        })
+        .catch(done)
+    })
+    it('should validate skill type', function (done) {
+      sendCommand('-dev bot best base foo')
+        .then((data) => {
+          expect(data).to.contain('Must be cmd|dip') // Best at time of writing - should stay top 5 for a while
+          done()
+        })
+        .catch(done)
+    })
+  })
+  describe('search command', function () {
+    it('should find two kais', function (done) {
+      const cmd = '-dev bot search kai'
+      sendCommand(cmd)
+        .then((data) => {
+          expect(data).to.contain('2 results for Kai')
+          expect(data).to.contain('Kai Opaka')
+          expect(data).to.contain('Kai Winn')
+          done()
+        })
+        .catch(done)
+    })
 
-  describe('best command', function() {
-    it('should best base eng', function(done) {
-      sendCommand('-dev bot best base eng').then(data => {
-        expect(data).to.contain('Ahdar'); // Best at time of writing - should stay top 5 for a while
-        done();
-      }).catch(done);
-    });
-    it('should best gauntlet med', function(done) {
-      sendCommand('-dev bot best gauntlet med').then(data => {
-        expect(data).to.contain('Mirror Phlox'); // Best at time of writing - should stay top 5 for a while
-        done();
-      }).catch(done);
-    });
-    it('should best gauntlet med sec', function(done) {
-      sendCommand('-dev bot best gauntlet med sec').then(data => {
-        expect(data).to.contain('Mirror Phlox'); // Best at time of writing - should stay top 5 for a while
-        done();
-      }).catch(done);
-    });
-    it('should best base cmd -f1', function(done) {
-      sendCommand('-dev bot best base cmd -f1').then(data => {
-        expect(data).to.contain('Pah-wraith Keiko'); // Best at time of writing - should stay top 5 for a while
-        done();
-      }).catch(done);
-    });
-    it('should best gauntlet', function(done) {
-      sendCommand('-dev bot best gauntlet').then(data => {
-        expect(data).to.contain('Locutus'); // Best at time of writing - should stay top 5 for a while
-        done();
-      }).catch(done);
-    });
-    it('should validate query type', function(done) {
-      sendCommand('-dev bot best foo').then(data => {
-        expect(data).to.contain('Must be base|gauntlet'); // Best at time of writing - should stay top 5 for a while
-        done();
-      }).catch(done);
-    });
-    it('should validate skill type', function(done) {
-      sendCommand('-dev bot best base foo').then(data => {
-        expect(data).to.contain('Must be cmd|dip'); // Best at time of writing - should stay top 5 for a while
-        done();
-      }).catch(done);
-    });
-  });
-  describe('search command', function() {
-    it('should find two kais', function(done) {
-      const cmd = '-dev bot search kai';
-      sendCommand(cmd).then(data => {
-        expect(data).to.contain('2 results for Kai');
-        expect(data).to.contain('Kai Opaka');
-        expect(data).to.contain('Kai Winn');
-        done();
-      }).catch(done);
-    });
+    it('should find tuvix under both tuvok', function (done) {
+      const cmd = '-dev bot search tuvok'
+      sendCommand(cmd)
+        .then((data) => {
+          expect(data).to.contain('Tuvix')
+          done()
+        })
+        .catch(done)
+    })
 
-    it('should find tuvix under both tuvok', function(done) {
-      const cmd = '-dev bot search tuvok';
-      sendCommand(cmd).then(data => {
-        expect(data).to.contain('Tuvix');
-        done();
-      }).catch(done);
-    });
+    it('and neelix', function (done) {
+      const cmd = '-dev bot search tuvok'
+      sendCommand(cmd)
+        .then((data) => {
+          expect(data).to.contain('Tuvix')
+          done()
+        })
+        .catch(done)
+    })
 
-    it('and neelix', function(done) {
-      const cmd = '-dev bot search tuvok';
-      sendCommand(cmd).then(data => {
-        expect(data).to.contain('Tuvix');
-        done();
-      }).catch(done);
-    });
+    it('should not have Mirror Garak in klingon', function (done) {
+      const cmd = '-dev bot search klingon'
+      sendCommand(cmd)
+        .then((data) => {
+          expect(data).not.to.contain('Mirror Garak')
+          done()
+        })
+        .catch(done)
+    })
+  })
 
-    it('should not have Mirror Garak in klingon', function(done) {
-      const cmd = '-dev bot search klingon';
-      sendCommand(cmd).then(data => {
-        expect(data).not.to.contain('Mirror Garak');
-        done();
-      }).catch(done);
-    });
-  });
+  it('should handle foo', function (done) {
+    const cmd = '-dev bot foo'
+    sendCommand(cmd)
+      .then((data) => {
+        expect(data).to.contain(
+          'Hi test (-1). Thanks for sending in channel test channel'
+        )
+        done()
+      })
+      .catch(done)
+  })
+  describe('gaunt command', function () {
+    it('should calculate even match', function (done) {
+      const cmd = '-dev bot gaunt 5 100 900 100 900 5 100 900 100 900'
+      sendCommand(cmd)
+        .then((data) => {
+          // Not deterministic but this should be good enough to make the test stable
+          expect(data).to.match(/You would win (49|50|51)% of the time/)
+          done()
+        })
+        .catch(done)
+    })
+  })
 
-  it('should handle foo', function(done) {
-    const cmd = '-dev bot foo';
-    sendCommand(cmd).then(data => {
-      expect(data).to.contain('Hi test (-1). Thanks for sending in channel test channel');
-      done();
-    }).catch(done);
-  });
-  describe('gaunt command',function(){
-    it('should calculate even match', function(done) {
-      const cmd = '-dev bot gaunt 5 100 900 100 900 5 100 900 100 900';
-      sendCommand(cmd).then(data => {
-        // Not deterministic but this should be good enough to make the test stable
-        expect(data).to.match(/You would win (49|50|51)% of the time/);
-        done();
-      }).catch(done);
-    });
-  });
+  describe('hello command', function () {
+    it('should say hello', function (done) {
+      sendCommand('-dev bot hello')
+        .then((data) => {
+          expect(data).to.contain('Hi test (-1)')
+          done()
+        })
+        .catch(done)
+    })
+  })
 
-  describe('hello command', function() {
-    it('should say hello', function(done) {
-      sendCommand('-dev bot hello').then(data=>{
-        expect(data).to.contain('Hi test (-1)');
-        done();
-      }).catch(done);
-    });
-  });
+  describe('crew commands', function () {
+    it('should list crew', function (done) {
+      sendCommand('-dev bot crew list')
+        .then((data) => {
+          expect(data).to.match(/you have these/)
+          done()
+        })
+        .catch(done)
+    })
 
-  describe('crew commands',function(){
-    it('should list crew', function(done){
-      sendCommand('-dev bot crew list').then(data => {
-        expect(data).to.match(/you have these/);
-        done();
-      }).catch(done);
+    it('should add crew', function (done) {
+      sendCommand('-dev bot crew add rog win -s2')
+        .then((data) => {
+          expect(data).to.match(/Hi test. I have added Rogue Kai Winn/)
+          expect(data).to.contain('cmd 643')
+          done()
+        })
+        .catch(done)
+    })
 
-    });
+    it('should add more crew', function (done) {
+      sendCommand('-dev bot crew add rakal -f')
+        .then((data) => {
+          expect(data).to.match(/Hi test. I have added Rakal Troi/m)
+          expect(data).to.contain('cmd 521')
+          done()
+        })
+        .catch(done)
+    })
 
-    it('should add crew', function(done) {
-      sendCommand('-dev bot crew add rog win -s2').then(data => {
-        expect(data).to.match(/Hi test. I have added Rogue Kai Winn/);
-        expect(data).to.contain('cmd 643');
-        done();
-      }).catch(done);
-    });
+    it('should fully equip crew to a fuse level', function (done) {
+      sendCommand('-dev bot equip rog win -s3')
+        .then((data) => {
+          expect(data).to.match(/updated stats for Rogue Kai Winn/m)
+          expect(data).to.contain('cmd 721')
+          done()
+        })
+        .catch(done)
+    })
 
-    it('should add more crew', function(done) {
-      sendCommand('-dev bot crew add rakal -f').then(data => {
-        expect(data).to.match(/Hi test. I have added Rakal Troi/m);
-        expect(data).to.contain('cmd 521');
-        done();
-      }).catch(done);
-    });
+    it('should fully equip crew to a fuse and skill level', function (done) {
+      sendCommand('-dev bot equip rog win -s3 -l1')
+        .then((data) => {
+          expect(data).to.match(/updated stats for Rogue Kai Winn/m)
+          expect(data).to.contain('cmd 70 ')
+          done()
+        })
+        .catch(done)
+    })
 
+    it('should save stars and level in char', function (done) {
+      const qry = { _id: '-1' }
+      db.users.findOne(qry, function (err: any, doc: any) {
+        const name = 'Rogue Kai Winn'
+        expect(doc).to.be.ok()
+        var char = _.find(doc.crew, (x: any) => x.name === name)
+        expect(char).to.be.ok()
+        expect(char.level).to.be(1)
+        expect(char.stars).to.be(3)
+        expect(char.maxstars).to.be(5)
+        expect(char.cmd.base).to.be(70)
+        done()
+      })
+    })
 
-    it('should fully equip crew to a fuse level', function(done) {
-      sendCommand('-dev bot equip rog win -s3').then(data => {
-        expect(data).to.match(/updated stats for Rogue Kai Winn/m);
-        expect(data).to.contain('cmd 721');
-        done();
-      }).catch(done);
-    });
+    it('should *not* vault crew not in roster', function (done) {
+      sendCommand('-dev bot crew vault cap jane')
+        .then((data) => {
+          expect(data).to.contain('There is no Captain Janeway in your roster')
+          done()
+        })
+        .catch(done)
+    })
 
-    it('should fully equip crew to a fuse and skill level', function(done) {
-      sendCommand('-dev bot equip rog win -s3 -l1').then(data => {
-        expect(data).to.match(/updated stats for Rogue Kai Winn/m);
-        expect(data).to.contain('cmd 70 ');
-        done();
-      }).catch(done);
-    });
+    it('should vault someone in the roster', function (done) {
+      sendCommand('-dev bot crew vault kai winn')
+        .then((data) => {
+          expect(data).to.contain('Rogue Kai Winn has been added to your vault')
+          done()
+        })
+        .catch(done)
+    })
 
-    it('should save stars and level in char', function(done) {
-      const qry = { _id: '-1' };
-      db.users.findOne(qry, function (err:any, doc:any) {
-        const name = 'Rogue Kai Winn';
-        expect(doc).to.be.ok();
-        var char = _.find(doc.crew, (x:any)=>x.name === name);
-        expect(char).to.be.ok();
-        expect(char.level).to.be(1);
-        expect(char.stars).to.be(3);
-        expect(char.maxstars).to.be(5);
-        expect(char.cmd.base).to.be(70);
-        done();
-      });
-    });
+    it('should *not* vault someone already in the vault', function (done) {
+      sendCommand('-dev bot crew vault kai winn')
+        .then((data) => {
+          expect(data).to.contain('There is no Rogue Kai Winn in your roster')
+          done()
+        })
+        .catch(done)
+    })
 
-    it('should *not* vault crew not in roster', function(done) {
-      sendCommand('-dev bot crew vault cap jane').then(data => {
-        expect(data).to.contain('There is no Captain Janeway in your roster');
-        done();
-      }).catch(done);
-    });
+    it('should unvault someone already in the vault', function (done) {
+      sendCommand('-dev bot crew unvault kai winn')
+        .then((data) => {
+          expect(data).to.contain('has been taken out of your vault')
+          const qry = { _id: '-1' }
+          db.users.findOne(qry, function (err: any, doc: any) {
+            const name = 'Rogue Kai Winn'
+            expect(doc).to.be.ok()
+            var char = _.find(doc.crew, (x: any) => x.name === name)
+            expect(char).to.be.ok()
+            expect(char.level).to.be(100)
+            expect(char.stars).to.be(5)
+            done()
+          })
+        })
+        .catch(done)
+    })
 
-    it ('should vault someone in the roster', function(done) {
-      sendCommand('-dev bot crew vault kai winn').then(data => {
-        expect(data).to.contain('Rogue Kai Winn has been added to your vault');
-        done();
-      }).catch(done);
-    });
-
-    it ('should *not* vault someone already in the vault', function(done) {
-      sendCommand('-dev bot crew vault kai winn').then(data => {
-        expect(data).to.contain('There is no Rogue Kai Winn in your roster');
-        done();
-      }).catch(done);
-    });
-
-    it ('should unvault someone already in the vault', function(done) {
-      sendCommand('-dev bot crew unvault kai winn').then(data => {
-        expect(data).to.contain('has been taken out of your vault');
-        const qry = { _id: '-1' };
-        db.users.findOne(qry, function (err:any, doc:any) {
-          const name = 'Rogue Kai Winn';
-          expect(doc).to.be.ok();
-          var char = _.find(doc.crew, (x:any)=>x.name === name);
-          expect(char).to.be.ok();
-          expect(char.level).to.be(100);
-          expect(char.stars).to.be(5);
-          done();
-        });
-      }).catch(done);
-    });
-
-    describe('gcalc command', function() {
+    describe('gcalc command', function () {
       // FIXME: This test can't pass because we haven't added any crew
-      xit('should provide analysis for your crew', function(done) {
-        this.timeout(10000); // Combinatorics is slow
-        sendCommand('-dev bot gcalc').then(data=>{
-          expect(data).to.contain('Gauntlet strength 179458');
-          done();
-        }).catch(done);
-      });
+      xit('should provide analysis for your crew', function (done) {
+        this.timeout(10000) // Combinatorics is slow
+        sendCommand('-dev bot gcalc')
+          .then((data) => {
+            expect(data).to.contain('Gauntlet strength 179458')
+            done()
+          })
+          .catch(done)
+      })
 
-      it('should provide analysis for your best lineup', function(done) {
-        this.timeout(10000); // Combinatorics is slow
-        sendCommand('-dev bot gcalc --best').then(data=>{
-          // Testing that gauntlet.json was picked up
-          expect(data).to.contain('Your best 5 crew for dip and traits Cultural Figure, Villain, Inspiring');
+      it('should provide analysis for your best lineup', function (done) {
+        this.timeout(10000) // Combinatorics is slow
+        sendCommand('-dev bot gcalc --best')
+          .then((data) => {
+            // Testing that gauntlet.json was picked up
+            expect(data).to.contain(
+              'Your best 5 crew for dip and traits Cultural Figure, Villain, Inspiring'
+            )
 
-          // Testing for a good calculation
-          expect(data).to.contain('Guinan');
+            // Testing for a good calculation
+            expect(data).to.contain('Guinan')
 
-          done();
-        }).catch(done);
-      });
-    });
+            done()
+          })
+          .catch(done)
+      })
+    })
 
-    it('should remove crew', function(done) {
-      sendCommand('-dev bot crew remove rog win').then(data => {
-        expect(data).to.match(/I have removed Rogue Kai Winn/);
-        done();
-      }).catch(done);
-    });
+    it('should remove crew', function (done) {
+      sendCommand('-dev bot crew remove rog win')
+        .then((data) => {
+          expect(data).to.match(/I have removed Rogue Kai Winn/)
+          done()
+        })
+        .catch(done)
+    })
 
+    it('should search', function (done) {
+      sendCommand('-dev bot crew search troi')
+        .then((data) => {
+          expect(data).to.match(/1 matches for Troi/)
+          done()
+        })
+        .catch(done)
+    })
 
-    it('should search', function(done) {
-      sendCommand('-dev bot crew search troi').then(data => {
-        expect(data).to.match(/1 matches for Troi/);
-        done();
-      }).catch(done);
-    });
+    it('should remove more crew', function (done) {
+      sendCommand('-dev bot crew remove rakal')
+        .then((data) => {
+          expect(data).to.match(/I have removed Rakal Troi/)
+          done()
+        })
+        .catch(done)
+    })
+  })
 
-    it('should remove more crew', function(done) {
-      sendCommand('-dev bot crew remove rakal').then(data => {
-        expect(data).to.match(/I have removed Rakal Troi/);
-        done();
-      }).catch(done);
-    });
-
-  });
-
-  describe('voyage command', function() {
+  describe('voyage command', function () {
     /* depends on crew reset
     it('should require enough crew', function(done) {
       sendCommand('-dev bot voyage cmd dip').then(data=> {
@@ -355,158 +427,179 @@ describe('gotBot', function () {
       }).catch(done);
     });*/
 
-    it('should handle best crew', function(done) {
+    it('should handle best crew', function (done) {
       sendCommand('-dev bot voyage cmd dip --best')
-      .then(data=> {
-        expect(data).to.contain('Your best crew');
-        done();
-      }).catch(done);
-    });
+        .then((data) => {
+          expect(data).to.contain('Your best crew')
+          done()
+        })
+        .catch(done)
+    })
+  })
 
-  });
+  describe('voytime command', function () {
+    it('should calculate antimatter levels', function (done) {
+      sendCommand('-dev bot voytime 2000 2000 2000 2000 2000 2000 2500 3')
+        .then((data) => {
+          expect(data).to.contain('795 antimatter')
+          done()
+        })
+        .catch(done)
+    })
 
-  describe('voytime command', function() {
-    it('should calculate antimatter levels', function(done) {
-      sendCommand('-dev bot voytime 2000 2000 2000 2000 2000 2000 2500 3').then(data=> {
-        expect(data).to.contain('795 antimatter');
-        done();
-      }).catch(done);
-    });
+    it('should solve for 0 antimatter', function (done) {
+      sendCommand('-dev bot voytime 2000 2000 2000 2000 2000 2000')
+        .then((data) => {
+          expect(data).to.contain('Estimated voyage length of 3h 37m')
+          done()
+        })
+        .catch(done)
+    })
+  })
 
-    it('should solve for 0 antimatter', function(done) {
-      sendCommand('-dev bot voytime 2000 2000 2000 2000 2000 2000').then(data=> {
-        expect(data).to.contain('Estimated voyage length of 3h 37m');
-        done();
-      }).catch(done);
-    });
+  describe('farm command', function () {
+    it('should match strings', function (done) {
+      sendCommand('-dev bot farm 0 desktop monitor')
+        .then((data) => {
+          expect(data).to.contain('Did you mean')
+          done()
+        })
+        .catch(done)
+    })
 
-  });
-
-
-
-  describe('farm command', function() {
-    it('should match strings', function(done) {
-      sendCommand('-dev bot farm 0 desktop monitor').then(data=>{
-        expect(data).to.contain('Did you mean');
-        done();
-      }).catch(done);
-    });
-
-    it('should farm desktop monitor', function(done) {
-      sendCommand('-dev bot farm 0 desktop monitor tng').then(data=>{
-        expect(data).to.contain('```');
-        done();
-      }).catch(done);
-    });
-  });
-
+    it('should farm desktop monitor', function (done) {
+      sendCommand('-dev bot farm 0 desktop monitor tng')
+        .then((data) => {
+          expect(data).to.contain('```')
+          done()
+        })
+        .catch(done)
+    })
+  })
 
   describe('boss command', async () => {
-    it('should set correct difficulty', async ()=>{
+    it('should set correct difficulty', async () => {
       const fleet = await fleets.setBossDifficulty('-1', 5)
-      expect(fleet).to.be.ok();
+      expect(fleet).to.be.ok()
     })
 
     it('should handle boss command', async () => {
       const data = await sendCommand('-dev bot boss')
-      expect(data).to.contain('Showing 25 of 43 eligible');
+      expect(data).to.contain('Showing 25 of 43 eligible')
     })
 
-    it('should handle boss add', async() => {
+    it('should handle boss add', async () => {
       const data = await sendCommand('-dev bot boss add iden')
       expect(data).to.contain('Iden will be excluded')
     })
 
-    it('should handle boss reset', async() => {
+    it('should handle boss reset', async () => {
       const data = await sendCommand('-dev bot boss reset')
       expect(data).to.contain('is reset')
     })
-  });
+  })
 
-  describe('manual cmd',  () => {
-    it('should prevent manual for non-admins', async() => {
-      const data = await sendCommand('-dev bot manual');
+  describe('manual cmd', () => {
+    it('should prevent manual for non-admins', async () => {
+      const data = await sendCommand('-dev bot manual')
       expect(data).to.match(/^Only the server administrator can run this/)
     })
 
-    it ('should show manual for admins', async() => {
+    it('should show manual for admins', async () => {
       const ctx = defaultContext() as unknown as api.Context
 
-      ctx.guild= {ownerId: '-1'} as unknown as Guild;
-      const data = await sendCommand('-dev bot manual', ctx);
+      ctx.guild = { ownerId: '-1' } as unknown as Guild
+      const data = await sendCommand('-dev bot manual', ctx)
       expect(data).to.match(/^Server manual done/)
     })
   })
 
-  describe('event cmd', function() {
-    it('should reset event chars', function(done) {
-      sendCommand('-dev bot event reset').then(data => {
-        expect(data).to.be('Event crew reset');
-      }).then(data => sendCommand('-dev bot event')).then(data => {
-        expect(data).to.contain('0 matches');
-        done();
-      }).catch(done);
-    });
+  describe('event cmd', function () {
+    it('should reset event chars', function (done) {
+      sendCommand('-dev bot event reset')
+        .then((data) => {
+          expect(data).to.be('Event crew reset')
+        })
+        .then((data) => sendCommand('-dev bot event'))
+        .then((data) => {
+          expect(data).to.contain('0 matches')
+          done()
+        })
+        .catch(done)
+    })
 
-    it('should add and list event chars', function(done) {
-      sendCommand('-dev bot event add troi').then(data => {
-        expect(data).to.contain('Deanna Troi');
-      }).then(data => sendCommand('-dev bot crew add rakal troi -ff')).then(data => {
-      }).then(data => sendCommand('-dev bot crew vault rakal troi')).then(data => {
-      }).then(data => sendCommand('-dev bot event')).then(data => {
-        expect(data).to.contain('R (Troi)');
-        done();
-      }).catch(done);
-    });
+    it('should add and list event chars', function (done) {
+      sendCommand('-dev bot event add troi')
+        .then((data) => {
+          expect(data).to.contain('Deanna Troi')
+        })
+        .then((data) => sendCommand('-dev bot crew add rakal troi -ff'))
+        .then((data) => {})
+        .then((data) => sendCommand('-dev bot crew vault rakal troi'))
+        .then((data) => {})
+        .then((data) => sendCommand('-dev bot event'))
+        .then((data) => {
+          expect(data).to.contain('R (Troi)')
+          done()
+        })
+        .catch(done)
+    })
+  })
+})
 
-  });
+describe('missions', function () {
+  let missions = require('../lib/missions')
 
-});
+  it('should have an item list', function (done) {
+    missions.ready
+      .then(function () {
+        let all = missions.allMissionItems()
+        expect(all.length).to.be.greaterThan(200) // 202 at time of writing
+        expect(all).to.contain('Polyalloy')
+        done()
+      })
+      .catch(done)
+  })
 
-describe('missions', function() {
-  let missions = require('../lib/missions');
+  it('should match items', function (done) {
+    missions.ready
+      .then(function () {
+        missions.matchItem(
+          function (err: any, name: string) {
+            expect(err).to.be(null)
+            expect(name).to.be('Desktop Monitor (TNG)')
+            done()
+          },
+          'desktop',
+          'monitor',
+          'tng'
+        )
+      })
+      .catch(done)
+  })
 
-  it('should have an item list', function(done) {
-    missions.ready.then(function() {
-      let all = missions.allMissionItems();
-      expect(all.length).to.be.greaterThan(200); // 202 at time of writing
-      expect(all).to.contain('Polyalloy');
-      done();
-    }).catch(done);
+  it('should fuzzy search items', function (done) {
+    missions.ready
+      .then(function () {
+        missions.matchItem(function (err: any, name: any) {
+          expect(err).to.be(null)
+          expect(name).to.be('Polyalloy')
+          done()
+        }, 'polya')
+      })
+      .catch(done)
+  })
 
-  });
-
-  it('should match items', function(done) {
-    missions.ready.then(function() {
-      missions.matchItem(function(err:any, name:string) {
-        expect(err).to.be(null);
-        expect(name).to.be('Desktop Monitor (TNG)');
-        done();
-      }, 'desktop','monitor','tng');
-    }).catch(done);
-  });
-
-
-  it('should fuzzy search items', function(done) {
-    missions.ready.then(function() {
-      missions.matchItem(function(err:any, name:any) {
-        expect(err).to.be(null);
-        expect(name).to.be('Polyalloy');
-        done();
-      }, 'polya');
-    }).catch(done);
-  });
-
-  it('should query for an item', function(done) {
-    missions.ready.then(function() {
-      const match = missions.findByStarItem(0, 'Desktop Monitor (TNG)');
-      expect(match.length).to.be(1);
-      match.forEach((m:any) => {
-        console.log(`${m.name} ${m.level} ${m.cost}`);
-      });
-      done();
-    }).catch(done);
-
-  });
-
-});
+  it('should query for an item', function (done) {
+    missions.ready
+      .then(function () {
+        const match = missions.findByStarItem(0, 'Desktop Monitor (TNG)')
+        expect(match.length).to.be(1)
+        match.forEach((m: any) => {
+          console.log(`${m.name} ${m.level} ${m.cost}`)
+        })
+        done()
+      })
+      .catch(done)
+  })
+})

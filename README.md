@@ -1,18 +1,24 @@
 # gotbot [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
-> 
+
+>
+
 ## Introduction
+
 This is probably the most advanced Star Trek Timelines chat bot in existence. It supports all the basic commands you'd expect from most similar bots such as
+
 - Basic crew stats
 - Extended crew stats including rankings and special links
 - Crew search by traits or character type
 
 More advanced query capability such as
+
 - Mission drop rates
 - Gauntlet success calculator
 - Voyage mission time estimator
 - A user manual for the discord administrator
 
 There are killer features under development including
+
 - Crew selection and management - keep track of all your crew
 - Gauntlet crew optimizer
 - Voyage crew optimizer
@@ -24,7 +30,8 @@ To reach the author for help or thanks or other issues, join Discord at https://
 Bug reports in the code and pull requests are welcome but any requests for help will be closed with redirection to Discord
 
 ## Why open source?
-This bot has killer features made especially for the author's fleet the Guardians of Tomorrow. But we do want to give a 
+
+This bot has killer features made especially for the author's fleet the Guardians of Tomorrow. But we do want to give a
 better STT experience for the whole community. The killer features could have been kept strictly secret but here are the
 motivations
 
@@ -36,6 +43,7 @@ It is my hope that by open sourcing these secrets, when the day comes this autho
 ## Installation
 
 Pre-requisite knowledge for developers
+
 - Typical node.js setup and installation
 - discord.js, including obtaining Discord tokens
 - cron/supervise and other schedulers
@@ -45,9 +53,11 @@ If you need help on the above, please RTM. Otherwise proceed...
 Node 12 or higher is required!
 
 Clone this repository, and run:
+
 ```sh
 $ npm install && npm test
 ```
+
 Copy `test-data/password.js` to `data/password.js` and supply valid Discord bot tokens
 
 Update values in `config.ts`
@@ -59,8 +69,9 @@ The bot requires the GUILD_MEMBERS privileged intent so please enable that for y
 ```sh
 $ ./gotcron
 $ node lib/cachewiki.js
-$ npx ts-node lib/index.ts 
+$ npx ts-node lib/index.ts
 ```
+
 If you have daemontools installed, you can also do `supervise .` to run the node apps. You can use cron to schedule `gotcron` to be run at an appropriate interval
 
 ## Docker support
@@ -77,7 +88,6 @@ Obviously, this is very fiddly so it's best to get a bash shell up against the c
 
 Copyright © [Kevin Tam](http://github.com/glorat) 2018
 Licensed under the GNU Affero General Public License v.3.0
-
 
 [npm-image]: https://badge.fury.io/js/gotbot.svg
 [npm-url]: https://npmjs.org/package/gotbot

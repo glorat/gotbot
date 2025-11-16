@@ -1,46 +1,46 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder } from 'discord.js'
 
-const Clapp = require("../modules/clapp-discord");
-import * as _ from "underscore";
-import chars = require("../chars");
+const Clapp = require('../modules/clapp-discord')
+import * as _ from 'underscore'
+import chars = require('../chars')
 //import cfg from '../../config';
-import * as API from "../Interfaces";
-import { argOrFlagToBuilder } from "../cli";
+import * as API from '../Interfaces'
+import { argOrFlagToBuilder } from '../cli'
 
-const DATACORE_CREW_URL = "https://datacore.app/crew";
+const DATACORE_CREW_URL = 'https://datacore.app/crew'
 
 const flags = [
   {
-    name: "names",
-    desc: "search string",
-    type: "string",
-    default: "",
+    name: 'names',
+    desc: 'search string',
+    type: 'string',
+    default: '',
     required: true, // only respected for slash commands
   },
   {
-    name: "stars",
-    desc: "Number of fused stars to query at",
-    alias: "s",
-    type: "number",
+    name: 'stars',
+    desc: 'Number of fused stars to query at',
+    alias: 's',
+    type: 'number',
     default: 0,
   },
   {
-    name: "level",
-    desc: "Skill level to query at. Should be 1,10,20,30,40,50,60,70,80,90,100",
-    alias: "l",
-    type: "number",
+    name: 'level',
+    desc: 'Skill level to query at. Should be 1,10,20,30,40,50,60,70,80,90,100',
+    alias: 'l',
+    type: 'number',
     default: 100,
   },
-];
+]
 
 module.exports = new Clapp.Command({
-  name: "estats",
-  desc: "query extended stats for characters",
+  name: 'estats',
+  desc: 'query extended stats for characters',
 
   // Command function
   fn: (argv: any, context: API.Context) =>
     new Promise((fulfill, reject) => {
-      const args = argv.args;
+      const args = argv.args
       //Emojis are broken in android so we manually do it
       // const emojify = context.emojify;
 
@@ -54,15 +54,15 @@ new moon
 
       const emojify: API.EmojiFn = function (x) {
         const custom: any = {
-          "1star": "\u2B50",
-          "1darkstar": String.fromCodePoint(0x1f311),
-        };
-        if (custom[x]) {
-          return custom[x];
-        } else {
-          return x.toUpperCase();
+          '1star': '\u2B50',
+          '1darkstar': String.fromCodePoint(0x1f311),
         }
-      };
+        if (custom[x]) {
+          return custom[x]
+        } else {
+          return x.toUpperCase()
+        }
+      }
 
       function handleName(
         name: string,
@@ -73,86 +73,86 @@ new moon
         chars.wikiLookup(name, function (err: any, info: chars.CharInfo) {
           //chars.ssrLookup(name, function(err,info) {
           if (err) {
-            fulfill(err);
+            fulfill(err)
           } else {
-            const stars = info.stars;
-            const skill = info.skill;
-            const char = info.char;
+            const stars = info.stars
+            const skill = info.skill
+            const char = info.char
 
             let starStat = function (s: number) {
               const starStr = _.range(s)
-                .map((x) => emojify("1star"))
-                .join("");
+                .map((x) => emojify('1star'))
+                .join('')
               const darkStr = _.range(stars - s)
-                .map((x) => emojify("1darkstar"))
-                .join("");
+                .map((x) => emojify('1darkstar'))
+                .join('')
               const starSk = _.filter(
                 skill,
                 (sk) => sk.stars === s && sk.level === level
-              );
+              )
               const skStr = _.map(
                 starSk,
                 (sk) => `${emojify(sk.skill)} ${sk.base} (${sk.min}-${sk.max})`
-              ).join(" ");
-              return `${starStr}${darkStr} - ${skStr}`;
-            };
+              ).join(' ')
+              return `${starStr}${darkStr} - ${skStr}`
+            }
 
             //const levelStr = (level!==100) ? `Level ${level}: ` : '';
             //let header = `(${char}) - ${levelStr}${info.traits}`;
 
             // Char stats
-            let msg = "";
+            let msg = ''
             if (starsArg > 0 && starsArg < stars) {
-              msg += starStat(starsArg) + "\n";
+              msg += starStat(starsArg) + '\n'
             } else if (stars === 5) {
-              msg += starStat(1) + "\n";
+              msg += starStat(1) + '\n'
             }
-            msg += starStat(stars);
+            msg += starStat(stars)
 
             // Char rankings
             // Override filter to do exact match
             let allChars = chars
               .allCrewEntries()
-              .filter((x) => x.stars === stars);
+              .filter((x) => x.stars === stars)
             let baseBest = chars.bestChars(
               allChars,
               info.stars,
               starsArg > 0 && starsArg < stars ? starsArg : info.stars,
-              "base",
+              'base',
               100,
-              "",
-              ""
-            );
+              '',
+              ''
+            )
             let baseRank =
-              _.findIndex(baseBest, (x) => x.name === info.name) + 1;
+              _.findIndex(baseBest, (x) => x.name === info.name) + 1
             let gauntletBest = chars.bestChars(
               allChars,
               info.stars,
               starsArg > 0 && starsArg < stars ? starsArg : info.stars,
-              "gauntlet",
+              'gauntlet',
               100,
-              "",
-              ""
-            );
+              '',
+              ''
+            )
             let gauntletRank =
-              _.findIndex(gauntletBest, (x) => x.name === info.name) + 1;
+              _.findIndex(gauntletBest, (x) => x.name === info.name) + 1
             let voyageBest = chars.bestChars(
               allChars,
               info.stars,
               starsArg > 0 && starsArg < stars ? starsArg : info.stars,
-              "avg",
+              'avg',
               100,
-              "",
-              ""
-            );
+              '',
+              ''
+            )
             let voyageRank =
-              _.findIndex(voyageBest, (x) => x.name === info.name) + 1;
+              _.findIndex(voyageBest, (x) => x.name === info.name) + 1
 
             // Useful links
-            const symbol = info.symbol;
+            const symbol = info.symbol
             const detailUrl = symbol
               ? `${DATACORE_CREW_URL}/${symbol}`
-              : undefined;
+              : undefined
 
             let embed = {
               color: 3447003,
@@ -165,107 +165,110 @@ new moon
               //description: 'Description.',
               fields: [
                 {
-                  name: "Traits",
+                  name: 'Traits',
                   value: info.traits,
                   inline: true,
                 },
                 {
-                  name: "More Traits",
-                  value: info.traits_hidden.join(", "),
+                  name: 'More Traits',
+                  value: info.traits_hidden.join(', '),
                   inline: true,
                 },
                 {
-                  name: "Stats",
+                  name: 'Stats',
                   value: msg,
                 },
                 {
-                  name: "Base Rank",
+                  name: 'Base Rank',
                   value: `${baseRank} of ${baseBest.length} (${stars} stars)`,
                   inline: true,
                 },
                 {
-                  name: "Gauntlet Rank",
+                  name: 'Gauntlet Rank',
                   value: `${gauntletRank} of ${gauntletBest.length} (${stars} stars)`,
                   inline: true,
                 },
                 {
-                  name: "Voyage Rank",
+                  name: 'Voyage Rank',
                   value: `${voyageRank} of ${voyageBest.length} (${stars} stars)`,
                   inline: true,
                 },
                 {
-                  name: "Character",
+                  name: 'Character',
                   value: char,
                   inline: true,
                 },
                 {
-                  name: "Avg Chrons",
-                  value: ssr.avgChrons + "",
+                  name: 'Avg Chrons',
+                  value: ssr.avgChrons + '',
                   inline: true,
                 },
                 {
-                  name: "Difficulty",
+                  name: 'Difficulty',
                   value: chars.generateDifficulty(ssr),
                   inline: true,
                 },
               ],
               thumbnail: info.headImage ? { url: info.headImage } : undefined,
               //timestamp: new Date(),
-            };
+            }
 
-            context.embed = embed;
-            fulfill("EMBED");
+            context.embed = embed
+            fulfill('EMBED')
           }
-        });
+        })
       }
 
       const matchArgs = argv.flags.names
-        ? argv.flags.names.split(" ")
-        : [args.name1, args.name2, args.name3];
+        ? argv.flags.names.split(' ')
+        : [args.name1, args.name2, args.name3]
 
-      chars.matchOne(function (err, name) {
-        if (err) {
-          fulfill(err);
-        } else {
-          let nm = <string>name;
-          chars.ssrLookup(nm, (ssr: any) => {
-            handleName(nm, argv.flags.stars, argv.flags.level, ssr);
-          });
-        }
-      }, ...matchArgs);
+      chars.matchOne(
+        function (err, name) {
+          if (err) {
+            fulfill(err)
+          } else {
+            let nm = <string>name
+            chars.ssrLookup(nm, (ssr: any) => {
+              handleName(nm, argv.flags.stars, argv.flags.level, ssr)
+            })
+          }
+        },
+        ...matchArgs
+      )
     }),
   args: [
     {
-      name: "name1",
-      desc: "Name of character",
-      type: "string",
-      default: "",
+      name: 'name1',
+      desc: 'Name of character',
+      type: 'string',
+      default: '',
       required: false,
     },
     {
-      name: "name2",
-      desc: "Name of character",
-      type: "string",
-      default: "",
+      name: 'name2',
+      desc: 'Name of character',
+      type: 'string',
+      default: '',
       required: false,
     },
     {
-      name: "name3",
-      desc: "Name of character",
-      type: "string",
-      default: "",
+      name: 'name3',
+      desc: 'Name of character',
+      type: 'string',
+      default: '',
       required: false,
     },
   ],
   flags,
   opts: {
     slashCommandBuilder: () => {
-      const b = new SlashCommandBuilder();
-      b.setName("estats").setDescription("query extended stats for characters");
+      const b = new SlashCommandBuilder()
+      b.setName('estats').setDescription('query extended stats for characters')
       flags.forEach((flag) => {
-        argOrFlagToBuilder(b, { required: false, ...flag });
-      });
-      return b;
+        argOrFlagToBuilder(b, { required: false, ...flag })
+      })
+      return b
     },
   },
-});
+})

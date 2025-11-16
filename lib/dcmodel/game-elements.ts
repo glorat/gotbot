@@ -1,62 +1,63 @@
-import { CrewMember } from "./crew";
-import { MilestoneBuff, Reward } from "./player";
+import { CrewMember } from './crew'
+import { MilestoneBuff, Reward } from './player'
 
-export const POST_BIGBOOK_EPOCH = new Date('2024-12-24T00:00:00Z');
+export const POST_BIGBOOK_EPOCH = new Date('2024-12-24T00:00:00Z')
 
 export type Variant = {
-  name: string;
-  trait_variants: CrewMember[];
-};
+  name: string
+  trait_variants: CrewMember[]
+}
 
 export type PolestarCombo = {
-  count: number;
-  alts: { symbol: string; name: string }[];
-  polestars: string[];
-};
+  count: number
+  alts: { symbol: string; name: string }[]
+  polestars: string[]
+}
 
-export function categorizeKeystones(data: KeystoneBase[]): [Constellation[], Polestar[]] {
-  let cons = [] as Constellation[];
-  let pols = [] as Polestar[];
+export function categorizeKeystones(
+  data: KeystoneBase[]
+): [Constellation[], Polestar[]] {
+  let cons = [] as Constellation[]
+  let pols = [] as Polestar[]
 
   data.forEach((k) => {
-    if (k.type === "keystone") {
-      pols.push(k as Polestar);
+    if (k.type === 'keystone') {
+      pols.push(k as Polestar)
+    } else {
+      cons.push(k as Constellation)
     }
-    else {
-      cons.push(k as Constellation);
-    }
-  });
+  })
 
-  return [cons, pols];
+  return [cons, pols]
 }
 
 export interface KeystoneBase {
-  id: number;
-  symbol: string;
-  type: "keystone_crate" | "crew_keystone_crate" | "keystone";
-  name: string;
-  short_name: string;
-  flavor: string;
-  icon: Icon;
-  imageUrl?: string;
-  rarity?: number;
-  filter?: PolestarFilter;
-  crew_archetype_id?: number;
+  id: number
+  symbol: string
+  type: 'keystone_crate' | 'crew_keystone_crate' | 'keystone'
+  name: string
+  short_name: string
+  flavor: string
+  icon: Icon
+  imageUrl?: string
+  rarity?: number
+  filter?: PolestarFilter
+  crew_archetype_id?: number
   // quantity?: number;
 }
 
 export interface Constellation extends KeystoneBase {
-  type: "keystone_crate" | "crew_keystone_crate";
-  keystones: number[];
+  type: 'keystone_crate' | 'crew_keystone_crate'
+  keystones: number[]
   // quantity: number;
 }
 
 export interface Polestar extends KeystoneBase {
-  type: "keystone";
+  type: 'keystone'
   // quantity: number;
   // loaned: number;
   // crew_count: number;
-  filter: PolestarFilter;
+  filter: PolestarFilter
   // useful?: number
   // useful_alone?: boolean;
   // scan_odds?: number;
@@ -67,51 +68,51 @@ export interface Polestar extends KeystoneBase {
 }
 
 export interface Icon {
-  file: string;
+  file: string
   atlas_info?: string
 }
 
 export interface PolestarFilter {
-  type: "trait" | "rarity" | "skill";
-  trait?: string;
-  rarity?: number;
-  skill?: string;
+  type: 'trait' | 'rarity' | 'skill'
+  trait?: string
+  rarity?: number
+  skill?: string
 }
 
 export interface Negatable {
-  negated: boolean;
+  negated: boolean
 }
 
 export interface FilterCondition extends Negatable {
-  keyword: string;
-  value?: any;
+  keyword: string
+  value?: any
 }
 
 export interface TextSegment extends Negatable {
-  text: string;
+  text: string
 }
 
 export interface Filter {
-  textSegments?: TextSegment[];
-  conditionArray?: FilterCondition[];
+  textSegments?: TextSegment[]
+  conditionArray?: FilterCondition[]
 }
 
 export interface ConstellationMap {
-  name: string;
-  flavor: string;
-  keystones: Polestar[];
-  raritystone: Polestar[];
-  skillstones: Polestar[];
-};
+  name: string
+  flavor: string
+  keystones: Polestar[]
+  raritystone: Polestar[]
+  skillstones: Polestar[]
+}
 
 export interface Collection {
-  id: number;
+  id: number
   type_id?: number
-  name: string;
-  crew?: string[];
-  description?: string;
-  image?: string;
-  milestones?: Milestone[];
+  name: string
+  crew?: string[]
+  description?: string
+  image?: string
+  milestones?: Milestone[]
 }
 export interface Milestone {
   goal: number
@@ -120,28 +121,27 @@ export interface Milestone {
 }
 
 export interface RarityOptions {
-  key: string;
-  value?: string | null | undefined;
-  text: string;
-  content?: string;
+  key: string
+  value?: string | null | undefined
+  text: string
+  content?: string
 }
 
-
 export interface RetrievalOptions {
-  initialized: boolean;
-  list: RetrievalOption[];
+  initialized: boolean
+  list: RetrievalOption[]
 }
 
 export interface AvatarIcon {
-  avatar: boolean;
-  src: string;
+  avatar: boolean
+  src: string
 }
 
 export interface RetrievalOption {
-  key: string | 0;
-  value: string | 0;
-  text: string;
-  image?: AvatarIcon; // image: { avatar: true, src: `${process.env.GATSBY_ASSETS_URL}${c.imageUrlPortrait}` }}];
+  key: string | 0
+  value: string | 0
+  text: string
+  image?: AvatarIcon // image: { avatar: true, src: `${process.env.GATSBY_ASSETS_URL}${c.imageUrlPortrait}` }}];
 }
 
 // export interface FuseGroup {
@@ -149,65 +149,63 @@ export interface RetrievalOption {
 // }
 
 export interface NumericOptions {
-  key: number;
-  value: number;
-  text: string;
+  key: number
+  value: number
+  text: string
 }
 
 export interface LockedProspect {
-  symbol: string;
-  name: string;
-  rarity: number;
-  level?: number;
-  prospect?: boolean;
-  imageUrlPortrait?: string;
-  max_rarity?: number;
+  symbol: string
+  name: string
+  rarity: number
+  level?: number
+  prospect?: boolean
+  imageUrlPortrait?: string
+  max_rarity?: number
 }
 
 export interface InitialOptions {
-  search?: string;
-  filter?: string;
-  column?: string;
-  direction?: 'ascending' | 'descending';
-  rows?: number;
-  page?: number;
+  search?: string
+  filter?: string
+  column?: string
+  direction?: 'ascending' | 'descending'
+  rows?: number
+  page?: number
 }
 
 export interface ISymbol {
-  symbol: string;
+  symbol: string
 }
 
 export interface SymbolName extends ISymbol {
-  symbol: string;
-  name: string;
+  symbol: string
+  name: string
 }
 
 export interface MarkdownRemark {
   frontmatter: {
-    name?: string;
-    rarity?: number;
-    series?: string;
-    memory_alpha?: string;
-    bigbook_tier?: number;
-    events?: number;
-    in_portal?: boolean;
-    date?: Date;
-    obtained?: string;
-    mega?: boolean;
-    published?: boolean;
+    name?: string
+    rarity?: number
+    series?: string
+    memory_alpha?: string
+    bigbook_tier?: number
+    events?: number
+    in_portal?: boolean
+    date?: Date
+    obtained?: string
+    mega?: boolean
+    published?: boolean
   }
 }
 
 export interface PortalLogEntry {
-  portal_batch_id: number,
-  symbol: string,
+  portal_batch_id: number
+  symbol: string
   date: Date
 }
 
 export interface PortalReport {
-  name: string;
-  date?: Date;
-  rarity: number;
+  name: string
+  date?: Date
+  rarity: number
 }
-
-

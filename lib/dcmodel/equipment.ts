@@ -1,66 +1,64 @@
-import { PlayerEquipmentItem } from "./player"
-
+import { PlayerEquipmentItem } from './player'
 
 export interface IDemand {
-	count: number;
-	symbol: string;
-	equipment?: EquipmentItem;
-	factionOnly: boolean;
-	have: number;
-	crewSymbols: string[];
-  primary?: boolean;
+  count: number
+  symbol: string
+  equipment?: EquipmentItem
+  factionOnly: boolean
+  have: number
+  crewSymbols: string[]
+  primary?: boolean
 }
 
 export interface ICrewDemandsMeta {
-	factionOnlyTotal: number;
-	totalChronCost: number;
-	craftCost: number;
+  factionOnlyTotal: number
+  totalChronCost: number
+  craftCost: number
 }
 
 export interface ICrewDemands extends ICrewDemandsMeta {
-	demands: IDemand[];
-	factionOnlyTotal: number;
-	totalChronCost: number;
-	craftCost: number;
+  demands: IDemand[]
+  factionOnlyTotal: number
+  totalChronCost: number
+  craftCost: number
 }
 
 export interface DemandCounts {
-	name: string;
-	count: number;
+  name: string
+  count: number
 }
-
 
 export interface EquipmentItem extends PlayerEquipmentItem {
   symbol: string
   type: number
   name: string
   short_name?: string
-  name_english?: string;
+  name_english?: string
   flavor: string
-  flavorContext?: any;
+  flavorContext?: any
   rarity: number
   imageUrl: string
   item_sources: EquipmentItemSource[]
   bonuses?: EquipmentBonuses
-  duration?: number;
-  traits_requirement_operator?: string; // "and" | "or" | "not" | "xor";
-  traits_requirement?: string[];
-  max_rarity_requirement?: number;
+  duration?: number
+  traits_requirement_operator?: string // "and" | "or" | "not" | "xor";
+  traits_requirement?: string[]
+  max_rarity_requirement?: number
 
-  quantity?: number;
-  needed?: number;
+  quantity?: number
+  needed?: number
 
   recipe?: EquipmentRecipe
-  demands?: IDemand[];
+  demands?: IDemand[]
 
-  demandCrew?: string[];
-  needed_by?: string[];
+  demandCrew?: string[]
+  needed_by?: string[]
 
-  factionOnly?: boolean;
-  empty?: boolean;
-  isReward?: boolean;
-  kwipment?: boolean;
-  kwipment_id?: number | string;
+  factionOnly?: boolean
+  empty?: boolean
+  isReward?: boolean
+  kwipment?: boolean
+  kwipment_id?: number | string
 }
 
 export interface EquipmentItemSource {
@@ -73,8 +71,8 @@ export interface EquipmentItemSource {
   mission_symbol?: string
   cost?: number
   avg_cost?: number
-  cadet_mission?: string;
-  cadet_symbol?: string;
+  cadet_mission?: string
+  cadet_symbol?: string
 }
 
 export interface EquipmentRecipe {
@@ -90,7 +88,5 @@ export interface EquipmentIngredient {
 }
 
 export interface EquipmentBonuses {
-    [key: string]: number;
+  [key: string]: number
 }
-
-

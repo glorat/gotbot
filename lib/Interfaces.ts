@@ -1,11 +1,11 @@
-import Discord = require('discord.js');
-import {Guild, PartialTextBasedChannelFields} from "discord.js";
+import Discord = require('discord.js')
+import { Guild, PartialTextBasedChannelFields } from 'discord.js'
 
-export type EmojiFn = (x:string) => string | Discord.Emoji
-export type BoldifyFn = (x:string) => string
+export type EmojiFn = (x: string) => string | Discord.Emoji
+export type BoldifyFn = (x: string) => string
 
 export interface DummyChannel {
-  id : string
+  id: string
   name: string
   send: () => {}
 }
@@ -16,27 +16,30 @@ export interface ClappArgs {
 }
 
 export interface Context {
-  emojify: EmojiFn;
-  boldify: BoldifyFn;
-  fleetId: string; // Snowflake
-  author: any;
-  bot? : Discord.Client;
-  channel : Discord.GuildTextBasedChannel | Discord.TextBasedChannel | DummyChannel;
-  embed? : any;
+  emojify: EmojiFn
+  boldify: BoldifyFn
+  fleetId: string // Snowflake
+  author: any
+  bot?: Discord.Client
+  channel:
+    | Discord.GuildTextBasedChannel
+    | Discord.TextBasedChannel
+    | DummyChannel
+  embed?: any
   // msg? : Discord.Message;
   guild?: Guild
   sender: PartialTextBasedChannelFields
-  callback? : any; // FIXME
-  isEntitled(userid: string): boolean ;
+  callback?: any // FIXME
+  isEntitled(userid: string): boolean
 }
 
 export interface AssetRef {
   file: string
 }
 export interface CrewAvatar {
-  id: number,
-  symbol: string,
-  name: string,
+  id: number
+  symbol: string
+  name: string
   traits: Array<string>
   traits_hidden: Array<string>
   short_name: string
@@ -49,9 +52,8 @@ export interface CrewAvatar {
   skills: Array<string>
 }
 
-
 export interface FleetDoc {
-  _id:any
+  _id: any
   eventChar: Array<string>
   eventTrait: Array<Array<string>>
   starbase: Object
@@ -61,4 +63,3 @@ export interface FleetDoc {
   bossExclude?: string[]
   prefix?: string
 }
-

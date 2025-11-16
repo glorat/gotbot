@@ -1,44 +1,42 @@
-import {deploySlash, undeploySlash} from "../slashdeploy";
+import { deploySlash, undeploySlash } from '../slashdeploy'
 
-const Clapp = require('../modules/clapp-discord');
-import * as API from '../Interfaces';
-import cfg from '../../config';
+const Clapp = require('../modules/clapp-discord')
+import * as API from '../Interfaces'
+import cfg from '../../config'
 
 module.exports = new Clapp.Command({
-  name: "setup",
-  desc: "setup bot for this server",
+  name: 'setup',
+  desc: 'setup bot for this server',
 
-  fn:(argv:any, context:API.Context) => new Promise(async (fulfill, reject) => {
-    //const guild = context.channel.guild;
-    const guildOwner = context.guild?.ownerId ?? NaN;
-    const guildId = context.guild?.id;
+  fn: (argv: any, context: API.Context) =>
+    new Promise(async (fulfill, reject) => {
+      //const guild = context.channel.guild;
+      const guildOwner = context.guild?.ownerId ?? NaN
+      const guildId = context.guild?.id
 
-    if (guildId && ((context.author.id === guildOwner) || (context.author.id === cfg.adminId))) {
-      if (argv.flags.unregister) {
-        const ret = await undeploySlash(guildId)
-        fulfill(ret)
+      if (
+        guildId &&
+        (context.author.id === guildOwner || context.author.id === cfg.adminId)
+      ) {
+        if (argv.flags.unregister) {
+          const ret = await undeploySlash(guildId)
+          fulfill(ret)
+        } else {
+          const ret = await deploySlash(guildId)
+          fulfill(ret)
+        }
       } else {
-        const ret = await deploySlash(guildId)
-        fulfill(ret)
+        fulfill('Only the server administrator can perform setup')
       }
-
-    }
-    else {
-      fulfill('Only the server administrator can perform setup');
-    }
-
-  }),
-  args: [
-
-  ],
+    }),
+  args: [],
   flags: [
     {
-      name : 'unregister',
+      name: 'unregister',
       desc: 'unregister slash commands',
       alias: 'u',
       type: 'boolean',
-      default: false
-    }
-  ]
-});
-
+      default: false,
+    },
+  ],
+})

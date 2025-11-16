@@ -16,35 +16,44 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import * as fs from 'async-file';
-import cfg from './config';
+import * as fs from 'async-file'
+import cfg from './config'
 
-import STTApiLite from './lib/modules/STTApiLite/lib/STTApiLite';
-let password = require(cfg.dataPath + 'password');
+import STTApiLite from './lib/modules/STTApiLite/lib/STTApiLite'
+let password = require(cfg.dataPath + 'password')
 
-let STTApi = new STTApiLite();
+let STTApi = new STTApiLite()
 
 async function main() {
-  let token = password.stttoken ? password.stttoken
-    : await STTApi.login(password.sttuser, password.sttpass,true);
+  let token = password.stttoken
+    ? password.stttoken
+    : await STTApi.login(password.sttuser, password.sttpass, true)
 
-  STTApi.loginWithToken(token);
+  STTApi.loginWithToken(token)
 
-  console.log('Using OAuth token ' + token);
-  let crew = await STTApi.executeGetRequest('character/get_avatar_crew_archetypes');
+  console.log('Using OAuth token ' + token)
+  let crew = await STTApi.executeGetRequest(
+    'character/get_avatar_crew_archetypes'
+  )
   // Post-process the data so that gotcron handle this better
-  crew.crew_avatars.forEach((e:any)=>{
-    e.name = e.name.replace(/\u2019/g, "'");
+  crew.crew_avatars.forEach((e: any) => {
+    e.name = e.name.replace(/\u2019/g, "'")
     if (e.name.match(/^\"Dark/)) {
-      e.name = e.name.replace(/\"Dark Ages\"/g, "''Dark Ages''");
+      e.name = e.name.replace(/\"Dark Ages\"/g, "''Dark Ages''")
     }
-    e.wiki="/wiki/" + e.name.replace(/ /g,'_').replace(/\//g,'-');
-    e.wikiPath = "https://sttwiki.org" + e.wiki;
-  });
-  await fs.writeFile(cfg.dataPath + "sttcrew.json", JSON.stringify(crew.crew_avatars));
+    e.wiki = '/wiki/' + e.name.replace(/ /g, '_').replace(/\//g, '-')
+    e.wikiPath = 'https://sttwiki.org' + e.wiki
+  })
+  await fs.writeFile(
+    cfg.dataPath + 'sttcrew.json',
+    JSON.stringify(crew.crew_avatars)
+  )
 
-  let gauntlet = await STTApi.executeGetRequest('gauntlet/status');
-  await fs.writeFile(cfg.dataPath + 'gauntlet.json', JSON.stringify(gauntlet.character.gauntlets[0].contest_data));
+  let gauntlet = await STTApi.executeGetRequest('gauntlet/status')
+  await fs.writeFile(
+    cfg.dataPath + 'gauntlet.json',
+    JSON.stringify(gauntlet.character.gauntlets[0].contest_data)
+  )
 }
 
-main();
+main()

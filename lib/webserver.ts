@@ -1,43 +1,41 @@
-'use strict';
-import cfg from '../config';
-import express from 'express';
-const http = express();
-const bodyParser = require('body-parser');
-const db      = require('./crewdb');
-const cli = require('./cli');
+'use strict'
+import cfg from '../config'
+import express from 'express'
+const http = express()
+const bodyParser = require('body-parser')
+const db = require('./crewdb')
+const cli = require('./cli')
 //const json2csv = require("json2csv");
 import * as api from './Interfaces'
-import {DummyChannel} from "./Interfaces";
-import {PartialTextBasedChannelFields} from "discord.js";
+import { DummyChannel } from './Interfaces'
+import { PartialTextBasedChannelFields } from 'discord.js'
 
-module.exports = {
-};
+module.exports = {}
 
+http.use(express.static('client'))
 
-http.use(express.static('client'));
-
-http.use(bodyParser.json());
+http.use(bodyParser.json())
 
 http.get('/', function (req, res) {
-  res.send('Hello World!');
-});
+  res.send('Hello World!')
+})
 
 http.get('/users', function (req, res) {
-  db.users.find({}, {_id:1, username:1}, function(err:any, doc:any) {
-    res.json(doc);
-  });
-});
+  db.users.find({}, { _id: 1, username: 1 }, function (err: any, doc: any) {
+    res.json(doc)
+  })
+})
 
 http.get('/user/:userId', function (req, res) {
-  const qry = { _id: req.params.userId };
+  const qry = { _id: req.params.userId }
 
-  db.users.findOne(qry, function (err:any, doc:any) {
+  db.users.findOne(qry, function (err: any, doc: any) {
     if (doc === null) {
-      doc = {_id:req.params.userId, username: 'anonymous', crew:[]};
+      doc = { _id: req.params.userId, username: 'anonymous', crew: [] }
     }
-    res.json(doc);
-  });
-});
+    res.json(doc)
+  })
+})
 
 /*
 http.get('/usercsv/:userId', function (req, res) {
@@ -57,33 +55,43 @@ http.get('/usercsv/:userId', function (req, res) {
   });
 });*/
 
-const emojify : api.EmojiFn = em => `<img src="emoji/${em}.png">`;
+const emojify: api.EmojiFn = (em) => `<img src="emoji/${em}.png">`
 
-const dummyChannel:DummyChannel =  {id:'-2',name:'webserver', send: ()=>{return{}}};
-http.post('/command', function(req,res) {
-  let context : api.Context  = {
-    author: {username:'test', id:-1},
+const dummyChannel: DummyChannel = {
+  id: '-2',
+  name: 'webserver',
+  send: () => {
+    return {}
+  },
+}
+http.post('/command', function (req, res) {
+  let context: api.Context = {
+    author: { username: 'test', id: -1 },
     channel: dummyChannel,
-    isEntitled: function(){return false;},
-    emojify : emojify,
-    boldify : x => `<b>${x}</b>`,
-    fleetId : '-1',
-    sender: {send : async () => {return{}}} as unknown as PartialTextBasedChannelFields
-  };
+    isEntitled: function () {
+      return false
+    },
+    emojify: emojify,
+    boldify: (x) => `<b>${x}</b>`,
+    fleetId: '-1',
+    sender: {
+      send: async () => {
+        return {}
+      },
+    } as unknown as PartialTextBasedChannelFields,
+  }
 
-  let cmd = cfg.prefix + ' ' + req.body.command;
+  let cmd = cfg.prefix + ' ' + req.body.command
 
-  cli.sendCommand(cmd, context).then(function(msg:any) {
-    res.json({message:msg, embed:context.embed});
-  });
+  cli.sendCommand(cmd, context).then(function (msg: any) {
+    res.json({ message: msg, embed: context.embed })
+  })
+})
 
-});
-
-http.get('/commands', function(req, res) {
-  res.json(cli.commands());
-});
+http.get('/commands', function (req, res) {
+  res.json(cli.commands())
+})
 
 http.listen(cfg.httpport, function () {
-  console.log('Web server listening on port ' +  cfg.httpport);
-});
-
+  console.log('Web server listening on port ' + cfg.httpport)
+})

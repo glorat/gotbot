@@ -1,6 +1,6 @@
-const Clapp = require('../modules/clapp-discord');
-import cfg from '../../config';
-import * as API from '../Interfaces';
+const Clapp = require('../modules/clapp-discord')
+import cfg from '../../config'
+import * as API from '../Interfaces'
 
 const manual = [
   'Welcome to the manual\nFirstly to get help at any point, use the --help command',
@@ -36,50 +36,42 @@ const manual = [
   'Or drop rates for individual items',
   'farm 1 database',
   'And have results adjusted for supply kits',
-  'farm 1 database -k'
-];
+  'farm 1 database -k',
+]
 
 module.exports = new Clapp.Command({
-  name: "manual",
-  desc: "show manual",
+  name: 'manual',
+  desc: 'show manual',
 
-  fn:(argv:any, context:API.Context) => new Promise((fulfill, reject) => {
-    //const guild = context.channel.guild;
-    const guildOwner = context.guild?.ownerId ?? NaN;
+  fn: (argv: any, context: API.Context) =>
+    new Promise((fulfill, reject) => {
+      //const guild = context.channel.guild;
+      const guildOwner = context.guild?.ownerId ?? NaN
 
-    let doSend = async function(s:string) {
-      await context.sender.send(s)
-    };
+      let doSend = async function (s: string) {
+        await context.sender.send(s)
+      }
 
-    if (context.author.id === guildOwner) {
-      let i=0;
+      if (context.author.id === guildOwner) {
+        let i = 0
 
-      let doNext = function() {
+        let doNext = function () {
+          doSend(`__${manual[i]}__`).then((x) => {
+            doSend(cfg.prefix + ' ' + manual[i + 1]).then((y) => {
+              i += 2
+              if (manual[i]) {
+                setTimeout(doNext, 100)
+              } else {
+                fulfill('Server manual done!')
+              }
+            })
+          })
+        }
 
-        doSend(`__${manual[i]}__`).then(x => {
-          doSend(cfg.prefix + ' '+manual[i+1]).then(y => {
-            i+=2;
-            if (manual[i]) {
-              setTimeout(doNext, 100);
-            }
-            else {
-              fulfill('Server manual done!');
-            }
-          });
-        });
-
-      };
-
-      doNext();
-
-    }
-    else {
-      fulfill('Only the server administrator can run this');
-    }
-
-  }),
-  args: [
-
-  ]
-});
-
+        doNext()
+      } else {
+        fulfill('Only the server administrator can run this')
+      }
+    }),
+  args: [],
+})

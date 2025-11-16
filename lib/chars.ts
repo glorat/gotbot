@@ -1,151 +1,151 @@
-import * as API from "./Interfaces";
-import * as fs from "async-file";
-import * as fssync from "fs";
-import _ = require("underscore");
-import { Dictionary } from "underscore";
-import { MatchCB } from "./matcher";
-import { CrewMember } from "./dcmodel/crew";
+import * as API from './Interfaces'
+import * as fs from 'async-file'
+import * as fssync from 'fs'
+import _ = require('underscore')
+import { Dictionary } from 'underscore'
+import { MatchCB } from './matcher'
+import { CrewMember } from './dcmodel/crew'
 import {
   DATACORE_ASSETS_URL,
   getShortNameFromTrait,
   getVariantTraits,
-} from "./datacore";
+} from './datacore'
 
-const matcher = require("./matcher");
+const matcher = require('./matcher')
 
-import cfg from "../config";
-import { createDefaultTable } from "./utils";
+import cfg from '../config'
+import { createDefaultTable } from './utils'
 
-export const skills: string[] = ["cmd", "dip", "eng", "sec", "med", "sci"];
+export const skills: string[] = ['cmd', 'dip', 'eng', 'sec', 'med', 'sci']
 
 export interface Skill {
-  base: number;
-  minroll: number;
-  maxroll: number;
+  base: number
+  minroll: number
+  maxroll: number
 }
 
 export interface Char {
-  name: string;
-  chars: string;
-  stars: number;
-  maxstars: number;
-  level: number;
-  vaulted: boolean;
+  name: string
+  chars: string
+  stars: number
+  maxstars: number
+  level: number
+  vaulted: boolean
   // For updating ease... FIXME later
-  [index: string]: any;
+  [index: string]: any
 }
 
 export interface CrewDoc {
-  _id: number;
-  username: string;
-  crew: Array<Char>;
-  base: any;
-  prof: any;
+  _id: number
+  username: string
+  crew: Array<Char>
+  base: any
+  prof: any
 }
 
 // From wiki/wikidb
 export interface SkillInfo {
-  stars: number;
-  level: number;
-  skill: string;
-  base: number;
-  min: number;
-  max: number;
+  stars: number
+  level: number
+  skill: string
+  base: number
+  min: number
+  max: number
 }
 
 export interface CharInfo {
-  name: string;
-  wiki: string;
-  stars: number;
-  skill: Array<SkillInfo>;
-  traits: string; // comma separated string
-  char: string; // character class (e.g Picard)
-  moreChar: Array<string>;
-  image: string;
-  headImage: string;
-  traits_hidden: Array<string>;
-  traits_int: string[];
-  symbol?: string;
+  name: string
+  wiki: string
+  stars: number
+  skill: Array<SkillInfo>
+  traits: string // comma separated string
+  char: string // character class (e.g Picard)
+  moreChar: Array<string>
+  image: string
+  headImage: string
+  traits_hidden: Array<string>
+  traits_int: string[]
+  symbol?: string
 }
 
 export interface WikiDB {
-  crewentries: Array<CharInfo>;
-  charToCrew: Dictionary<Array<CharInfo>>;
-  traits: Array<string>;
-  charstars: Dictionary<number>; // name->stars:number
+  crewentries: Array<CharInfo>
+  charToCrew: Dictionary<Array<CharInfo>>
+  traits: Array<string>
+  charstars: Dictionary<number> // name->stars:number
 }
 
 export interface MyStat {
-  skill: string;
-  base: number;
-  minroll: number;
-  maxroll: number;
+  skill: string
+  base: number
+  minroll: number
+  maxroll: number
 }
 
 export interface StatsOpts {
-  textonly?: boolean;
-  table?: boolean;
+  textonly?: boolean
+  table?: boolean
 }
 
-var wikidb: WikiDB;
-let usingDatacore = false;
+var wikidb: WikiDB
+let usingDatacore = false
 
 function mapSkillFieldToShort(field: string): string | undefined {
   switch (field) {
-    case "command_skill":
-      return "cmd";
-    case "diplomacy_skill":
-      return "dip";
-    case "engineering_skill":
-      return "eng";
-    case "security_skill":
-      return "sec";
-    case "medicine_skill":
-      return "med";
-    case "science_skill":
-      return "sci";
+    case 'command_skill':
+      return 'cmd'
+    case 'diplomacy_skill':
+      return 'dip'
+    case 'engineering_skill':
+      return 'eng'
+    case 'security_skill':
+      return 'sec'
+    case 'medicine_skill':
+      return 'med'
+    case 'science_skill':
+      return 'sci'
     default:
-      return undefined;
+      return undefined
   }
 }
 
-const datacorePath = cfg.dataPath + "datacore-crew.json";
+const datacorePath = cfg.dataPath + 'datacore-crew.json'
 if (fssync.existsSync(datacorePath)) {
-  const dcJson = fssync.readFileSync(datacorePath, "utf8");
-  const datacoreCrew: CrewMember[] = JSON.parse(dcJson);
-  usingDatacore = true;
+  const dcJson = fssync.readFileSync(datacorePath, 'utf8')
+  const datacoreCrew: CrewMember[] = JSON.parse(dcJson)
+  usingDatacore = true
 
   const variantKeyFor = (c: CrewMember): string => {
-    const vtraits = getVariantTraits(c);
-    return vtraits.length ? vtraits[0] : c.symbol;
-  };
+    const vtraits = getVariantTraits(c)
+    return vtraits.length ? vtraits[0] : c.symbol
+  }
 
-  const variantGroups: { [key: string]: CrewMember[] } = {};
+  const variantGroups: { [key: string]: CrewMember[] } = {}
   datacoreCrew.forEach((c) => {
-    const key = variantKeyFor(c);
-    if (!variantGroups[key]) variantGroups[key] = [];
-    variantGroups[key].push(c);
-  });
+    const key = variantKeyFor(c)
+    if (!variantGroups[key]) variantGroups[key] = []
+    variantGroups[key].push(c)
+  })
 
   const crewentries: CharInfo[] = datacoreCrew.map((c) => {
-    const variantKey = variantKeyFor(c);
-    const group = variantGroups[variantKey];
-    const charName = getShortNameFromTrait(variantKey, group);
+    const variantKey = variantKeyFor(c)
+    const group = variantGroups[variantKey]
+    const charName = getShortNameFromTrait(variantKey, group)
     const moreChar = group
       .filter((other) => other.name !== c.name)
-      .map((other) => other.name);
+      .map((other) => other.name)
 
-    const skillInfos: SkillInfo[] = [];
+    const skillInfos: SkillInfo[] = []
     // Use Datacore's skill_data for intermediate rarities, treating them as level 100
     c.skill_data.forEach((sd) => {
-      const stars = sd.rarity;
-      const level = 100;
-      const baseSkills = sd.base_skills as any;
+      const stars = sd.rarity
+      const level = 100
+      const baseSkills = sd.base_skills as any
       Object.keys(baseSkills).forEach((field) => {
-        const sk = baseSkills[field];
-        if (!sk || sk.core <= 0) return;
-        const short = mapSkillFieldToShort(field);
-        if (!short) return;
+        const sk = baseSkills[field]
+        if (!sk || sk.core <= 0) return
+        const short = mapSkillFieldToShort(field)
+        if (!short) return
         skillInfos.push({
           stars,
           level,
@@ -153,22 +153,22 @@ if (fssync.existsSync(datacorePath)) {
           base: sk.core,
           min: sk.range_min,
           max: sk.range_max,
-        });
-      });
-    });
+        })
+      })
+    })
 
     // Ensure we have an entry for fully fused stars using base_skills at max rarity
-    const maxStars = c.max_rarity;
-    const baseSkillsAtMax = c.base_skills as any;
+    const maxStars = c.max_rarity
+    const baseSkillsAtMax = c.base_skills as any
     Object.keys(baseSkillsAtMax).forEach((field) => {
-      const sk = baseSkillsAtMax[field];
-      if (!sk || sk.core <= 0) return;
-      const short = mapSkillFieldToShort(field);
-      if (!short) return;
+      const sk = baseSkillsAtMax[field]
+      if (!sk || sk.core <= 0) return
+      const short = mapSkillFieldToShort(field)
+      if (!short) return
       // Overwrite any existing entry for (maxStars, 100, short) with the fully fused value
       const existing = skillInfos.filter(
         (s) => !(s.stars === maxStars && s.level === 100 && s.skill === short)
-      );
+      )
       existing.push({
         stars: maxStars,
         level: 100,
@@ -176,17 +176,17 @@ if (fssync.existsSync(datacorePath)) {
         base: sk.core,
         min: sk.range_min,
         max: sk.range_max,
-      });
-      skillInfos.length = 0;
-      skillInfos.push(...existing);
-    });
+      })
+      skillInfos.length = 0
+      skillInfos.push(...existing)
+    })
 
-    const traitsNamed = c.traits_named || [];
-    const traitsStr = traitsNamed.join(",");
+    const traitsNamed = c.traits_named || []
+    const traitsStr = traitsNamed.join(',')
 
     const entry: CharInfo = {
       name: c.name,
-      wiki: "",
+      wiki: '',
       stars: c.max_rarity,
       skill: skillInfos,
       traits: traitsStr,
@@ -197,72 +197,72 @@ if (fssync.existsSync(datacorePath)) {
       traits_hidden: c.traits_hidden,
       traits_int: c.traits,
       symbol: c.symbol,
-    };
+    }
 
-    return entry;
-  });
+    return entry
+  })
 
-  wikidb = { crewentries } as any;
+  wikidb = { crewentries } as any
 } else {
-  let json = fssync.readFileSync(cfg.wikidbpath, "utf8");
-  let obj = JSON.parse(json);
+  let json = fssync.readFileSync(cfg.wikidbpath, 'utf8')
+  let obj = JSON.parse(json)
 
-  wikidb = obj;
+  wikidb = obj
 }
 // @ts-ignore
 wikidb.charstars = _.object(
   wikidb.crewentries.map((x) => x.name),
   wikidb.crewentries.map((x) => x.stars)
-);
-wikidb.charToCrew = _.groupBy(wikidb.crewentries, (x) => x.char);
+)
+wikidb.charToCrew = _.groupBy(wikidb.crewentries, (x) => x.char)
 
-var traitsSet = new Set<string>();
+var traitsSet = new Set<string>()
 // Add skills as traits (only in legacy wiki mode; Datacore traits already include skills)
 if (!usingDatacore) {
   wikidb.crewentries.forEach(
-    (x) => (x.traits += "," + _.uniq(x.skill.map((x) => x.skill)).join(","))
-  );
+    (x) => (x.traits += ',' + _.uniq(x.skill.map((x) => x.skill)).join(','))
+  )
 }
 // Add vanilla traits
 wikidb.crewentries.forEach((x) =>
   x.traits
-    .split(",")
+    .split(',')
     .map((x) => x.trim())
     .forEach((x: string) => traitsSet.add(x))
-);
+)
 // Add hidden traits
 wikidb.crewentries.forEach((x) =>
   x.traits_hidden.forEach((y) => traitsSet.add(y))
-);
-wikidb.traits = Array.from(traitsSet);
+)
+wikidb.traits = Array.from(traitsSet)
 
 export function allCrewEntries(): CharInfo[] {
-  return _.clone(wikidb.crewentries);
+  return _.clone(wikidb.crewentries)
 }
 
 export function allChars() {
-  return _.keys(wikidb.charToCrew);
+  return _.keys(wikidb.charToCrew)
 }
 export function allTraits() {
-  return Array.from(wikidb.traits);
+  return Array.from(wikidb.traits)
 }
 
 export function charStars() {
-  return wikidb.charstars;
+  return wikidb.charstars
 }
 
 export function matchOne(cb: MatchCB, ...args: string[]) {
-  return matcher.matchOne(cb, _.keys(wikidb.charstars), "character", ...args);
+  return matcher.matchOne(cb, _.keys(wikidb.charstars), 'character', ...args)
 }
 
 export function wikiLookup(name: string, cb: any) {
-  const entry = _.find(wikidb.crewentries, (x) => x.name === name);
+  const entry = _.find(wikidb.crewentries, (x) => x.name === name)
 
   if (!entry) {
-    return cb(`Unknown crew member ${name}`);
+    return cb(`Unknown crew member ${name}`)
   }
 
-  cb(null, entry);
+  cb(null, entry)
 }
 
 const rating_cal = [
@@ -515,72 +515,72 @@ const rating_cal = [
     min: -4410.895394495413,
     max: 3053.0790825688073,
   },
-];
+]
 
 // @ts-ignore
 Number.prototype.between = function (a, i, r) {
   var e = Math.min(a, i),
-    o = Math.max(a, i);
-  return r ? this >= e && this <= o : this > e && this < o;
-};
+    o = Math.max(a, i)
+  return r ? this >= e && this <= o : this > e && this < o
+}
 
 export function generateDifficulty(a: any, i?: any, r?: any) {
   var e = a.difficulty,
-    o = "",
-    n = "";
-  if (isNaN(a.difficulty) || null === a.difficulty) return "Incomplete";
+    o = '',
+    n = ''
+  if (isNaN(a.difficulty) || null === a.difficulty) return 'Incomplete'
   var s = rating_cal[a.stars - 1].median,
-    t = rating_cal[a.stars - 1].std / 1.5;
+    t = rating_cal[a.stars - 1].std / 1.5
   return (
     e.between(s - t, s + t, !0)
-      ? ((o = "Average"), (n = "#f7e92c"))
+      ? ((o = 'Average'), (n = '#f7e92c'))
       : e.between(s - 2 * t, s - t, !0)
-      ? ((o = "Above Average"), (n = "#f4b411"))
-      : e.between(s - 3 * t, s - 2 * t, !0)
-      ? ((o = "Difficult"), (n = "#f47f11"))
-      : e.between(s - 4 * t, s - 3 * t, !0)
-      ? ((o = "Hard"), (n = "#d60853"))
-      : e < s - 4 * t
-      ? ((o = "Insane"), (n = "#ef1f6b"))
-      : e.between(s + 2 * t, s + t, !0)
-      ? ((o = "Below Average"), (n = "#aee26a"))
-      : e.between(s + 3 * t, s + 2 * t, !0)
-      ? ((o = "Easy"), (n = "#aee26a"))
-      : e.between(s + 4 * t, s + 3 * t, !0)
-      ? ((o = "Very Easy"), (n = "#62e05e"))
-      : e > s + 4 * t && ((o = "Super Easy"), (n = "#30e829")),
+        ? ((o = 'Above Average'), (n = '#f4b411'))
+        : e.between(s - 3 * t, s - 2 * t, !0)
+          ? ((o = 'Difficult'), (n = '#f47f11'))
+          : e.between(s - 4 * t, s - 3 * t, !0)
+            ? ((o = 'Hard'), (n = '#d60853'))
+            : e < s - 4 * t
+              ? ((o = 'Insane'), (n = '#ef1f6b'))
+              : e.between(s + 2 * t, s + t, !0)
+                ? ((o = 'Below Average'), (n = '#aee26a'))
+                : e.between(s + 3 * t, s + 2 * t, !0)
+                  ? ((o = 'Easy'), (n = '#aee26a'))
+                  : e.between(s + 4 * t, s + 3 * t, !0)
+                    ? ((o = 'Very Easy'), (n = '#62e05e'))
+                    : e > s + 4 * t && ((o = 'Super Easy'), (n = '#30e829')),
     r ? n : i ? o : o
-  );
+  )
 }
 
 export async function ssrLookup(name: string, cb: any) {
-  var wname = name.replace(/"/gi, "!Q!");
-  wname = wname.replace(/,/gi, "!C!");
+  var wname = name.replace(/"/gi, '!Q!')
+  wname = wname.replace(/,/gi, '!C!')
   try {
     let data = await fs.readFile(
       `${cfg.dataPath}/ssr.izausomecreations.com/crew/${wname}.json`,
-      "utf8"
-    );
-    const obj = JSON.parse(data);
-    cb(obj.info ? obj.info : {});
+      'utf8'
+    )
+    const obj = JSON.parse(data)
+    cb(obj.info ? obj.info : {})
   } catch {
-    cb({});
+    cb({})
   }
 }
 
 function shortName(name: string) {
-  const re = /(\S+)/g;
-  let match = re.exec(name);
-  let parts = [];
+  const re = /(\S+)/g
+  let match = re.exec(name)
+  let parts = []
   while (match) {
-    parts.push(match[0]);
-    match = re.exec(name);
+    parts.push(match[0])
+    match = re.exec(name)
   }
 
   const shorter = _.first(parts, parts.length - 1)
     .map((x) => x.substring(0, 1))
-    .join("");
-  return [shorter, _.last(parts)];
+    .join('')
+  return [shorter, _.last(parts)]
 }
 
 export function statsFor(
@@ -589,11 +589,11 @@ export function statsFor(
   boldify: API.BoldifyFn,
   opts: StatsOpts
 ) {
-  if (!opts) opts = {};
+  if (!opts) opts = {}
 
-  let mystats: Array<MyStat> = [];
+  let mystats: Array<MyStat> = []
   // Get skills into an array
-  let sksrc = char.adj ? char.adj : char; // Use adjusted if available!
+  let sksrc = char.adj ? char.adj : char // Use adjusted if available!
   skills.forEach((sk) => {
     if (char[sk]) {
       mystats.push({
@@ -601,37 +601,37 @@ export function statsFor(
         base: sksrc[sk].base,
         minroll: sksrc[sk].minroll,
         maxroll: sksrc[sk].maxroll,
-      });
+      })
     }
-  });
+  })
   // Sort by base
-  mystats = _.sortBy(mystats, (x) => -x.base);
+  mystats = _.sortBy(mystats, (x) => -x.base)
   if (opts.textonly) {
-    const starStr = char.stars ? `${char.stars}/${char.maxstars}` : "";
-    const levelStr = char.level ? `Lvl ${char.level}` : "";
-    const skStr = _.map(mystats, (sk) => `${sk.skill} ${sk.base}`).join(" ");
-    return `${starStr} ${char.name} ${levelStr} ${skStr}`;
+    const starStr = char.stars ? `${char.stars}/${char.maxstars}` : ''
+    const levelStr = char.level ? `Lvl ${char.level}` : ''
+    const skStr = _.map(mystats, (sk) => `${sk.skill} ${sk.base}`).join(' ')
+    return `${starStr} ${char.name} ${levelStr} ${skStr}`
   } else if (opts.table) {
-    const shorts = shortName(char.name);
-    const nm = char.vaulted ? `(${shorts[1]})` : shorts[1];
+    const shorts = shortName(char.name)
+    const nm = char.vaulted ? `(${shorts[1]})` : shorts[1]
     return [shorts[0], nm, char.stars, char.maxstars, char.level].concat(
-      skills.map((sk) => (sksrc[sk] ? sksrc[sk].base : ""))
-    );
+      skills.map((sk) => (sksrc[sk] ? sksrc[sk].base : ''))
+    )
   } else {
     const skStr = _.map(
       mystats,
       (sk) => `${emojify(sk.skill)} ${sk.base} (${sk.minroll}-${sk.maxroll})`
-    ).join(" ");
+    ).join(' ')
     const starStr = _.range(char.stars)
-      .map((x) => emojify("1star"))
-      .join("");
+      .map((x) => emojify('1star'))
+      .join('')
     const darkStr = _.range(char.maxstars - char.stars)
-      .map((x) => emojify("1darkstar"))
-      .join("");
-    const levelStr = char.level !== 100 ? `(Level ${char.level})` : "";
+      .map((x) => emojify('1darkstar'))
+      .join('')
+    const levelStr = char.level !== 100 ? `(Level ${char.level})` : ''
     return `${boldify(
       char.name
-    )} ${levelStr}\n   ${starStr}${darkStr} - ${skStr}`;
+    )} ${levelStr}\n   ${starStr}${darkStr} - ${skStr}`
   }
 }
 
@@ -644,29 +644,29 @@ export function fullyEquip(
   level: number = 0
 ) {
   if (!(info !== undefined && info.skill)) {
-    console.log(`fullyEquip is lacking info for ${char.name}`);
-    return char;
+    console.log(`fullyEquip is lacking info for ${char.name}`)
+    return char
   }
-  const skill = info.skill;
-  level = level ? level : 100;
-  stars = stars ? stars : info.stars;
+  const skill = info.skill
+  level = level ? level : 100
+  stars = stars ? stars : info.stars
   const starSk = _.filter(
     skill,
     (sk) => sk.stars === stars && sk.level === level
-  );
+  )
   // const skStr = _.map(starSk, sk => `${emojify(sk.skill)} ${sk.base} (${sk.min}-${sk.max})`).join(' ');
 
   starSk.forEach((sk) => {
-    const s = sk.skill.toLowerCase();
-    char[s] = {};
-    char[s].base = sk.base;
-    char[s].minroll = sk.min;
-    char[s].maxroll = sk.max;
-  });
-  char.level = level;
-  char.stars = stars;
-  char.maxstars = info.stars;
-  return char;
+    const s = sk.skill.toLowerCase()
+    char[s] = {}
+    char[s].base = sk.base
+    char[s].minroll = sk.min
+    char[s].maxroll = sk.max
+  })
+  char.level = level
+  char.stars = stars
+  char.maxstars = info.stars
+  return char
 }
 
 export function bestChars(
@@ -679,20 +679,20 @@ export function bestChars(
   skill2: string
 ) {
   if (stars) {
-    entrys = entrys.filter((x) => x.stars <= stars);
+    entrys = entrys.filter((x) => x.stars <= stars)
   }
-  entrys = entrys.map(_.clone); // Shallow clone as we will add a result
+  entrys = entrys.map(_.clone) // Shallow clone as we will add a result
 
   interface Entry {
-    map: (sk: any) => number;
-    reduce: (x: _.List<number>) => number;
-    default: number;
+    map: (sk: any) => number
+    reduce: (x: _.List<number>) => number
+    default: number
   }
   interface EntryFn extends Dictionary<any> {
-    base: Entry;
-    gauntlet: Entry;
-    minroll: Entry;
-    avg: Entry;
+    base: Entry
+    gauntlet: Entry
+    minroll: Entry
+    avg: Entry
   }
 
   const entryFn: EntryFn = {
@@ -702,7 +702,7 @@ export function bestChars(
         _.reduce(
           x,
           function (memo, num) {
-            return num > memo ? num : memo;
+            return num > memo ? num : memo
           },
           0
         ),
@@ -714,7 +714,7 @@ export function bestChars(
         _.reduce(
           x,
           function (memo, num) {
-            return memo + num;
+            return memo + num
           },
           0
         ),
@@ -726,7 +726,7 @@ export function bestChars(
         _.reduce(
           x,
           function (memo, num) {
-            return memo + num;
+            return memo + num
           },
           0
         ),
@@ -738,19 +738,19 @@ export function bestChars(
         _.reduce(
           x,
           function (memo, num) {
-            return memo + num;
+            return memo + num
           },
           0
         ),
       default: 0,
     },
-  };
+  }
 
-  const catFn = entryFn[category];
+  const catFn = entryFn[category]
   entrys.forEach((e) => {
-    e.result = 0;
+    e.result = 0
     const skillMatch =
-      skill1 === "" && skill2 === "" ? skills : [skill1, skill2];
+      skill1 === '' && skill2 === '' ? skills : [skill1, skill2]
 
     const fnVals = skillMatch.map((skill) => {
       if (skill) {
@@ -759,17 +759,17 @@ export function bestChars(
             s.level === level &&
             (fuse ? fuse : e.stars) === s.stars &&
             s.skill === skill
-        );
-        return catFn.map(sk);
+        )
+        return catFn.map(sk)
       } else {
-        return catFn.default;
+        return catFn.default
       }
-    });
+    })
 
-    e.result = catFn.reduce(fnVals);
-  });
-  entrys = _.sortBy(entrys, (x) => -x.result);
-  return entrys;
+    e.result = catFn.reduce(fnVals)
+  })
+  entrys = _.sortBy(entrys, (x) => -x.result)
+  return entrys
 }
 
 export function createCrewTable(
@@ -779,65 +779,65 @@ export function createCrewTable(
   emojify: API.EmojiFn,
   boldify: API.BoldifyFn
 ) {
-  const matchingNames = entries.map((x) => x.name);
+  const matchingNames = entries.map((x) => x.name)
   const matchingRoster = charsToSearch.filter((x) =>
     _.contains(matchingNames, x.name)
-  );
+  )
   //const sortFn = x => -(x.maxstars * 10000 + x.stars * 1000 + _.max(skills.map(sk => x[sk] ? x[sk].base : 0)));
   const sortFn = (x: any) =>
-    -_.max(skills.map((sk) => (x[sk] ? x[sk].base : 0)));
-  const sortedRoster = _.first(_.sortBy(matchingRoster, sortFn), 20); // 20 seems a safe arbitrary number
-  const totalMatches = matchingRoster.length;
-  let table = createDefaultTable();
-  table.push(["", "Name", "*", "*", "Lvl"].concat(skills));
+    -_.max(skills.map((sk) => (x[sk] ? x[sk].base : 0)))
+  const sortedRoster = _.first(_.sortBy(matchingRoster, sortFn), 20) // 20 seems a safe arbitrary number
+  const totalMatches = matchingRoster.length
+  let table = createDefaultTable()
+  table.push(['', 'Name', '*', '*', 'Lvl'].concat(skills))
 
   const lines = sortedRoster.map((char) => {
-    const tabOpts = { table: true };
-    let ret = statsFor(char, emojify, boldify, tabOpts);
-    table.push(ret);
-  });
+    const tabOpts = { table: true }
+    let ret = statsFor(char, emojify, boldify, tabOpts)
+    table.push(ret)
+  })
   const ret =
-    `${lines.length}/${totalMatches} matches for ${searchParams.join(", ")}\n` +
-    "```" +
+    `${lines.length}/${totalMatches} matches for ${searchParams.join(', ')}\n` +
+    '```' +
     table.toString() +
-    "```";
-  return ret;
+    '```'
+  return ret
 }
 
 export function searchCrewByCharTrait(
   criteria: Array<string>,
   entries: Array<CharInfo>
 ) {
-  let charsAndTraits = allTraits();
+  let charsAndTraits = allTraits()
   // Only include chars if we don't already have hidden traits from stt
-  cfg.useSttCrewEntries || (charsAndTraits = charsAndTraits.concat(allChars()));
-  let searchParams: Array<string> = [];
+  cfg.useSttCrewEntries || (charsAndTraits = charsAndTraits.concat(allChars()))
+  let searchParams: Array<string> = []
   criteria
-    .filter((x) => x !== "")
+    .filter((x) => x !== '')
     .forEach((name) => {
       matcher.matchOne(
         function (err: any, res: string) {
           if (err) {
-            throw err;
+            throw err
           }
-          searchParams.push(res);
+          searchParams.push(res)
           entries = entries.filter((entry) => {
             const matchTraits = entry.traits
-              .split(",")
+              .split(',')
               .map((x: string) => x.trim())
-              .concat(entry.traits_hidden);
+              .concat(entry.traits_hidden)
 
             return (
               _.contains(matchTraits, res) ||
               entry.char === res ||
               _.contains(entry.moreChar, res)
-            );
-          });
+            )
+          })
         },
         charsAndTraits,
-        "char or trait",
+        'char or trait',
         name
-      );
-    });
-  return { searchParams: searchParams, entries: entries };
+      )
+    })
+  return { searchParams: searchParams, entries: entries }
 }
