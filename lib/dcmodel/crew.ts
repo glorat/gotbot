@@ -186,7 +186,6 @@ export interface BaseSkills {
 }
 
 export function getSkillsRanked(skills: BaseSkills) {
-  let sn = [] as string[]
   let mskills = Object.keys(skills)
     .filter(
       (skill) =>

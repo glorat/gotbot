@@ -8,7 +8,6 @@ const cli = require('./cli')
 //const json2csv = require("json2csv");
 import * as api from './Interfaces'
 import { DummyChannel } from './Interfaces'
-import { PartialTextBasedChannelFields } from 'discord.js'
 
 module.exports = {}
 
@@ -57,7 +56,7 @@ http.get('/usercsv/:userId', function (req, res) {
 
 const emojify: api.EmojiFn = (em) => `<img src="emoji/${em}.png">`
 
-const dummyChannel: DummyChannel = {
+export const dummyChannel: DummyChannel = {
   id: '-2',
   name: 'webserver',
   send: () => {
@@ -74,11 +73,7 @@ http.post('/command', function (req, res) {
     emojify: emojify,
     boldify: (x) => `<b>${x}</b>`,
     fleetId: '-1',
-    sender: {
-      send: async () => {
-        return {}
-      },
-    } as unknown as PartialTextBasedChannelFields,
+    sender: dummyChannel,
   }
 
   let cmd = cfg.prefix + ' ' + req.body.command

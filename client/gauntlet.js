@@ -1,5 +1,4 @@
 'use strict'
-
 ;(function (myService) {
   if (typeof module !== 'undefined' && module.exports) {
     const Combinatorics = require('./combinatorics.js')

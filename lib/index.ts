@@ -23,6 +23,7 @@ const moment = require('moment')
 const mkdirp = require('mkdirp')
 import * as API from './Interfaces'
 import { keys } from 'underscore'
+import { dummyChannel } from './webserver'
 
 if (process.env.NODE_ENV !== 'production') {
   require('longjohn')
@@ -86,7 +87,7 @@ bot.on('messageCreate', (msg) => {
     .info(`${msg.author.username} - ${msg.content}`)
 
   let onReply = function (msg: string) {
-    if (msg && context.channel.send) {
+    if (msg && context.channel) {
       if (msg === 'EMBED') {
         context.channel.send({ embeds: [context.embed] })
       } else {
@@ -162,10 +163,11 @@ bot.on(Discord.Events.InteractionCreate, async (msg) => {
 
   try {
     await msg.deferReply()
+    const channel = msg.channel?.isSendable() ? msg.channel : dummyChannel
     const context: API.Context = {
       author: msg.user,
-      channel: msg.channel!,
-      sender: msg.channel!,
+      channel: channel,
+      sender: channel,
       guild: msg.inGuild() ? (msg.guild ?? undefined) : undefined,
       fleetId: msg.inGuild() ? (msg.channel?.guild.id ?? '0') : '0',
       isEntitled: isEntitled,

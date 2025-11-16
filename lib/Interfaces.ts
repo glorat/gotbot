@@ -1,5 +1,5 @@
 import Discord = require('discord.js')
-import { Guild, PartialTextBasedChannelFields } from 'discord.js'
+import { Guild } from 'discord.js'
 
 export type EmojiFn = (x: string) => string | Discord.Emoji
 export type BoldifyFn = (x: string) => string
@@ -21,14 +21,11 @@ export interface Context {
   fleetId: string // Snowflake
   author: any
   bot?: Discord.Client
-  channel:
-    | Discord.GuildTextBasedChannel
-    | Discord.TextBasedChannel
-    | DummyChannel
+  channel: Discord.SendableChannels | DummyChannel
   embed?: any
   // msg? : Discord.Message;
   guild?: Guild
-  sender: PartialTextBasedChannelFields
+  sender: Discord.SendableChannels | DummyChannel
   callback?: any // FIXME
   isEntitled(userid: string): boolean
 }
