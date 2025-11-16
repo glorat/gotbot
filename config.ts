@@ -21,6 +21,10 @@ export default class Config {
   static readonly useSttCrewEntries : boolean = password.sttuser != '';
 
   static readonly token =isProd ? password.prod : password.dev;
+  static readonly openAiApiKey?:string = password.openAiApiKey;
+
+  // 'text-ada-001' | 'text-davinci-002' | 'text-curie-001';
+  static readonly openAiEngine: string = 'text-curie-001';
   static readonly gotServer = '235536091011088394'; // id of the GoT fleet server
   static readonly adminId = '232748347860058112'; // id of the bot administrator
   static readonly botServer = '307163779680960512'; // if of bot home server
