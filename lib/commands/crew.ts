@@ -216,10 +216,17 @@ module.exports = new Clapp.Command({
           let ordered: Array<CharInfo> = _.first(_.shuffle(res.entries), 5)
 
           const lines = ordered
-            // @ts-ignore - auto vivify trickery
-            .map((char) =>
-              chars.fullyEquip({ name: char.name }, char, char.stars, 100)
-            )
+            .map((info) => {
+              const baseChar: Char = {
+                name: info.name,
+                chars: info.char,
+                stars: 0,
+                maxstars: info.stars,
+                level: 0,
+                vaulted: false,
+              }
+              return chars.fullyEquip(baseChar, info, info.stars, 100)
+            })
             .map((char) => chars.statsFor(char, emojify, boldify, statsOpt))
           const ret =
             `${ordered.length}/${count} matches for ${res.searchParams.join(', ')}\n` +
