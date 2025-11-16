@@ -68,7 +68,6 @@ The bot requires the GUILD_MEMBERS privileged intent so please enable that for y
 
 ```sh
 $ ./gotcron
-$ node lib/cachewiki.js
 $ npx ts-node lib/index.ts
 ```
 

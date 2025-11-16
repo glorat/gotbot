@@ -88,7 +88,6 @@ export interface StatsOpts {
 }
 
 var wikidb: WikiDB
-let usingDatacore = false
 
 function mapSkillFieldToShort(field: string): string | undefined {
   switch (field) {
@@ -110,105 +109,103 @@ function mapSkillFieldToShort(field: string): string | undefined {
 }
 
 const datacorePath = cfg.dataPath + 'datacore-crew.json'
-if (fssync.existsSync(datacorePath)) {
-  const dcJson = fssync.readFileSync(datacorePath, 'utf8')
-  const datacoreCrew: CrewMember[] = JSON.parse(dcJson)
-  usingDatacore = true
+if (!fssync.existsSync(datacorePath)) {
+  throw new Error(
+    `Datacore crew file not found at ${datacorePath}. Legacy wiki-based fallback has been removed, datacore-crew.json is now required.`
+  )
+}
 
-  const variantKeyFor = (c: CrewMember): string => {
-    const vtraits = getVariantTraits(c)
-    return vtraits.length ? vtraits[0] : c.symbol
-  }
+const dcJson = fssync.readFileSync(datacorePath, 'utf8')
+const datacoreCrew: CrewMember[] = JSON.parse(dcJson)
 
-  const variantGroups: { [key: string]: CrewMember[] } = {}
-  datacoreCrew.forEach((c) => {
-    const key = variantKeyFor(c)
-    if (!variantGroups[key]) variantGroups[key] = []
-    variantGroups[key].push(c)
-  })
+const variantKeyFor = (c: CrewMember): string => {
+  const vtraits = getVariantTraits(c)
+  return vtraits.length ? vtraits[0] : c.symbol
+}
 
-  const crewentries: CharInfo[] = datacoreCrew.map((c) => {
-    const variantKey = variantKeyFor(c)
-    const group = variantGroups[variantKey]
-    const charName = getShortNameFromTrait(variantKey, group)
-    const moreChar = group
-      .filter((other) => other.name !== c.name)
-      .map((other) => other.name)
+const variantGroups: { [key: string]: CrewMember[] } = {}
+datacoreCrew.forEach((c) => {
+  const key = variantKeyFor(c)
+  if (!variantGroups[key]) variantGroups[key] = []
+  variantGroups[key].push(c)
+})
 
-    const skillInfos: SkillInfo[] = []
-    // Use Datacore's skill_data for intermediate rarities, treating them as level 100
-    c.skill_data.forEach((sd) => {
-      const stars = sd.rarity
-      const level = 100
-      const baseSkills = sd.base_skills as any
-      Object.keys(baseSkills).forEach((field) => {
-        const sk = baseSkills[field]
-        if (!sk || sk.core <= 0) return
-        const short = mapSkillFieldToShort(field)
-        if (!short) return
-        skillInfos.push({
-          stars,
-          level,
-          skill: short,
-          base: sk.core,
-          min: sk.range_min,
-          max: sk.range_max,
-        })
-      })
-    })
+const crewentries: CharInfo[] = datacoreCrew.map((c) => {
+  const variantKey = variantKeyFor(c)
+  const group = variantGroups[variantKey]
+  const charName = getShortNameFromTrait(variantKey, group)
+  const moreChar = group
+    .filter((other) => other.name !== c.name)
+    .map((other) => other.name)
 
-    // Ensure we have an entry for fully fused stars using base_skills at max rarity
-    const maxStars = c.max_rarity
-    const baseSkillsAtMax = c.base_skills as any
-    Object.keys(baseSkillsAtMax).forEach((field) => {
-      const sk = baseSkillsAtMax[field]
+  const skillInfos: SkillInfo[] = []
+  // Use Datacore's skill_data for intermediate rarities, treating them as level 100
+  c.skill_data.forEach((sd) => {
+    const stars = sd.rarity
+    const level = 100
+    const baseSkills = sd.base_skills as any
+    Object.keys(baseSkills).forEach((field) => {
+      const sk = baseSkills[field]
       if (!sk || sk.core <= 0) return
       const short = mapSkillFieldToShort(field)
       if (!short) return
-      // Overwrite any existing entry for (maxStars, 100, short) with the fully fused value
-      const existing = skillInfos.filter(
-        (s) => !(s.stars === maxStars && s.level === 100 && s.skill === short)
-      )
-      existing.push({
-        stars: maxStars,
-        level: 100,
+      skillInfos.push({
+        stars,
+        level,
         skill: short,
         base: sk.core,
         min: sk.range_min,
         max: sk.range_max,
       })
-      skillInfos.length = 0
-      skillInfos.push(...existing)
     })
-
-    const traitsNamed = c.traits_named || []
-    const traitsStr = traitsNamed.join(',')
-
-    const entry: CharInfo = {
-      name: c.name,
-      wiki: '',
-      stars: c.max_rarity,
-      skill: skillInfos,
-      traits: traitsStr,
-      char: charName,
-      moreChar,
-      image: `${DATACORE_ASSETS_URL}${c.imageUrlFullBody}`,
-      headImage: `${DATACORE_ASSETS_URL}${c.imageUrlPortrait}`,
-      traits_hidden: c.traits_hidden,
-      traits_int: c.traits,
-      symbol: c.symbol,
-    }
-
-    return entry
   })
 
-  wikidb = { crewentries } as any
-} else {
-  let json = fssync.readFileSync(cfg.wikidbpath, 'utf8')
-  let obj = JSON.parse(json)
+  // Ensure we have an entry for fully fused stars using base_skills at max rarity
+  const maxStars = c.max_rarity
+  const baseSkillsAtMax = c.base_skills as any
+  Object.keys(baseSkillsAtMax).forEach((field) => {
+    const sk = baseSkillsAtMax[field]
+    if (!sk || sk.core <= 0) return
+    const short = mapSkillFieldToShort(field)
+    if (!short) return
+    // Overwrite any existing entry for (maxStars, 100, short) with the fully fused value
+    const existing = skillInfos.filter(
+      (s) => !(s.stars === maxStars && s.level === 100 && s.skill === short)
+    )
+    existing.push({
+      stars: maxStars,
+      level: 100,
+      skill: short,
+      base: sk.core,
+      min: sk.range_min,
+      max: sk.range_max,
+    })
+    skillInfos.length = 0
+    skillInfos.push(...existing)
+  })
 
-  wikidb = obj
-}
+  const traitsNamed = c.traits_named || []
+  const traitsStr = traitsNamed.join(',')
+
+  const entry: CharInfo = {
+    name: c.name,
+    wiki: '',
+    stars: c.max_rarity,
+    skill: skillInfos,
+    traits: traitsStr,
+    char: charName,
+    moreChar,
+    image: `${DATACORE_ASSETS_URL}${c.imageUrlFullBody}`,
+    headImage: `${DATACORE_ASSETS_URL}${c.imageUrlPortrait}`,
+    traits_hidden: c.traits_hidden,
+    traits_int: c.traits,
+    symbol: c.symbol,
+  }
+
+  return entry
+})
+
+wikidb = { crewentries } as any
 // @ts-ignore
 wikidb.charstars = _.object(
   wikidb.crewentries.map((x) => x.name),
@@ -217,12 +214,6 @@ wikidb.charstars = _.object(
 wikidb.charToCrew = _.groupBy(wikidb.crewentries, (x) => x.char)
 
 var traitsSet = new Set<string>()
-// Add skills as traits (only in legacy wiki mode; Datacore traits already include skills)
-if (!usingDatacore) {
-  wikidb.crewentries.forEach(
-    (x) => (x.traits += ',' + _.uniq(x.skill.map((x) => x.skill)).join(','))
-  )
-}
 // Add vanilla traits
 wikidb.crewentries.forEach((x) =>
   x.traits

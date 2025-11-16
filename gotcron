@@ -108,9 +108,6 @@ fi
 # Quick hack to fix discrepencies in crew names between SSTApi & Wiki/SSR
 fix_ssr_crew
 
-echo "Starting cachewiki"
-npx ts-node lib/cachewiki.js
-
 echo "Telling bot to restart "
 if [ -f /etc/alpine-release ]
 then

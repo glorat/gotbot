@@ -33,6 +33,5 @@ export default class Config {
   static readonly baseUrl = 'http://got.glorat.net/'
   static nedbpath = dataPath + 'stt.json'
   static readonly clilogpath = dataPath + 'clilog.json'
-  static readonly wikidbpath = dataPath + 'wikidb.json'
   static readonly missionsdbpath = dataPath + 'missions.json'
 }
