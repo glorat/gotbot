@@ -5,8 +5,9 @@ import * as fs from 'async-file';
 import * as _ from 'underscore';
 import cheerio = require('cheerio');
 import cfg from '../config';
+import { Icon } from './dcmodel/game-elements';
 
-interface CrewEntry {
+export interface CrewEntry {
   name : string,
   wiki : string,
   stars : number,
@@ -22,7 +23,7 @@ interface CrewEntry {
 
 
 // STT data
-export interface AssetRef {
+export interface AssetRef extends Icon {
   file: string
 }
 export interface CrewAvatar {
