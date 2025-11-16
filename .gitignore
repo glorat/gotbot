@@ -7,3 +7,6 @@ password.js
 logs
 .morecrew*
 dist
+.DS_Store
+.idea/
+test-data/
