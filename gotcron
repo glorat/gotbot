@@ -70,6 +70,10 @@ cd "${0%/*}"
 
 echo "Checking for new characters"
 npx ts-node sttdl.ts
+
+echo "Downloading Datacore crew"
+npx ts-node lib/datacore.ts
+
 # Use jq to remove characters that don't have any skills
 mv data/sttcrew.json data/sttcrew-orig.json
 jq -c '[.[]|select(.skills|length != 0)]' data/sttcrew-orig.json >data/sttcrew.json
