@@ -1,5 +1,5 @@
 import cfg from '../config'
-import Datastore from 'nedb-async'
+import Datastore from './modules/nedb-async'
 
 // @ts-ignore
 const cmds = new Datastore({ filename: cfg.clilogpath, autoload: true })
@@ -22,5 +22,5 @@ function logCommand(cmd: any, context: any) {
     doc.guildId = context.channel.guild.id
     doc.guildName = context.channel.guild.name
   }
-  cmds.insert(doc) // Fire and forget
+  void cmds.asyncInsert(doc) // Fire and forget
 }

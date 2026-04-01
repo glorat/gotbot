@@ -1,5 +1,7 @@
+import * as API from '../Interfaces'
 const Clapp = require('../modules/clapp-discord')
-const _ = require('underscore')
+
+import * as _ from 'underscore'
 const missions = require('../missions')
 const dropdb = require('../dropdb')
 const Table = require('cli-table3')
@@ -9,32 +11,40 @@ module.exports = new Clapp.Command({
   desc: 'best missions to farm an item',
 
   // Command function
-  fn: (argv, context) =>
-    new Promise((fulfill, reject) => {
-      const msg = context.msg
+  fn: (argv: any, context: API.Context) =>
+    new Promise((fulfill) => {
       const args = argv.args
-      const emojify = context.emojify
-      const boldify = context.boldify
       const userid = context.author.id
 
-      function adjCost(cost) {
+      function adjCost(cost: number): number {
         return argv.flags.kit ? Math.ceil(cost * 0.75) : cost
       }
 
-      function starStr(s) {
-        //return _.range(s).map(x => '\u2B50').join('');
+      function starStr(s: number): string {
         return _.range(s)
-          .map((x) => '*')
+          .map(() => '*')
           .join('')
       }
-      function handleItem(entrys) {
+
+      function entryStat(e: any): string[] {
+        const foo = (adjCost(e.cost) * e.runs) / e.itemUnits
+        return [
+          e.name,
+          e.code,
+          e.missiontype,
+          e.level,
+          adjCost(e.cost).toString(),
+          e.runs.toString(),
+          foo.toFixed(1),
+        ]
+      }
+
+      function handleItem(entrys: any[]): string {
         // Sort by best cost first
         entrys = _.sortBy(
           entrys,
           (e) => (adjCost(e.cost) * e.runs) / e.itemUnits
         )
-
-        // entrys = _.first(entrys, 8); // Don't display too many yet to not blow display
 
         let table = new Table({
           chars: {
@@ -54,25 +64,8 @@ module.exports = new Clapp.Command({
             'right-mid': '',
             middle: '',
           },
-          /*        colWidths: [
-          Math.round(0.15*LINE_WIDTH), // We round it because providing a decimal number would
-          Math.round(0.65*LINE_WIDTH)  // break cli-table2
-        ],*/
           wordWrap: true,
         })
-
-        function entryStat(e) {
-          const foo = (adjCost(e.cost) * e.runs) / e.itemUnits
-          return [
-            e.name,
-            e.code,
-            e.missiontype,
-            e.level,
-            adjCost(e.cost),
-            e.runs,
-            foo.toFixed(1),
-          ]
-        }
 
         table.push(['Mission', 'Code', 'Type', 'Level', 'C', 'R', 'Cost'])
         entrys.map(entryStat).map((x) => table.push(x))
@@ -80,11 +73,11 @@ module.exports = new Clapp.Command({
       }
 
       missions.matchItem(
-        function (err, name) {
+        function (err: string, name: string) {
           if (err) {
             fulfill(err)
           } else {
-            let lines = []
+            let lines: string[] = []
 
             let entrys = missions.findByStarItem(args.stars, name)
             lines.push('```')
@@ -93,7 +86,7 @@ module.exports = new Clapp.Command({
             const table = handleItem(entrys)
             lines.push(table)
 
-            dropdb.findByStarItem(args.stars, name).then((botEntries) => {
+            dropdb.findByStarItem(args.stars, name).then((botEntries: any[]) => {
               if (
                 context.isEntitled(userid) &&
                 botEntries &&
@@ -123,7 +116,7 @@ module.exports = new Clapp.Command({
       validations: [
         {
           errorMessage: 'Must be 0 (basic) to 5 (legendary)',
-          validate: (value) => {
+          validate: (value: number) => {
             return value >= 0 && value <= 5
           },
         },

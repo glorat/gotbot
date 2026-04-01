@@ -1,7 +1,7 @@
 'use strict'
 
 import cfg from '../config'
-import Datastore from 'nedb-async'
+import Datastore from './modules/nedb-async'
 import * as _ from 'underscore'
 
 // @ts-ignore

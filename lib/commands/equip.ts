@@ -1,18 +1,19 @@
-var Clapp = require('../modules/clapp-discord')
+import * as API from '../Interfaces'
+import * as chars from '../chars'
+const Clapp = require('../modules/clapp-discord')
 const db = require('../crewdb')
-var _ = require('underscore')
-const chars = require('../chars')
-const fetch = require('node-fetch')
+import * as _ from 'underscore'
+import { MatchCB } from '../matcher'
 
 module.exports = new Clapp.Command({
   name: 'equip',
   desc: 'equip crew member to a fuse and level',
 
   // Command function
-  fn: (argv, context) =>
-    new Promise((fulfill, reject) => {
+  fn: (argv: any, context: API.Context) =>
+    new Promise((fulfill) => {
       const author = context.author.username
-      const userid = context.author.id
+      const userid: string = context.author.id
       const args = argv.args
       const emojify = context.emojify
       const boldify = context.boldify
@@ -24,40 +25,41 @@ module.exports = new Clapp.Command({
 
       const qry = { _id: userid }
 
-      db.users.findOne(qry, function (err, doc) {
+      db.users.findOne(qry, function (err: Error | null, doc: any) {
         // Create a default doc if user is new
         if (doc === null || !doc.crew) {
           fulfill(`Sorry ${author}, you do not have any crew to update`)
           return
         }
 
-        chars.matchOne(
-          function (err, name) {
-            if (err) {
-              fulfill(err)
+        const matchCallback: MatchCB = function (err, name) {
+          if (err) {
+            fulfill(err)
+          } else if (name) {
+            const char = _.find(doc.crew, (x) => x.name === name)
+            if (char) {
+              chars.wikiLookup(name, function (err: string | null, info: any) {
+                if (err) {
+                  fulfill(err)
+                } else {
+                  const stars =
+                    argv.flags.stars == 0 ? info.stars : argv.flags.stars
+                  const level: number = argv.flags.level
+                  chars.fullyEquip(char, info, stars, level)
+                  db.users.update(qry, doc, { upsert: true })
+                  fulfill(
+                    `${author}, I have updated stats for ${chars.statsFor(char, emojify, boldify, {})}`
+                  )
+                }
+              })
             } else {
-              var char = _.find(doc.crew, (x) => x.name === name)
-              if (char) {
-                chars.wikiLookup(name, function (err, info) {
-                  if (err) {
-                    fulfill(err)
-                  } else {
-                    const stars =
-                      argv.flags.stars == 0 ? info.stars : argv.flags.stars
-                    const level = argv.flags.level
-                    const skill = info.skill
-                    chars.fullyEquip(char, info, stars, level)
-                    db.users.update(qry, doc, { upsert: true })
-                    fulfill(
-                      `${author}, I have updated stats for ${chars.statsFor(char, emojify, boldify)}`
-                    )
-                  }
-                })
-              } else {
-                fulfill(`Sorry ${author}, I cannot find ${name} in your crew`)
-              }
+              fulfill(`Sorry ${author}, I cannot find ${name} in your crew`)
             }
-          },
+          }
+        }
+
+        chars.matchOne(
+          matchCallback,
           args.name1,
           args.name2,
           args.name3
