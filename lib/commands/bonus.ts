@@ -1,25 +1,25 @@
-var Clapp = require('../modules/clapp-discord')
-var _ = require('underscore')
-const chars = require('../chars')
+import * as API from '../Interfaces'
+import * as chars from '../chars'
+const Clapp = require('../modules/clapp-discord')
+import * as _ from 'underscore'
+
 const fleets = require('../fleetdb')
 const crewdb = require('../crewdb')
-const voyageSkills = ['cmd', 'dip', 'sec', 'eng', 'sci', 'med']
 
 module.exports = new Clapp.Command({
   name: 'bonus',
   desc: 'set your fleet and personal stat bonuses',
 
-  // Command function
-  fn: (argv, context) =>
+  fn: (argv: any, context: API.Context) =>
     new Promise((fulfill) => {
       try {
         const author = context.author.username
-        const userid = context.author.id
-        const fleetId = context.fleetId
+        const userid: string = context.author.id
+        const fleetId: string = context.fleetId
         const args = argv.args
         const emojify = context.emojify
 
-        let fleetProm, crewProm
+        let fleetProm: Promise<any>, crewProm: Promise<any>
         if (
           _.chain(chars.skills)
             .map((sk) => args[sk])
@@ -33,65 +33,67 @@ module.exports = new Clapp.Command({
             fleetProm = fleets.updateStarprof(fleetId, args)
             crewProm = crewdb.get(userid)
           } else if (args.type === 'mybase') {
-            let filtered = _.pick(args, chars.skills)
-            let update = (doc) => {
+            const filtered = _.pick(args, chars.skills)
+            const update = (doc: any) => {
               doc.base = filtered
               return doc
             }
             crewProm = crewdb.update(userid, update)
             fleetProm = fleets.get(fleetId)
           } else if (args.type === 'myprof') {
-            let filtered = _.pick(args, chars.skills)
-            let update = (doc) => {
+            const filtered = _.pick(args, chars.skills)
+            const update = (doc: any) => {
               doc.prof = filtered
               return doc
             }
             crewProm = crewdb.update(userid, update)
             fleetProm = fleets.get(fleetId)
           } else {
-            throw `Unknown starbase bonus type ${args.type}`
+            throw new Error(`Unknown starbase bonus type ${args.type}`)
           }
         } else {
           crewProm = crewdb.get(userid)
           fleetProm = fleets.get(fleetId)
         }
 
-        fleetProm.then((fleet) => {
-          let b = fleet.starbase
-          let bonuses = chars.skills
+        fleetProm.then((fleet: any) => {
+          const b = fleet.starbase
+          const bonuses = chars.skills
             .map((sk) => `${emojify(sk)}+${b[sk]}%`)
             .join('  ')
           let ret = `Starbase bonus at\n${bonuses}\n`
-          let b2 = fleet.starprof
-          let bon2 = chars.skills
+          const b2 = fleet.starprof
+          const bon2 = chars.skills
             .map((sk) => `${emojify(sk)}+${b2[sk]}%`)
             .join('  ')
           ret += `Starbase proficiency bonus at\n${bon2}\n`
-          crewProm.then((crew) => {
-            let bon3 = chars.skills
+          crewProm.then((crew: any) => {
+            const bon3 = chars.skills
               .map((sk) => `${emojify(sk)}+${crew.base[sk]}%`)
               .join('  ')
             ret += `Personal base bonus at\n${bon3}\n`
-            let bon4 = chars.skills
+            const bon4 = chars.skills
               .map((sk) => `${emojify(sk)}+${crew.prof[sk]}%`)
               .join('  ')
             ret += `Personal prof bonus at\n${bon4}`
             fulfill(ret)
           })
         })
-      } catch (e) {
+      } catch (e: any) {
         fulfill(e.message)
       }
     }),
-  args: [
-    {
-      name: 'type',
-      desc: `fleetbase|fleetprof|mybase|myprof`,
-      type: 'string',
-      default: '',
-      required: false,
-    },
-  ].concat(
+  args: (
+    [
+      {
+        name: 'type',
+        desc: `fleetbase|fleetprof|mybase|myprof`,
+        type: 'string',
+        default: '',
+        required: false,
+      },
+    ] as any[]
+  ).concat(
     chars.skills.map((sk) => ({
       name: sk,
       desc: `${sk} bonus`,

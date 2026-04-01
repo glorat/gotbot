@@ -1,35 +1,35 @@
+import * as API from '../Interfaces'
+import * as chars from '../chars'
 const Clapp = require('../modules/clapp-discord')
-const _ = require('underscore')
-const chars = require('../chars')
-const matcher = require('../matcher')
+import * as _ from 'underscore'
 
 module.exports = new Clapp.Command({
   name: 'search',
   desc: 'search for crew',
 
-  // Command function
-  fn: (argv, context) =>
-    new Promise((fulfill, reject) => {
+  fn: (argv: any, _context: API.Context) =>
+    new Promise((fulfill) => {
       const args = argv.args
-      const emojify = context.emojify
 
       try {
-        let res = chars.searchCrewByCharTrait(
+        const res = chars.searchCrewByCharTrait(
           [args.name1, args.name2, args.name3],
           chars.allCrewEntries()
         )
         let entries = res.entries
-        let searchParams = res.searchParams
+        const searchParams = res.searchParams
         const num = entries.length
         if (entries.length > 50) {
-          entries = _.first(entries, 50).concat([{ name: '...and more...' }])
+          entries = _.first(entries, 50).concat([
+            { name: '...and more...' } as any,
+          ])
         }
 
         const ret =
           `${num} results for ${searchParams.join(', ')}\n` +
-          entries.map((x) => x.name).join('\n')
+          entries.map((x: { name: string }) => x.name).join('\n')
         fulfill(ret)
-      } catch (e) {
+      } catch (e: any) {
         console.log(e)
         fulfill(e)
       }

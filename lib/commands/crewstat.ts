@@ -1,17 +1,19 @@
+import * as API from '../Interfaces'
+import * as chars from '../chars'
 const Clapp = require('../modules/clapp-discord')
-const _ = require('underscore')
-const chars = require('../chars')
+import * as _ from 'underscore'
+import { MatchCB } from '../matcher'
+
 const crewdb = require('../crewdb')
 
 module.exports = new Clapp.Command({
   name: 'crewstat',
   desc: 'updates stats for your crew',
 
-  // Command function
-  fn: (argv, context) =>
-    new Promise((fulfill, reject) => {
+  fn: (argv: any, context: API.Context) =>
+    new Promise((fulfill) => {
       const author = context.author.username
-      const userid = context.author.id
+      const userid: string = context.author.id
       const args = argv.args
 
       if (!context.isEntitled(userid)) {
@@ -21,34 +23,31 @@ module.exports = new Clapp.Command({
 
       const qry = { _id: userid }
 
-      crewdb.get(userid).then(function (doc) {
+      crewdb.get(userid).then(function (doc: any) {
         // Create a default doc if user is new
         if (doc === null || !doc.crew) {
           fulfill(`Sorry ${author}, you do not have any crew to update`)
           return
         }
 
-        chars.matchOne(
-          function (err, name) {
-            if (err) {
-              fulfill(err)
+        const matchCallback: MatchCB = function (err, name) {
+          if (err) {
+            fulfill(err)
+          } else if (name) {
+            const char = _.find(doc.crew, (x: any) => x.name === name)
+            if (char) {
+              char[args.stat] = _.pick(args, 'base', 'minroll', 'maxroll')
+              crewdb.users.update(qry, doc, { upsert: true })
+              fulfill(
+                `${author}, I have updated ${context.emojify(args.stat)} for ${char.name} to ${args.base}+(${args.minroll}-${args.maxroll})`
+              )
             } else {
-              var char = _.find(doc.crew, (x) => x.name === name)
-              if (char) {
-                char[args.stat] = _.pick(args, 'base', 'minroll', 'maxroll')
-                crewdb.users.update(qry, doc, { upsert: true })
-                fulfill(
-                  `${author}, I have updated ${context.emojify(args.stat)} for ${char.name} to ${args.base}+(${args.minroll}-${args.maxroll})`
-                )
-              } else {
-                fulfill(`Sorry ${author}, I cannot find ${name} in your crew`)
-              }
+              fulfill(`Sorry ${author}, I cannot find ${name} in your crew`)
             }
-          },
-          args.name1,
-          args.name2,
-          args.name3
-        )
+          }
+        }
+
+        chars.matchOne(matchCallback, args.name1, args.name2, args.name3)
       })
     }),
   args: [
@@ -60,7 +59,7 @@ module.exports = new Clapp.Command({
       validations: [
         {
           errorMessage: 'Must be cmd|dip|sci|eng|med|sec',
-          validate: (value) => {
+          validate: (value: string) => {
             return !!value.match(/^cmd|dip|sci|eng|med|sec$/)
           },
         },

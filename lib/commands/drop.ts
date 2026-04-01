@@ -1,5 +1,6 @@
-var Clapp = require('../modules/clapp-discord')
-var _ = require('underscore')
+import * as API from '../Interfaces'
+import * as _ from 'underscore'
+const Clapp = require('../modules/clapp-discord')
 const missions = require('../missions')
 const dropdb = require('../dropdb')
 const Table = require('cli-table3')
@@ -9,12 +10,11 @@ module.exports = new Clapp.Command({
   name: 'drop',
   desc: 'mission drop rates',
 
-  // Command function
-  fn: (argv, context) =>
+  fn: (argv: any, context: API.Context) =>
     new Promise((fulfill) => {
       try {
         const author = context.author.username
-        const userid = context.author.id
+        const userid: string = context.author.id
         const args = argv.args
         const emojify = context.emojify
         const boldify = context.boldify
@@ -24,19 +24,18 @@ module.exports = new Clapp.Command({
           return
         }
 
-        let starStr = function (s) {
-          //return _.range(s).map(x => '\u2B50').join('');
+        const starStr = function (s: number) {
           return _.range(s)
-            .map((x) => '*')
+            .map(() => '*')
             .join('')
         }
 
-        let adjCost = function (cost) {
+        const adjCost = function (cost: number) {
           return argv.flags.kit ? Math.ceil(cost * 0.75) : cost
         }
 
-        let viewMission = function (entrys) {
-          let table = new Table({
+        const viewMission = function (entrys: any[]) {
+          const table = new Table({
             chars: {
               top: '',
               'top-mid': '',
@@ -57,7 +56,7 @@ module.exports = new Clapp.Command({
             wordWrap: true,
           })
 
-          function entryStat(e) {
+          function entryStat(e: any) {
             const foo = (adjCost(e.cost) * e.runs) / e.itemUnits
             const qtStr = e.itemQty > 1 ? ` (x${e.itemQty})` : ''
             return [
@@ -69,7 +68,7 @@ module.exports = new Clapp.Command({
           }
 
           table.push(['#', 'Item', 'N', 'Cost'])
-          var i = 0
+          let i = 0
           entrys.map(entryStat).forEach((x) => {
             i++
             x[0] = i
@@ -79,20 +78,20 @@ module.exports = new Clapp.Command({
           return [
             '```',
             entrys[0].name + ' ' + entrys[0].code + ' ' + entrys[0].level,
-            entrys[0].runs + ' runs, ' + entrys[0].cost + ' chrons', // TODO: might be tickets
+            entrys[0].runs + ' runs, ' + entrys[0].cost + ' chrons',
             table.toString(),
             contrib ? `Last contributed by ${contrib}` : '',
             '```',
           ]
         }
 
-        let handleMission = function (code) {
-          let entrys = missions.findByMissionCode(code, args.level)
+        const handleMission = function (code: string) {
+          const entrys = missions.findByMissionCode(code, args.level)
           if (entrys.length === 0)
             return fulfill(`Unknown mission code ${code}`)
-          let m = entrys[0] // Reference entry for parent table info
+          const m = entrys[0]
 
-          let lines = []
+          let lines: string[] = []
 
           if (args.runs > 0) {
             lines = [
@@ -112,12 +111,12 @@ module.exports = new Clapp.Command({
             lines.push('```')
 
             let total = 0
-            let rec2s = []
+            const rec2s: any[] = []
             let wikiTotal = 0,
               wikiRuns = 0
             _.range(0, entrys.length).forEach((i) => {
               const n = args[`drop${i + 1}`] / entrys[i].itemQty
-              let rec2 = {
+              const rec2 = {
                 name: m.name,
                 wiki: m.wiki,
                 code: m.code,
@@ -133,14 +132,14 @@ module.exports = new Clapp.Command({
               }
               rec2s.push(rec2)
 
-              total += n // Scale down user submission by qty so we have drop units
+              total += n
               wikiTotal += entrys[i].itemUnits / entrys[i].itemQty
-              wikiRuns += entrys[i].runs / entrys.length // Remember we are denormalised
+              wikiRuns += entrys[i].runs / entrys.length
             })
             const expectedTotal = +(
               (wikiTotal / wikiRuns) *
               args.runs
-            ).toFixed() // Rounding just in case
+            ).toFixed()
 
             if (total !== expectedTotal) {
               lines.push(
@@ -148,12 +147,11 @@ module.exports = new Clapp.Command({
               )
             }
 
-            // Must confirm AND have a total match
             if (argv.flags.confirm && total === expectedTotal) {
               dropdb.drops.insert(rec2s)
               dropdb
                 .findByMissionCodeAndUser(m.code, m.level, userid)
-                .then((botEntries) => {
+                .then((botEntries: any[]) => {
                   if (botEntries && botEntries.length > 0) {
                     lines.push(author + ' provided drop rates')
                     lines = lines.concat(viewMission(botEntries))
@@ -173,7 +171,7 @@ module.exports = new Clapp.Command({
             lines.push('Wiki provided drop rates')
             lines = lines.concat(viewMission(entrys))
 
-            dropdb.findByMissionCode(m.code, m.level).then((botEntries) => {
+            dropdb.findByMissionCode(m.code, m.level).then((botEntries: any[]) => {
               if (botEntries && botEntries.length > 0) {
                 lines.push('Discord provided drop rates')
                 lines = lines.concat(viewMission(botEntries))
@@ -184,17 +182,16 @@ module.exports = new Clapp.Command({
           }
         }
 
-        let search = missions
+        const search = missions
           .allMissionCodes()
           .concat(missions.allMissionNames())
         matcher.matchOne(
-          function (err, res) {
+          function (err: string | null, res: string) {
             if (err) {
               fulfill(err)
             } else {
               let code = res
               if (_.contains(missions.allMissionNames(), code)) {
-                // Actually it is a name need to match
                 code = missions.missionNameToCode(code)
               }
               handleMission(code)
@@ -204,40 +201,42 @@ module.exports = new Clapp.Command({
           'mission name or code',
           args.mission
         )
-      } catch (e) {
+      } catch (e: any) {
         fulfill(e.message)
       }
     }),
-  args: [
-    {
-      name: 'mission',
-      desc: 'mission code or mission name',
-      type: 'string',
-      default: '',
-      required: true,
-    },
-    {
-      name: 'level',
-      desc: 'normal|elite|epic',
-      type: 'string',
-      required: true,
-      validations: [
-        {
-          errorMessage: 'Must be normal, elite or epic',
-          validate: (value) => {
-            return !!value.match(/^normal|elite|epic$/)
+  args: (
+    [
+      {
+        name: 'mission',
+        desc: 'mission code or mission name',
+        type: 'string',
+        default: '',
+        required: true,
+      },
+      {
+        name: 'level',
+        desc: 'normal|elite|epic',
+        type: 'string',
+        required: true,
+        validations: [
+          {
+            errorMessage: 'Must be normal, elite or epic',
+            validate: (value: string) => {
+              return !!value.match(/^normal|elite|epic$/)
+            },
           },
-        },
-      ],
-    },
-    {
-      name: 'runs',
-      desc: 'number of runs that dropped items',
-      type: 'number',
-      default: 0,
-      required: false,
-    },
-  ].concat(
+        ],
+      },
+      {
+        name: 'runs',
+        desc: 'number of runs that dropped items',
+        type: 'number',
+        default: 0,
+        required: false,
+      },
+    ] as any[]
+  ).concat(
     _.range(1, 7, 1).map((i) => {
       return {
         name: 'drop' + i,

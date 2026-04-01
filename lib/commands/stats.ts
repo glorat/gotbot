@@ -1,48 +1,58 @@
+import * as API from '../Interfaces'
+import * as chars from '../chars'
 const Clapp = require('../modules/clapp-discord')
-const _ = require('underscore')
-const chars = require('../chars')
+import * as _ from 'underscore'
+import Discord = require('discord.js')
 
 module.exports = new Clapp.Command({
   name: 'stats',
   desc: 'query stats for characters',
 
-  // Command function
-  fn: (argv, context) =>
-    new Promise((fulfill, reject) => {
-      const msg = context.msg
+  fn: (argv: any, context: API.Context) =>
+    new Promise((fulfill) => {
       const args = argv.args
-      const emojify = context.emojify
+      const emojify = (x: string): string | Discord.Emoji => {
+        const custom: { [key: string]: string } = {
+          '1star': '\u2B50',
+          '1darkstar': String.fromCodePoint(0x1f311),
+        }
+        if (custom[x]) {
+          return custom[x]
+        } else {
+          return context.emojify(x)
+        }
+      }
       const boldify = context.boldify
 
-      function handleName(name, starsArg, level) {
-        chars.wikiLookup(name, function (err, info) {
-          //chars.ssrLookup(name, function(err,info) {
+      function handleName(name: string, starsArg: number, level: number) {
+        chars.wikiLookup(name, function (err: string | null, info: any) {
           if (err) {
             fulfill(err)
           } else {
             const stars = info.stars
             const skill = info.skill
             const char = info.char
-            let starStat = function (s) {
+            const starStat = function (s: number) {
               const starStr = _.range(s)
-                .map((x) => emojify('1star'))
+                .map(() => emojify('1star'))
                 .join('')
               const darkStr = _.range(stars - s)
-                .map((x) => emojify('1darkstar'))
+                .map(() => emojify('1darkstar'))
                 .join('')
               const starSk = _.filter(
                 skill,
-                (sk) => sk.stars === s && sk.level === level
+                (sk: any) => sk.stars === s && sk.level === level
               )
               const skStr = _.map(
                 starSk,
-                (sk) => `${emojify(sk.skill)} ${sk.base} (${sk.min}-${sk.max})`
+                (sk: any) =>
+                  `${emojify(sk.skill)} ${sk.base} (${sk.min}-${sk.max})`
               ).join(' ')
               return `${starStr}${darkStr} - ${skStr}`
             }
 
             const levelStr = level !== 100 ? `Level ${level}: ` : ''
-            var msg = `${boldify(name)} (${char}): ${levelStr}${info.traits}\n`
+            let msg = `${boldify(name)} (${char}): ${levelStr}${info.traits}\n`
             if (starsArg > 0 && starsArg < stars) {
               msg += starStat(starsArg) + '\n'
             } else if (stars === 5) {
@@ -62,10 +72,10 @@ ${emojify('1star')}${emojify('1star')}${emojify('1star')}${emojify('1star')}${em
       }
 
       chars.matchOne(
-        function (err, name) {
+        function (err: string | null, name: string | null) {
           if (err) {
             fulfill(err)
-          } else {
+          } else if (name) {
             handleName(name, argv.flags.stars, argv.flags.level)
           }
         },

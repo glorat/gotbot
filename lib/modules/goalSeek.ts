@@ -1,7 +1,21 @@
-module.exports = goalSeek
+interface GoalSeekParams {
+  Func: (...args: any[]) => number
+  This: any
+  aFuncParams: any[]
+  oFuncArgTarget: {
+    Position: number
+    propStr?: string
+  }
+  Goal: number
+  Tol?: number
+  maxIter?: number
+}
 
-function goalSeek(oParams) {
-  let g, Y, Y1, OldTarget
+function goalSeek(oParams: GoalSeekParams): number | null {
+  let g: number,
+    Y: number = 0,
+    Y1: number,
+    OldTarget: number
 
   oParams.Tol = oParams.Tol || 0.001 // * Goal
   oParams.maxIter = oParams.maxIter || 1000
@@ -10,9 +24,10 @@ function goalSeek(oParams) {
   if (oParams.oFuncArgTarget.propStr) {
     //check if a guess has been provided
     if (
-      !oParams.aFuncParams[oParams.oFuncArgTarget.Position][
+      !getObjVal(
+        oParams.aFuncParams[oParams.oFuncArgTarget.Position],
         oParams.oFuncArgTarget.propStr
-      ]
+      )
     ) {
       //iterate through 100 guesses, max
       for (let i = 0; i < 100; i++) {
@@ -109,12 +124,14 @@ function goalSeek(oParams) {
       return null
     }
   }
+  return null
 }
+
 //source (modified from original): http://stackoverflow.com/questions/18936915/dynamically-set-property-of-nested-object
 //answerer: bpmason1; questioner: John B.
 //answerer url: http://stackoverflow.com/users/2736119/bpmason1
 //license: http://creativecommons.org/licenses/by-sa/3.0/legalcode
-function setObjVal(Obj, propStr, Value) {
+function setObjVal(Obj: any, propStr: string, Value: any) {
   let Schema = Obj // a moving reference to internal objects within obj
   const pList = propStr.split('.')
   const Len = pList.length
@@ -126,16 +143,19 @@ function setObjVal(Obj, propStr, Value) {
   }
   Schema[pList[Len - 1]] = Value
 }
+
 //source (modified from original): http://stackoverflow.com/questions/4343028/in-javascript-test-for-property-deeply-nested-in-object-graph
 //answerer: Zach; questioner: thisismyname
 //answerer url: http://stackoverflow.com/users/230892/zach
 //license: http://creativecommons.org/licenses/by-sa/3.0/legalcode
-function getObjVal(Obj, propStr) {
+function getObjVal(Obj: any, propStr: string): any {
   const Parts = propStr.split('.')
   let Cur = Obj
 
-  for (var i = 0; i < Parts.length; i++) {
+  for (let i = 0; i < Parts.length; i++) {
     Cur = Cur[Parts[i]]
   }
   return Cur
 }
+
+export = goalSeek

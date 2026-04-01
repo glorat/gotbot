@@ -1,15 +1,13 @@
-var Clapp = require('../modules/clapp-discord')
-var _ = require('underscore')
-const chars = require('../chars')
-const matcher = require('../matcher')
+import * as API from '../Interfaces'
+const Clapp = require('../modules/clapp-discord')
+
 const voyage = require('../voyage')
 
 module.exports = new Clapp.Command({
   name: 'voytime',
   desc: 'voyage time length calculator',
 
-  // Command function
-  fn: (argv, context) =>
+  fn: (argv: any, _context: API.Context) =>
     new Promise((fulfill) => {
       try {
         const args = argv.args
@@ -23,7 +21,7 @@ module.exports = new Clapp.Command({
           args.oth4,
         ]
 
-        let lines = []
+        const lines: string[] = []
         if (args.time > 0) {
           const am = Math.floor(
             voyage.calcAntiMatter(skills, args.start, args.time)
@@ -31,7 +29,7 @@ module.exports = new Clapp.Command({
 
           const skillSuccess = voyage.calcSkillSuccess(skills, args.time)
           lines.push('Estimated hazard success')
-          skillSuccess.forEach((s) => lines.push(`${s.good}/${s.total}`))
+          skillSuccess.forEach((s: any) => lines.push(`${s.good}/${s.total}`))
           lines.push(`${am} antimatter`)
         } else {
           const t = voyage.solveTime(skills, args.start)
@@ -39,7 +37,7 @@ module.exports = new Clapp.Command({
           const mins = Math.floor((t - hrs) * 60)
           const skillSuccess = voyage.calcSkillSuccess(skills, t)
           lines.push('Estimated hazard success')
-          skillSuccess.forEach((s) => lines.push(`${s.good}/${s.total}`))
+          skillSuccess.forEach((s: any) => lines.push(`${s.good}/${s.total}`))
           lines.push(`Estimated voyage length of ${hrs}h ${mins}m`)
         }
 
@@ -48,7 +46,7 @@ module.exports = new Clapp.Command({
         }
 
         fulfill(lines.join('\n'))
-      } catch (e) {
+      } catch (e: any) {
         fulfill(e.toString())
       }
     }),

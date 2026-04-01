@@ -1,42 +1,40 @@
 /* istanbul ignore file */
 'use strict'
 
-const fs = require('async-file')
-const _ = require('underscore')
-const cheerio = require('cheerio')
+import * as fs from 'async-file'
+import * as _ from 'underscore'
+import * as cheerio from 'cheerio'
+import { execSync } from 'child_process'
 
 const morecrew = require('../client/morecrew.json')
 
-let cmd =
+const cmd =
   "wget -O 'data/sttwiki.org/newpages.html' https://sttwiki.org/w/index.php?title=Special:NewPages"
-const shell = require('child_process').execSync
+const shell = execSync
 shell(cmd)
 
 const file = `data/sttwiki.org/newpages.html`
-return fs
-  .readFile(file, 'utf8')
+fs.readFile(file, 'utf8')
   .then(cheerio.load)
-  .then(function ($) {
+  .then(function ($: cheerio.CheerioAPI) {
     const crewlinks = $('ul li')
     let newCrew = 0
-    //const crewlinks = $('.mw-category-generated a');
     crewlinks.each(function () {
       const a = $(this)
       if (a.text().match('Crew/add')) {
         const crew = a.find('.mw-newpages-pagename')
         const title = crew.text()
-        const wiki = decodeURI(crew.attr('href'))
-        const stars = a.text().match('stars=([1-5])')[1]
+        const wiki = decodeURI(crew.attr('href') || '')
+        const starsMatch = a.text().match('stars=([1-5])')
+        const stars = starsMatch ? starsMatch[1] : '0'
 
-        if (_.some(morecrew, (x) => x.name === title)) {
+        if (_.some(morecrew, (x: any) => x.name === title)) {
           console.log(`${title} already is in morecrew`)
         } else {
           newCrew++
           morecrew.push({ name: title, wiki: wiki, stars: +stars })
           console.log(title + wiki + stars)
         }
-
-        //wikidb.crewentries.push({name: copyString(a.text()), wiki: copyString(a.attr('href')), stars: stars});
       }
     })
 
@@ -46,6 +44,6 @@ return fs
       fs.writeFile('client/morecrew.json', JSON.stringify(morecrew, null, 4))
     }
   })
-  .catch(function (e) {
+  .catch(function (e: Error) {
     throw e
   })

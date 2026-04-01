@@ -1,4 +1,4 @@
-module.exports = {
+export = {
   // Help
   help_usage: 'Usage: ',
   help_command: '(command)',

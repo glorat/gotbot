@@ -1,8 +1,14 @@
+import * as API from '../Interfaces'
+import * as chars from '../chars'
 const Clapp = require('../modules/clapp-discord')
-const _ = require('underscore')
-const chars = require('../chars')
+import * as _ from 'underscore'
+import Discord = require('discord.js')
 
-var bestEntries = function (argv, args, level) {
+function bestEntries(
+  argv: any,
+  args: { skill1: string; skill2: string; category: string },
+  level: number
+): any[] {
   const fuse = argv.flags.fuse
   const stars = argv.flags.stars
   const skill1 = args.skill1
@@ -11,19 +17,16 @@ var bestEntries = function (argv, args, level) {
   const entries = chars.allCrewEntries()
   return chars.bestChars(entries, stars, fuse, category, level, skill1, skill2)
 }
+
 module.exports = new Clapp.Command({
   name: 'best',
   desc: 'search for best characters',
 
-  // Command function
-  fn: (argv, context) =>
-    new Promise((fulfill, reject) => {
-      const msg = context.msg
+  fn: (argv: any, context: API.Context) =>
+    new Promise((fulfill) => {
       const args = argv.args
-      const boldify = context.boldify
-      //    const emojify = context.emojify;
-      const emojify = function (x) {
-        const custom = {
+      const emojify = (x: string): string | Discord.Emoji => {
+        const custom: { [key: string]: string } = {
           '1star': '\u2B50',
           '1darkstar': String.fromCodePoint(0x1f311),
         }
@@ -35,30 +38,30 @@ module.exports = new Clapp.Command({
       }
 
       const level = 100
-      var entrys = bestEntries(argv, args, level)
+      let entrys = bestEntries(argv, args, level)
 
-      entrys = _.first(entrys, argv.flags.number) // TODO: Cap the number?
+      entrys = _.first(entrys, argv.flags.number)
 
-      function entryStat(entry) {
+      function entryStat(entry: any): string {
         const stars = argv.flags.fuse ? argv.flags.fuse : entry.stars
         const starStr = _.range(stars)
-          .map((x) => emojify('1star'))
+          .map(() => emojify('1star'))
           .join('')
         const darkStr = _.range(entry.stars - stars)
-          .map((x) => emojify('1darkstar'))
+          .map(() => emojify('1darkstar'))
           .join('')
         const starSk = _.chain(entry.skill)
-          .filter((sk) => sk.stars === stars && sk.level === level)
-          .sortBy((sk) => -sk.base)
+          .filter((sk: any) => sk.stars === stars && sk.level === level)
+          .sortBy((sk: any) => -sk.base)
           .value()
         const skStr = _.map(
           starSk,
-          (sk) => `${emojify(sk.skill)} ${sk.base} (${sk.min}-${sk.max})`
+          (sk: any) => `${emojify(sk.skill)} ${sk.base} (${sk.min}-${sk.max})`
         ).join(' ')
         return `${starStr}${darkStr} ${entry.name} - ${skStr} - ${entry.result}`
       }
 
-      let lines = entrys.map(entryStat)
+      const lines = entrys.map(entryStat)
       fulfill(lines.join('\n'))
     }),
   args: [
@@ -71,7 +74,7 @@ module.exports = new Clapp.Command({
       validations: [
         {
           errorMessage: 'Must be base|gauntlet|minroll|avg',
-          validate: (value) => {
+          validate: (value: string) => {
             return !!value.match(/^(base|gauntlet|minroll|avg)$/)
           },
         },
@@ -86,7 +89,7 @@ module.exports = new Clapp.Command({
       validations: [
         {
           errorMessage: 'Must be cmd|dip|sci|eng|med|sec',
-          validate: (value) => {
+          validate: (value: string) => {
             return !!value.match(/^(cmd|dip|sci|eng|med|sec|)$/)
           },
         },
@@ -101,7 +104,7 @@ module.exports = new Clapp.Command({
       validations: [
         {
           errorMessage: 'Must be cmd|dip|sci|eng|med|sec',
-          validate: (value) => {
+          validate: (value: string) => {
             return !!value.match(/^(cmd|dip|sci|eng|med|sec|)$/)
           },
         },
