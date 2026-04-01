@@ -1,6 +1,7 @@
 {
   "name": "gotbot",
   "version": "1.0.0",
+  "packageManager": "pnpm@10.33.0",
   "description": "",
   "homepage": "https://github.com/glorat/gotbot",
   "author": {
@@ -44,9 +45,9 @@
       "mocha": true
     }
   },
-  "repository": "git@github.com:glorat/gotbot.git",
   "license": "Apache-2.0",
   "dependencies": {
+    "@seald-io/nedb": "^4.1.2",
     "@types/cheerio": "^0.22.23",
     "@types/express": "^4.17.2",
     "@types/nedb": "^1.8.12",
@@ -66,13 +67,16 @@
     "longjohn": "^0.2.12",
     "mkdirp": "^0.5.5",
     "moment": "^2.27.0",
-    "nedb": "^1.8.0",
-    "nedb-async": "0.1.6",
     "node-fetch": "^2.6.1",
     "node-schedule": "^2.1.1",
     "request-json": "^0.6.5",
     "underscore": "^1.13.1",
     "winston": "^2.4.5"
+  },
+  "pnpm": {
+    "overrides": {
+      "minimist-string>minimist": "^1.2.8"
+    }
   },
   "nyc": {
     "extension": [
