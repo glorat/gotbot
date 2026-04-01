@@ -48,7 +48,6 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@seald-io/nedb": "^4.1.2",
-    "@types/cheerio": "^0.22.23",
     "@types/express": "^4.17.2",
     "@types/nedb": "^1.8.12",
     "@types/node-fetch": "^2.5.4",
@@ -65,11 +64,10 @@
     "jsonfile": "^6.2.0",
     "lodash": "^4.17.21",
     "longjohn": "^0.2.12",
-    "mkdirp": "^0.5.5",
+    "mkdirp": "^3.0.1",
     "moment": "^2.27.0",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^2.7.0",
     "node-schedule": "^2.1.1",
-    "request-json": "^0.6.5",
     "underscore": "^1.13.1",
     "winston": "^2.4.5"
   },
