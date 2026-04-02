@@ -3,7 +3,8 @@
 
 import * as fs from 'async-file'
 import * as _ from 'underscore'
-import * as cheerio from 'cheerio'
+import { load } from 'cheerio'
+import type { CheerioAPI } from 'cheerio'
 import { execSync } from 'child_process'
 
 const morecrew = require('../client/morecrew.json')
@@ -15,8 +16,8 @@ shell(cmd)
 
 const file = `data/sttwiki.org/newpages.html`
 fs.readFile(file, 'utf8')
-  .then(cheerio.load)
-  .then(function ($: cheerio.CheerioAPI) {
+  .then(load)
+  .then(function ($: CheerioAPI) {
     const crewlinks = $('ul li')
     let newCrew = 0
     crewlinks.each(function () {

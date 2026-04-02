@@ -3,8 +3,8 @@
 'use strict'
 
 import * as fs from 'async-file'
-import * as cheerio from 'cheerio'
-import type { CheerioAPI } from 'cheerio'
+import { load } from 'cheerio'
+import type { CheerioAPI, Cheerio } from 'cheerio'
 
 const wikiurl = 'sttwiki.org'
 
@@ -45,7 +45,7 @@ function parseWikiMissionList(): Promise<void>[] {
     const file = `data/${wikiurl}/wiki/Template:${nav}`
     return fs
       .readFile(file, 'utf8')
-      .then(cheerio.load)
+      .then(load)
       .then(function ($: CheerioAPI) {
         const episodePanel = $('#mw-content-text table tr td')
         episodePanel.each(function (_i: number, _elem: any) {
@@ -78,7 +78,7 @@ export function parseWikiMissions(): Promise<void> {
 
         return fs
           .readFile(file, 'utf8')
-          .then(cheerio.load)
+          .then(load)
           .then(function (dom: CheerioAPI) {
             return parseMissionPage(dom, entry)
           })
@@ -100,7 +100,7 @@ const textFilter = function (this: any) {
   return this.type === 'text'
 }
 
-function parseMissionRow(row: cheerio.Cheerio): MissionItem {
+function parseMissionRow(row: Cheerio): MissionItem {
   const itemCell = row.find('td').eq(0)
   const item = itemCell.find('a')
   const itemMeta = itemCell.contents().filter(textFilter).text()
@@ -140,7 +140,7 @@ function parseMissionRow(row: cheerio.Cheerio): MissionItem {
   }
 }
 
-function parseMissionTable(table: cheerio.Cheerio): MissionTable {
+function parseMissionTable(table: Cheerio): MissionTable {
   const level = table.find('img').first().attr('title') || ''
 
   const header = table.find('th').first().closest('tr')
@@ -178,11 +178,13 @@ function parseMissionPage($: CheerioAPI, entry: MissionEntry) {
   removeAds($)
   // Parse the mission code
   const codeBox = $('#mw-content-text table th b').filter(function () {
-    return $(this)
-      .text()
-      .replace(/[^\w-]/g, '')
-      .toUpperCase()
-      .match(entry.name.replace(/[^\w-]/g, '').toUpperCase()) !== null
+    return (
+      $(this)
+        .text()
+        .replace(/[^\w-]/g, '')
+        .toUpperCase()
+        .match(entry.name.replace(/[^\w-]/g, '').toUpperCase()) !== null
+    )
   })
   if (codeBox.length === 0) {
     entry.code = 'Unk'
