@@ -2,7 +2,7 @@
 import { NetworkInterface } from './NetworkInterface'
 
 import fetch from 'node-fetch'
-let btoa = require('btoa')
+import btoa from 'btoa'
 
 export class NetworkFetch implements NetworkInterface {
   _weirdUrlify(form: any): string {

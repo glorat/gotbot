@@ -1,4 +1,4 @@
-const Clapp = require('../modules/clapp-discord')
+import * as Clapp from '../modules/clapp-discord'
 import cfg from '../../config'
 import * as API from '../Interfaces'
 
@@ -39,7 +39,7 @@ const manual = [
   'farm 1 database -k',
 ]
 
-module.exports = new Clapp.Command({
+export default new Clapp.Command({
   name: 'manual',
   desc: 'show manual',
 

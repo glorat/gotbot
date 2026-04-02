@@ -1,15 +1,16 @@
 'use strict'
 import cfg from '../config'
 import express from 'express'
-const http = express()
-const bodyParser = require('body-parser')
-const db = require('./crewdb')
-const cli = require('./cli')
-//const json2csv = require("json2csv");
+import bodyParser from 'body-parser'
+import * as db from './crewdb'
+import * as cli from './cli'
+//import json2csv from "json2csv";
 import * as api from './Interfaces'
 import { DummyChannel } from './Interfaces'
 
-module.exports = {}
+const http = express()
+
+export default {}
 
 http.use(express.static('client'))
 

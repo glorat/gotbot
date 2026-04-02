@@ -1,12 +1,12 @@
 import * as API from '../Interfaces'
 import * as _ from 'underscore'
-const Clapp = require('../modules/clapp-discord')
-const missions = require('../missions')
-const dropdb = require('../dropdb')
-const Table = require('cli-table3')
-const matcher = require('../matcher')
+import * as Clapp from '../modules/clapp-discord'
+import * as missions from '../missions'
+import * as dropdb from '../dropdb'
+import Table from 'cli-table3'
+import * as matcher from '../matcher'
 
-module.exports = new Clapp.Command({
+export default new Clapp.Command({
   name: 'drop',
   desc: 'mission drop rates',
 
@@ -171,14 +171,16 @@ module.exports = new Clapp.Command({
             lines.push('Wiki provided drop rates')
             lines = lines.concat(viewMission(entrys))
 
-            dropdb.findByMissionCode(m.code, m.level).then((botEntries: any[]) => {
-              if (botEntries && botEntries.length > 0) {
-                lines.push('Discord provided drop rates')
-                lines = lines.concat(viewMission(botEntries))
-              }
+            dropdb
+              .findByMissionCode(m.code, m.level)
+              .then((botEntries: any[]) => {
+                if (botEntries && botEntries.length > 0) {
+                  lines.push('Discord provided drop rates')
+                  lines = lines.concat(viewMission(botEntries))
+                }
 
-              fulfill(lines.join('\n'))
-            })
+                fulfill(lines.join('\n'))
+              })
           }
         }
 

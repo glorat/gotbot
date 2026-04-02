@@ -1,11 +1,6 @@
-module.exports = {
-  calcAntiMatter: calcAntiMatter,
-  solveTime: solveTime,
-  calcSkillSuccess: calcSkillSuccess,
-  configString: configString,
-}
+import goalSeek from './modules/goalSeek'
 
-const goalSeek = require('./modules/goalSeek.js')
+export { calcAntiMatter, solveTime, calcSkillSuccess, configString }
 
 const mult = [3.5, 2.5, 1, 1, 1, 1].map((x) => x / 10)
 

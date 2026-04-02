@@ -1,3 +1,10 @@
+declare module 'minimist-string' {
+  function parseSentence(
+    input: string
+  ): Record<string, string | number | boolean | string[]> & { _: string[] }
+  export default parseSentence
+}
+
 declare module 'cheerio' {
   export interface CheerioAPI {
     (selector: string): Cheerio

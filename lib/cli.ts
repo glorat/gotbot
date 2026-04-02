@@ -1,15 +1,33 @@
-'use strict'
-
 import { SlashCommandBuilder } from 'discord.js'
 import cfg from '../config'
-import * as Clapp from './modules/clapp-discord'
-import fs from 'fs'
+import { App, Command } from './modules/clapp-discord'
 import * as API from './Interfaces'
 import { keys } from 'underscore'
-import { Command } from './modules/clapp-discord'
 
-const pkg = require(process.cwd() + '/package.json')
-const clilog = require('./clilog')
+import pkg from '../package.json' assert { type: 'json' }
+import { logCommand } from './clilog'
+import best from './commands/best'
+import bonus from './commands/bonus'
+import boss from './commands/boss'
+import crew from './commands/crew'
+import crewstat from './commands/crewstat'
+import drop from './commands/drop'
+import equip from './commands/equip'
+import estat from './commands/estat'
+import event from './commands/event'
+import farm from './commands/farm'
+import foo from './commands/foo'
+import gaunt from './commands/gaunt'
+import gcalc from './commands/gcalc'
+import hello from './commands/hello'
+import manual from './commands/manual'
+import plusplus from './commands/plusplus'
+import search from './commands/search'
+import setup from './commands/setup'
+import stats from './commands/stats'
+import voyage from './commands/voyage'
+import voytime from './commands/voytime'
+import where from './commands/where'
 
 interface ClappApp {
   isCliSentence(cmd: string): boolean
@@ -18,7 +36,7 @@ interface ClappApp {
   parseInput(cmd: any, context: any): void
 }
 
-const app = new Clapp.App({
+const app = new App({
   name: cfg.botName,
   desc: pkg.description,
   prefix: cfg.prefix,
@@ -79,16 +97,40 @@ function commandToSlashBuilder(cmd: Command): SlashCommandBuilder | undefined {
 // Load every command in the commands folder
 export const slashCommands: SlashCommandBuilder[] = []
 
-fs.readdirSync('./lib/commands/').forEach((file: string) => {
-  if (file.endsWith('.js') || file.endsWith('.ts')) {
-    const command = require('./commands/' + file.replace('.js', ''))
-    app.addCommand(command)
-    const s = commandToSlashBuilder(command)
-    if (s) {
-      slashCommands.push(s)
-    }
+// Register all commands explicitly
+const commandModules = [
+  best,
+  bonus,
+  boss,
+  crew,
+  crewstat,
+  drop,
+  equip,
+  estat,
+  event,
+  farm,
+  foo,
+  gaunt,
+  gcalc,
+  hello,
+  manual,
+  plusplus,
+  search,
+  setup,
+  stats,
+  voyage,
+  voytime,
+  where,
+]
+
+commandModules.forEach((command) => {
+  app.addCommand(command)
+  const s = commandToSlashBuilder(command)
+  if (s) {
+    slashCommands.push(s)
   }
 })
+
 // console.log(slashCommands.length)
 export function sendCommand(
   cmd: string,
@@ -97,7 +139,7 @@ export function sendCommand(
   let msgPromise = new Promise<string>((resolve, reject) => {
     if (app.isCliSentence(cmd)) {
       context.callback = (m: any) => resolve(m)
-      clilog.logCommand(cmd, context)
+      logCommand(cmd, context)
       app.parseInput(cmd, context)
     } else {
       resolve('Not a valid command')

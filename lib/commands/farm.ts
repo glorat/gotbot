@@ -1,12 +1,11 @@
 import * as API from '../Interfaces'
-const Clapp = require('../modules/clapp-discord')
-
+import * as Clapp from '../modules/clapp-discord'
 import * as _ from 'underscore'
-const missions = require('../missions')
-const dropdb = require('../dropdb')
-const Table = require('cli-table3')
+import * as missions from '../missions'
+import * as dropdb from '../dropdb'
+import Table from 'cli-table3'
 
-module.exports = new Clapp.Command({
+export default new Clapp.Command({
   name: 'farm',
   desc: 'best missions to farm an item',
 
@@ -86,19 +85,21 @@ module.exports = new Clapp.Command({
             const table = handleItem(entrys)
             lines.push(table)
 
-            dropdb.findByStarItem(args.stars, name).then((botEntries: any[]) => {
-              if (
-                context.isEntitled(userid) &&
-                botEntries &&
-                botEntries.length > 0
-              ) {
-                lines.push('Discord farm rates')
-                lines = lines.concat(handleItem(botEntries))
-              }
+            dropdb
+              .findByStarItem(args.stars, name)
+              .then((botEntries: any[]) => {
+                if (
+                  context.isEntitled(userid) &&
+                  botEntries &&
+                  botEntries.length > 0
+                ) {
+                  lines.push('Discord farm rates')
+                  lines = lines.concat(handleItem(botEntries))
+                }
 
-              lines.push('```')
-              fulfill(lines.join('\n'))
-            })
+                lines.push('```')
+                fulfill(lines.join('\n'))
+              })
           }
         },
         args.name1,
@@ -116,8 +117,9 @@ module.exports = new Clapp.Command({
       validations: [
         {
           errorMessage: 'Must be 0 (basic) to 5 (legendary)',
-          validate: (value: number) => {
-            return value >= 0 && value <= 5
+          validate: (value: string) => {
+            const num = parseInt(value, 10)
+            return num >= 0 && num <= 5
           },
         },
       ],

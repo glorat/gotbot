@@ -4,10 +4,7 @@ import Datastore from './modules/nedb-async'
 // @ts-ignore
 const cmds = new Datastore({ filename: cfg.clilogpath, autoload: true })
 
-module.exports = {
-  cmds: cmds,
-  logCommand: logCommand,
-}
+export { cmds, logCommand }
 
 function logCommand(cmd: any, context: any) {
   let doc: any = {

@@ -1,9 +1,8 @@
 import { SlashCommandBuilder } from 'discord.js'
-
-const Clapp = require('../modules/clapp-discord')
+import * as Clapp from '../modules/clapp-discord'
 import * as _ from 'underscore'
-import chars = require('../chars')
-//import cfg from '../../config';
+import * as chars from '../chars'
+import type { CharInfo } from '../chars'
 import * as API from '../Interfaces'
 import { argOrFlagToBuilder } from '../cli'
 
@@ -33,7 +32,7 @@ const flags = [
   },
 ]
 
-module.exports = new Clapp.Command({
+export default new Clapp.Command({
   name: 'estats',
   desc: 'query extended stats for characters',
 
@@ -70,7 +69,7 @@ new moon
         level: number,
         ssr: any
       ) {
-        chars.wikiLookup(name, function (err: any, info: chars.CharInfo) {
+        chars.wikiLookup(name, function (err: any, info: CharInfo) {
           //chars.ssrLookup(name, function(err,info) {
           if (err) {
             fulfill(err)

@@ -1,6 +1,6 @@
-import Clapp = require('../modules/clapp-discord')
+import * as Clapp from '../modules/clapp-discord'
 
-module.exports = new Clapp.Command({
+export default new Clapp.Command({
   name: 'foo',
   desc: 'does foo things',
   fn: async (argv: any, context: any) => {

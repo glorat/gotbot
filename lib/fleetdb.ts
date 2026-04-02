@@ -12,20 +12,6 @@ const fleets = new Datastore({
   autoload: true,
 })
 
-module.exports = {
-  fleets: fleets,
-  updateStarbase: updateStarbase,
-  updateStarprof: updateStarprof,
-  resetEvent: resetEvent,
-  addEventChar: addEventChar,
-  addEventTrait: addEventTrait,
-  setBossDifficulty: setBossDifficulty,
-  addBossExclude,
-  resetBossExclude,
-  refreshBossSpec,
-  get: get,
-}
-
 async function update(fleetId: string, fn: any): Promise<FleetDoc> {
   const qry = { _id: fleetId }
   const doc = await get(fleetId)
@@ -144,4 +130,18 @@ async function get(fleetId: string) {
   const qry = { _id: fleetId }
   const doc: FleetDoc = await fleets.asyncFindOne(qry)
   return vivify(doc)
+}
+
+export {
+  fleets,
+  updateStarbase,
+  updateStarprof,
+  resetEvent,
+  addEventChar,
+  addEventTrait,
+  setBossDifficulty,
+  addBossExclude,
+  resetBossExclude,
+  refreshBossSpec,
+  get,
 }

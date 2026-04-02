@@ -1,49 +1,43 @@
-'use strict'
-
-import { Context } from '../../Interfaces'
 import { SlashCommandBuilder } from 'discord.js'
 
-const Clapp = require('clapp'),
-  Table = require('cli-table3'),
-  str = require('./str-en.js')
+import {
+  App as ClappApp,
+  Command as ClappCommand,
+  Flag as ClappFlag,
+  Argument as ClappArgument,
+  ArgumentOptions,
+  FlagOptions,
+} from '../clapp/index.js'
+import Table from 'cli-table3'
+import str from './str-en'
 
-export const Flag = Clapp.Flag
-export const Argument = Clapp.Argument
+export const Flag = ClappFlag
+export const Argument = ClappArgument
 
-interface ClappAppArguments {}
+interface ClappAppArguments {
+  name: string
+  desc: string
+  prefix: string
+  onReply: (msg: string, context: unknown) => void
+  caseSensitive?: boolean
+  version?: string
+  separator?: string
+  commands?: ClappCommand[]
+}
 
 interface ClappCommandOpts {
   exclude?: boolean
   slashCommandBuilder?(): SlashCommandBuilder
 }
 
-interface ClappCommandArguments {
+interface ClappCommandOptions {
   name: string
   desc: string
-  args: {
-    name: string
-    desc: string
-    type: string
-    required?: boolean
-    validations?: {
-      errorMessage: string
-      validate: (value: string) => boolean
-    }[]
-    default?: any
-  }[]
-  flags?: any[]
-  fn(argv: any, context: Context): Promise<any>
-
+  fn: (argv: unknown, context: unknown) => Promise<string>
+  args?: (ClappArgument | ArgumentOptions)[]
+  flags?: (ClappFlag | FlagOptions)[]
+  caseSensitive?: boolean
   opts?: ClappCommandOpts
-}
-
-declare namespace Clapp {
-  interface App {
-    isCliSentence(cmd: string): boolean
-    commands: any[]
-    addCommand(cmd: any): void
-    parseInput(cmd: any, context: any): void
-  }
 }
 
 const noTableChars = {
@@ -82,7 +76,7 @@ const discordTable = () => {
   return table
 }
 
-export class App extends Clapp.App {
+export class App extends ClappApp {
   constructor(options: ClappAppArguments) {
     super(options)
   }
@@ -104,7 +98,7 @@ export class App extends Clapp.App {
       wordWrap: true,
     })
 
-    for (let i in this.commands) {
+    for (const i in this.commands) {
       table.push([i, this.commands[i].desc])
     }
 
@@ -122,10 +116,10 @@ export class App extends Clapp.App {
   }
 }
 
-export class Command extends Clapp.Command {
+export class Command extends ClappCommand {
   opts?: ClappCommandOpts
 
-  constructor(options: ClappCommandArguments) {
+  constructor(options: ClappCommandOptions) {
     super(options)
     this.opts = options.opts
   }
@@ -135,15 +129,14 @@ export class Command extends Clapp.Command {
     let r = str.help_usage + ' ' + app.prefix + ' ' + this.name
 
     // Add every argument to the usage (Only if there are arguments)
-    if (Object.keys(this.args).length > 0) {
-      for (let i in this.args) {
-        r += this.args[i].required ? ' (' + i + ')' : ' [' + i + ']'
+    if (this.args.length > 0) {
+      for (let i = 0; i < this.args.length; i++) {
+        const arg = this.args[i]
+        r += arg.required ? ' (' + arg.name + ')' : ' [' + arg.name + ']'
         args_table.push([
-          i,
-          typeof this.args[i].desc !== 'undefined' ? this.args[i].desc : '',
-          typeof this.args[i].default !== 'undefined'
-            ? this.args[i].default
-            : '',
+          arg.name,
+          typeof arg.desc !== 'undefined' ? arg.desc : '',
+          typeof arg.default !== 'undefined' ? arg.default : '',
         ])
       }
     }
@@ -158,16 +151,13 @@ export class Command extends Clapp.Command {
     if (Object.keys(this.flags).length > 0) {
       const flags_table = discordTable()
       for (const i in this.flags) {
+        const flag = this.flags[i]
         flags_table.push([
-          (typeof this.flags[i].alias !== 'undefined'
-            ? '-' + this.flags[i].alias + ', '
-            : '') +
+          (typeof flag.alias !== 'undefined' ? '-' + flag.alias + ', ' : '') +
             '--' +
             i,
-          typeof this.flags[i].desc !== 'undefined' ? this.flags[i].desc : '',
-          typeof this.flags[i].default !== 'undefined'
-            ? this.flags[i].default
-            : '',
+          typeof flag.desc !== 'undefined' ? flag.desc : '',
+          typeof flag.default !== 'undefined' ? flag.default : '',
         ])
       }
 
@@ -179,8 +169,7 @@ export class Command extends Clapp.Command {
         '```'
     }
 
-    if (Object.keys(this.args).length > 0)
-      r += '\n\n' + str.help_args_required_optional
+    if (this.args.length > 0) r += '\n\n' + str.help_args_required_optional
 
     return r
   }

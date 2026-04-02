@@ -1,9 +1,8 @@
 import * as API from '../Interfaces'
-const Clapp = require('../modules/clapp-discord')
+import * as Clapp from '../modules/clapp-discord'
+import * as voyage from '../voyage'
 
-const voyage = require('../voyage')
-
-module.exports = new Clapp.Command({
+export default new Clapp.Command({
   name: 'voytime',
   desc: 'voyage time length calculator',
 

@@ -1,4 +1,4 @@
-const Table = require('cli-table3')
+import Table from 'cli-table3'
 
 export function createDefaultTable() {
   return new Table({

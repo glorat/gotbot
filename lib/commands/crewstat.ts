@@ -1,12 +1,11 @@
 import * as API from '../Interfaces'
 import * as chars from '../chars'
-const Clapp = require('../modules/clapp-discord')
+import * as Clapp from '../modules/clapp-discord'
 import * as _ from 'underscore'
 import { MatchCB } from '../matcher'
+import * as crewdb from '../crewdb'
 
-const crewdb = require('../crewdb')
-
-module.exports = new Clapp.Command({
+export default new Clapp.Command({
   name: 'crewstat',
   desc: 'updates stats for your crew',
 

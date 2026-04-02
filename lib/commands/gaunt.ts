@@ -1,6 +1,6 @@
-const Clapp = require('../modules/clapp-discord')
+import * as Clapp from '../modules/clapp-discord'
 
-module.exports = new Clapp.Command({
+export default new Clapp.Command({
   name: 'gaunt',
   desc: 'calculate gauntlet success',
 

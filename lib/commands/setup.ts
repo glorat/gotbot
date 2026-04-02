@@ -1,10 +1,9 @@
 import { deploySlash, undeploySlash } from '../slashdeploy'
-
-const Clapp = require('../modules/clapp-discord')
+import * as Clapp from '../modules/clapp-discord'
 import * as API from '../Interfaces'
 import cfg from '../../config'
 
-module.exports = new Clapp.Command({
+export default new Clapp.Command({
   name: 'setup',
   desc: 'setup bot for this server',
 

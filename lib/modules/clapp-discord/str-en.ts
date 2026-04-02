@@ -1,4 +1,4 @@
-export = {
+export default {
   // Help
   help_usage: 'Usage: ',
   help_command: '(command)',

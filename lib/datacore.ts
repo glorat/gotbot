@@ -145,7 +145,7 @@ async function main() {
   }
 }
 
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   // When executed via ts-node, perform download and caching into ./data
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
   main()

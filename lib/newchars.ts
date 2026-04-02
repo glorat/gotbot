@@ -1,13 +1,11 @@
 /* istanbul ignore file */
-'use strict'
 
 import * as fs from 'async-file'
 import * as _ from 'underscore'
 import { load } from 'cheerio'
 import type { CheerioAPI } from 'cheerio'
 import { execSync } from 'child_process'
-
-const morecrew = require('../client/morecrew.json')
+import morecrew from '../client/morecrew.json' assert { type: 'json' }
 
 const cmd =
   "wget -O 'data/sttwiki.org/newpages.html' https://sttwiki.org/w/index.php?title=Special:NewPages"

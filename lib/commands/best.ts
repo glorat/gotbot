@@ -1,8 +1,8 @@
 import * as API from '../Interfaces'
 import * as chars from '../chars'
-const Clapp = require('../modules/clapp-discord')
+import * as Clapp from '../modules/clapp-discord'
 import * as _ from 'underscore'
-import Discord = require('discord.js')
+import * as Discord from 'discord.js'
 
 function bestEntries(
   argv: any,
@@ -18,7 +18,7 @@ function bestEntries(
   return chars.bestChars(entries, stars, fuse, category, level, skill1, skill2)
 }
 
-module.exports = new Clapp.Command({
+export default new Clapp.Command({
   name: 'best',
   desc: 'search for best characters',
 

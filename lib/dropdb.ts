@@ -1,8 +1,7 @@
-'use strict'
-
 import cfg from '../config'
 import Datastore from './modules/nedb-async'
 import * as _ from 'underscore'
+import * as missions from './missions'
 
 // @ts-ignore
 var drops = new Datastore({
@@ -36,15 +35,13 @@ class DropEntry {
   constructor() {}
 }
 
-const missions = require('./missions')
-
-module.exports = {
-  drops: drops,
-  findByMissionCode: findByMissionCode,
-  findByMissionCodeAndUser: findByMissionCodeAndUser,
-  findByStarItem: findByStarItem,
-  allEntries: allEntries,
-  reduceEntries: reduceEntries,
+export {
+  drops,
+  findByMissionCode,
+  findByMissionCodeAndUser,
+  findByStarItem,
+  allEntries,
+  reduceEntries,
 }
 
 function reduceEntries(recs: Array<DropEntry>): Array<DropEntry> {

@@ -1,13 +1,14 @@
-const Clapp = require('../modules/clapp-discord')
+import * as Clapp from '../modules/clapp-discord'
 import * as _ from 'underscore'
 import cfg from '../../config'
 import * as chars from '../chars'
 import * as matcher from '../matcher'
-const Gauntlet = require('../../client/gauntlet')
-const db = require('../crewdb')
+import Gauntlet from '../../client/gauntlet'
+import * as db from '../crewdb'
 import * as API from '../Interfaces'
+import { readFileSync } from 'fs'
 
-module.exports = new Clapp.Command({
+export default new Clapp.Command({
   name: 'gcalc',
   desc: 'gauntlet crew calculator',
 
@@ -22,8 +23,7 @@ module.exports = new Clapp.Command({
           .value()
 
         if (!featuredSkill) {
-          const fs = require('fs')
-          let rawdata = fs.readFileSync(cfg.dataPath + 'gauntlet.json')
+          let rawdata = readFileSync(cfg.dataPath + 'gauntlet.json')
           let gauntlet_data = JSON.parse(rawdata)
           featuredSkill = gauntlet_data.featured_skill.substring(0, 3)
           featuredSkill = featuredSkill === 'com' ? 'cmd' : featuredSkill

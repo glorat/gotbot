@@ -1,10 +1,8 @@
-'use strict'
-
 import cfg from '../config'
 console.log(`crew database: ${cfg.nedbpath}`)
 
 //const pkg     = require(process.cwd() + '/package.json');
-import Discord = require('discord.js')
+import * as Discord from 'discord.js'
 const intents = [
   Discord.GatewayIntentBits.Guilds,
   Discord.GatewayIntentBits.GuildMembers,
@@ -15,19 +13,19 @@ const intents = [
 const partials: Discord.Partials[] = [Discord.Partials.Channel]
 const bot = new Discord.Client({ intents, partials })
 import './webserver'
-const cli = require('./cli')
-const fleets = require('./fleetdb')
-import winston = require('winston')
-const path = require('path')
-const moment = require('moment')
-const mkdirp = require('mkdirp')
+import * as cli from './cli'
+import * as fleets from './fleetdb'
+import winston from 'winston'
+import * as path from 'path'
+import moment from 'moment'
+import { mkdirp } from 'mkdirp'
 import * as API from './Interfaces'
 import { keys } from 'underscore'
 import { dummyChannel } from './webserver'
-
-if (process.env.NODE_ENV !== 'production') {
-  require('longjohn')
-}
+import 'longjohn'
+import schedule from 'node-schedule'
+import { spawn } from 'child_process'
+import * as fs from 'fs'
 
 function isEntitled(id: string): boolean {
   let got = bot.guilds.cache.get(cfg.gotServer)
@@ -61,10 +59,13 @@ bot.on('messageCreate', (msg) => {
     console.log(`Creating logger for ${channelTag}`)
 
     const dir = path.join(cfg.dataPath, 'logs', serverName)
-    mkdirp(dir, function (err: any) {
-      if (err) console.error(err)
-      else console.log(`${dir} directory made`)
-    })
+    mkdirp(dir)
+      .then(() => {
+        console.log(`${dir} directory made`)
+      })
+      .catch((err: any) => {
+        if (err) console.error(err)
+      })
 
     winston.loggers
       .add(channelTag, {
@@ -177,7 +178,8 @@ bot.on(Discord.Events.InteractionCreate, async (msg) => {
     }
 
     const commands = cli.commands()
-    const handler = commands[msg.commandName]
+    // FIXME: type bug here being masked
+    const handler = commands[msg.commandName as any]
     if (handler) {
       const fn: (argv: API.ClappArgs, context: API.Context) => Promise<string> =
         handler.fn
@@ -267,15 +269,12 @@ bot.on('raw', async (packet: any) => {
 })
 
 // Schedule the gotcron
-const schedule = require('node-schedule')
 let crontab = '02 1,5,9,13,17,20 * * *'
 
 console.log(`Scheduling gotcron at ${crontab}`)
 
 schedule.scheduleJob(crontab, function () {
   console.log('Running gotcron')
-  const { spawn } = require('child_process')
-  const fs = require('fs')
 
   const got = spawn('./gotcron')
   got.stdout.pipe(

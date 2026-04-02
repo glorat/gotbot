@@ -1,9 +1,7 @@
-'use strict'
-
 import cfg from '../config'
 import * as fs from 'async-file'
 import * as _ from 'underscore'
-const matcher = require('./matcher')
+import * as matcher from './matcher'
 
 interface MissionDB {
   missions: Array<Mission>
@@ -99,21 +97,18 @@ let ready = fs
   .catch((e: any) => {
     throw e
   })
-module.exports = {
-  allMissionNames: function () {
-    return wikidb.missionNames
-  },
-  allMissionCodes: function () {
-    return wikidb.missionCodes
-  },
-  missionNameToCode: (nm: string) =>
-    _.find(wikidb.entries, (m) => m.name === nm).code,
-  allMissionItems: allMissionItems,
-  matchItem: matchItem,
-  findByStarItem: findByStarItem,
-  findByMissionCode: findByMissionCode,
-  ready: ready,
+export function allMissionNames(): Array<string> {
+  return wikidb.missionNames
 }
+
+export function allMissionCodes(): Array<string> {
+  return wikidb.missionCodes
+}
+
+export const missionNameToCode = (nm: string) =>
+  _.find(wikidb.entries, (m) => m.name === nm).code
+
+export { allMissionItems, matchItem, findByStarItem, findByMissionCode, ready }
 
 function allMissionItems() {
   return wikidb.itemList
@@ -138,6 +133,13 @@ function findByMissionCode(code: string, level: string): Array<MissionEntry> {
   )
 }
 
-function matchItem(cb: any, one: string, two: string, three: string) {
-  return matcher.matchOne(cb, wikidb.itemList, 'items', one, two, three)
+function matchItem(cb: any, one: string, two?: string, three?: string) {
+  return matcher.matchOne(
+    cb,
+    wikidb.itemList,
+    'items',
+    one,
+    two ?? '',
+    three ?? ''
+  )
 }

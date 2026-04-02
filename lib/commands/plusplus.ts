@@ -1,13 +1,16 @@
-var Clapp = require('../modules/clapp-discord')
+import * as Clapp from '../modules/clapp-discord'
 import cfg from '../../config'
 
-module.exports = new Clapp.Command({
+export default new Clapp.Command({
   name: '++',
   desc: 'give karma',
   fn: (argv: any, context: any) => {
-    let ret = `<@${cfg.adminId}> ++ deserves the karma for creating me\n`
-    return ret
+    return new Promise((fulfill) => {
+      let ret = `<@${cfg.adminId}> ++ deserves the karma for creating me\n`
+      fulfill(ret)
+    })
   },
+  args: [],
   opts: {
     exclude: true,
   },

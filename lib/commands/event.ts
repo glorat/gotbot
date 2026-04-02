@@ -1,14 +1,13 @@
 import * as API from '../Interfaces'
-const Clapp = require('../modules/clapp-discord')
-
+import * as Clapp from '../modules/clapp-discord'
 import * as _ from 'underscore'
 import { CharInfo } from '../chars'
-const chars = require('../chars')
-const crewdb = require('../crewdb')
-const fleets = require('../fleetdb')
+import * as chars from '../chars'
+import * as crewdb from '../crewdb'
+import * as fleets from '../fleetdb'
 //const voyageSkills = ['cmd','dip','sec','eng','sci','med'];
 
-module.exports = new Clapp.Command({
+export default new Clapp.Command({
   name: 'event',
   desc: 'view or set event crew',
 

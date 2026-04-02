@@ -1,9 +1,9 @@
-const Clapp = require('../modules/clapp-discord')
+import * as Clapp from '../modules/clapp-discord'
 import cfg from '../../config'
-import Discord = require('discord.js')
+import * as Discord from 'discord.js'
 import * as API from '../Interfaces'
 
-module.exports = new Clapp.Command({
+export default new Clapp.Command({
   name: 'whereami',
   desc: 'where is the bot deployed',
 

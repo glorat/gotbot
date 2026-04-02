@@ -1,9 +1,12 @@
+import path from 'path'
+import { createRequire } from 'module'
+
+const require = createRequire(import.meta.url)
 const nodeEnv = process.env.NODE_ENV || 'development'
 const isProd = nodeEnv === 'production'
 const isTest = nodeEnv === 'test'
 
-let dataPath =
-  require('path').resolve(isTest ? './test-data/' : './data/') + '/'
+let dataPath = path.resolve(isTest ? './test-data/' : './data/') + '/'
 let password = isTest ? { prod: '', dev: '' } : require(dataPath + 'password')
 
 export default class Config {
@@ -31,7 +34,7 @@ export default class Config {
 
   static readonly httpport = 3030
   static readonly baseUrl = 'http://got.glorat.net/'
-  static nedbpath = dataPath + 'stt.json'
+  static nedbpath = dataPath + (isTest ? 'test_stt.json' : 'stt.json')
   static readonly clilogpath = dataPath + 'clilog.json'
   static readonly missionsdbpath = dataPath + 'missions.json'
 }

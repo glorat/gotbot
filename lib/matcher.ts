@@ -1,6 +1,6 @@
 'use strict'
 
-import _ = require('underscore')
+import * as _ from 'underscore'
 
 function reSafe(str: string) {
   return (str + '').replace(/[.?*+^$[\]\\(){}|-]/g, '\\$&')

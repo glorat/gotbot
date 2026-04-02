@@ -1,12 +1,10 @@
 import * as API from '../Interfaces'
 import * as chars from '../chars'
-const Clapp = require('../modules/clapp-discord')
-import * as _ from 'underscore'
+import * as Clapp from '../modules/clapp-discord'
+import * as fleets from '../fleetdb'
+import * as crewdb from '../crewdb'
 
-const fleets = require('../fleetdb')
-const crewdb = require('../crewdb')
-
-module.exports = new Clapp.Command({
+export default new Clapp.Command({
   name: 'bonus',
   desc: 'set your fleet and personal stat bonuses',
 

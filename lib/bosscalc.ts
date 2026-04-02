@@ -1,11 +1,11 @@
-const chars = require('./chars')
+import * as chars from './chars'
 import { Char, CharInfo } from './chars'
 import { createDefaultTable } from './utils'
 import * as fs from 'async-file'
 import cfg from '../config'
 import * as _ from 'underscore'
 import STTApiLite from './modules/STTApiLite/lib/STTApiLite'
-const fleets = require('./fleetdb')
+import * as fleets from './fleetdb'
 
 export interface BossCmdFlags {
   node?: number
@@ -16,6 +16,8 @@ export interface BossCmdFlags {
 }
 
 async function downloadBossBattles() {
+  const { createRequire } = await import('module')
+  const require = createRequire(import.meta.url)
   let password = require(cfg.dataPath + 'password')
 
   let STTApi = new STTApiLite()

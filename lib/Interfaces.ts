@@ -1,4 +1,4 @@
-import Discord = require('discord.js')
+import * as Discord from 'discord.js'
 import { Guild } from 'discord.js'
 
 export type EmojiFn = (x: string) => string | Discord.Emoji

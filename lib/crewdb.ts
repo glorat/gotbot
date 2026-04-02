@@ -1,17 +1,10 @@
 import cfg from '../config'
 import Datastore from './modules/nedb-async'
 import * as chars from './chars'
+import * as api from './Interfaces'
 
 // @ts-ignore
 const users = new Datastore({ filename: cfg.nedbpath, autoload: true })
-import * as api from './Interfaces'
-
-module.exports = {
-  users: users,
-  get: get,
-  update: update,
-  calcAdjustedSkill: calcAdjustedSkill,
-}
 
 function update(userid: any, fn: (x: any) => any) {
   const qry = { _id: userid }
@@ -64,3 +57,5 @@ function calcAdjustedSkill(doc: chars.CrewDoc, fleet: any) {
   })
   return doc
 }
+
+export { users, get, update, calcAdjustedSkill }

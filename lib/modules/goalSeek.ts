@@ -158,4 +158,4 @@ function getObjVal(Obj: any, propStr: string): any {
   return Cur
 }
 
-export = goalSeek
+export default goalSeek

@@ -1,18 +1,19 @@
 import * as API from './Interfaces'
 import * as fs from 'async-file'
 import * as fssync from 'fs'
-import _ = require('underscore')
+import * as _ from 'underscore'
 import { Dictionary } from 'underscore'
-import { MatchCB } from './matcher'
+import {
+  MatchCB,
+  matchOne as matcherMatchOne,
+  matchAll as matcherMatchAll,
+} from './matcher'
 import { CrewMember } from './dcmodel/crew'
 import {
   DATACORE_ASSETS_URL,
   getShortNameFromTrait,
   getVariantTraits,
 } from './datacore'
-
-const matcher = require('./matcher')
-
 import cfg from '../config'
 import { createDefaultTable } from './utils'
 
@@ -243,7 +244,7 @@ export function charStars() {
 }
 
 export function matchOne(cb: MatchCB, ...args: string[]) {
-  return matcher.matchOne(cb, _.keys(wikidb.charstars), 'character', ...args)
+  return matcherMatchOne(cb, _.keys(wikidb.charstars), 'character', ...args)
 }
 
 export function wikiLookup(name: string, cb: any) {
@@ -806,24 +807,26 @@ export function searchCrewByCharTrait(
   criteria
     .filter((x) => x !== '')
     .forEach((name) => {
-      matcher.matchOne(
-        function (err: any, res: string) {
+      matcherMatchOne(
+        function (err: any, res: string | null) {
           if (err) {
             throw err
           }
-          searchParams.push(res)
-          entries = entries.filter((entry) => {
-            const matchTraits = entry.traits
-              .split(',')
-              .map((x: string) => x.trim())
-              .concat(entry.traits_hidden)
+          if (res) {
+            searchParams.push(res)
+            entries = entries.filter((entry) => {
+              const matchTraits = entry.traits
+                .split(',')
+                .map((x: string) => x.trim())
+                .concat(entry.traits_hidden)
 
-            return (
-              _.contains(matchTraits, res) ||
-              entry.char === res ||
-              _.contains(entry.moreChar, res)
-            )
-          })
+              return (
+                _.contains(matchTraits, res) ||
+                entry.char === res ||
+                _.contains(entry.moreChar, res)
+              )
+            })
+          }
         },
         charsAndTraits,
         'char or trait',

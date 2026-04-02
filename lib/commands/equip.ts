@@ -1,11 +1,11 @@
 import * as API from '../Interfaces'
 import * as chars from '../chars'
-const Clapp = require('../modules/clapp-discord')
-const db = require('../crewdb')
+import * as Clapp from '../modules/clapp-discord'
+import * as db from '../crewdb'
 import * as _ from 'underscore'
 import { MatchCB } from '../matcher'
 
-module.exports = new Clapp.Command({
+export default new Clapp.Command({
   name: 'equip',
   desc: 'equip crew member to a fuse and level',
 
@@ -58,12 +58,7 @@ module.exports = new Clapp.Command({
           }
         }
 
-        chars.matchOne(
-          matchCallback,
-          args.name1,
-          args.name2,
-          args.name3
-        )
+        chars.matchOne(matchCallback, args.name1, args.name2, args.name3)
       })
     }),
   args: [

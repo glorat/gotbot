@@ -1,11 +1,11 @@
 import { CharInfo } from '../chars'
 
-const Clapp = require('../modules/clapp-discord')
-import _ = require('underscore')
-const chars = require('../chars')
-const crewdb = require('../crewdb')
-const fleets = require('../fleetdb')
-const voyage = require('../voyage')
+import * as Clapp from '../modules/clapp-discord'
+import * as _ from 'underscore'
+import * as chars from '../chars'
+import * as crewdb from '../crewdb'
+import * as fleets from '../fleetdb'
+import * as voyage from '../voyage'
 import * as API from '../Interfaces'
 
 const voyageSkills = ['cmd', 'dip', 'sec', 'eng', 'sci', 'med']
@@ -32,7 +32,7 @@ function formatHrs(t: number) {
   return `${hrs}h ${mins}m`
 }
 
-module.exports = new Clapp.Command({
+export default new Clapp.Command({
   name: 'voyage',
   desc: 'voyage crew calculator',
 

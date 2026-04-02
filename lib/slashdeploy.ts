@@ -1,10 +1,6 @@
 import { slashCommands } from './cli'
-
-const { REST, Routes } = require('discord.js')
+import { REST, Routes } from 'discord.js'
 import cfg from '../config'
-
-const x = slashCommands
-const commands = x.map((c) => c.toJSON())
 
 // Construct and prepare an instance of the REST module
 const rest = new REST({ version: '10' }).setToken(cfg.token)
@@ -12,6 +8,7 @@ const rest = new REST({ version: '10' }).setToken(cfg.token)
 // and deploy your commands!
 export const deploySlash = async (guildId: string): Promise<string> => {
   try {
+    const commands = slashCommands.map((c) => c.toJSON())
     console.log(
       `Started refreshing ${commands.length} application (/) commands.`
     )

@@ -1,5 +1,4 @@
 import * as API from '../Interfaces'
-//import {allCrewEntries} from "../chars";
 import { CrewDoc } from '../chars'
 import {
   BossCmdFlags,
@@ -8,18 +7,12 @@ import {
   reportBoss,
 } from '../bosscalc'
 import { SlashCommandBuilder } from 'discord.js'
-// import {argOrFlagToBuilder} from "../cli";
+import * as Clapp from '../modules/clapp-discord'
+import * as crewdb from '../crewdb'
+import * as chars from '../chars'
+import * as fleets from '../fleetdb'
 
-const Clapp = require('../modules/clapp-discord')
-
-const crewdb = require('../crewdb')
-const chars = require('../chars')
-// const crewdb = require('../crewdb.js');
-const fleets = require('../fleetdb')
-
-//const voyageSkills = ['cmd','dip','sec','eng','sci','med'];
-
-module.exports = new Clapp.Command({
+export default new Clapp.Command({
   name: 'boss',
   desc: 'boss battle calculator',
 

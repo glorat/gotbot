@@ -1,0 +1,51 @@
+/**
+ * @typedef {object} StringsObject
+ *
+ * An object defining the strings that will be used by Clapp to communicate with the users.
+ * Click on the `source` link above in order to see which strings can be overridden.
+ */
+export interface StringsObject {
+  // Help
+  help_usage: string
+  help_command: string
+  help_cmd_list: string
+  help_further_help: string
+  help_av_args: string
+  help_av_options: string
+  help_args_required_optional: string
+
+  // Errors
+  err: string
+  err_internal_error: string
+  err_unknown_command: string
+  err_unfulfilled_args: string
+  err_type_mismatch: string
+  err_type_help: string
+}
+
+const defaultStrings: StringsObject = {
+  // Help
+  help_usage: 'Usage: ',
+  help_command: '(command)',
+  help_cmd_list: "Here's a list of commands:",
+  help_further_help: 'To get further help on a command, type: ',
+  help_av_args: 'Available arguments',
+  help_av_options: 'Available options',
+  help_args_required_optional:
+    'Arguments in (parenthesis) are required, arguments in [brackets]' +
+    ' are optional',
+
+  // Errors
+  err: 'Error: ',
+
+  err_internal_error:
+    'An internal error occurred while trying to execute the command %CMD%.',
+  err_unknown_command: 'unknown command %CMD%.',
+  err_unfulfilled_args:
+    'not every required argument was fulfilled. Missing arguments:',
+  err_type_mismatch:
+    "your command couldn't be executed for the following reasons:",
+  err_type_help: 'Type %PREFIX% --help for help.',
+}
+
+export default defaultStrings

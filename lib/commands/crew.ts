@@ -1,13 +1,13 @@
-import Clapp = require('../modules/clapp-discord')
-import _ = require('underscore')
-import chars = require('../chars')
-const matcher = require('../matcher')
-const crewdb = require('../crewdb')
-const fleets = require('../fleetdb')
+import * as Clapp from '../modules/clapp-discord'
+import * as _ from 'underscore'
+import * as chars from '../chars'
+import * as matcher from '../matcher'
+import * as crewdb from '../crewdb'
+import * as fleets from '../fleetdb'
 import * as API from '../Interfaces'
 import { Char, CharInfo, CrewDoc } from '../chars'
 
-module.exports = new Clapp.Command({
+export default new Clapp.Command({
   name: 'crew',
   desc: 'manage your crew roster',
 
@@ -92,13 +92,13 @@ module.exports = new Clapp.Command({
             doc.crew = []
           } // Vivify
           chars.matchOne(
-            function (err, name) {
+            function (err: string | null, name: string | null) {
               if (err) {
                 fulfill(err)
               } else {
                 var charOpt = _.find(
                   doc.crew,
-                  (x) => x.name === name && !x.vaulted
+                  (x: any) => x.name === name && !x.vaulted
                 )
                 let char: Char
                 if (!charOpt) {
@@ -126,11 +126,14 @@ module.exports = new Clapp.Command({
             doc.crew = []
           } // Vivify
           chars.matchOne(
-            function (err, name) {
+            function (err: string | null, name: string | null) {
               if (err) {
                 fulfill(err)
               } else {
-                let char = _.find(doc.crew, (x) => x.name === name && x.vaulted)
+                let char = _.find(
+                  doc.crew,
+                  (x: any) => x.name === name && x.vaulted
+                )
                 if (!char) {
                   fulfill(`${name} is not in your vault`)
                 } else {
@@ -153,7 +156,9 @@ module.exports = new Clapp.Command({
           let charsToSearch = doc.crew
           if (!argv.flags.vault) {
             // excluded vaulted chars
-            charsToSearch = charsToSearch.filter((e) => !e.vaulted === true)
+            charsToSearch = charsToSearch.filter(
+              (e: Char) => !e.vaulted === true
+            )
           }
 
           let entries = chars.allCrewEntries()

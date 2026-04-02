@@ -481,9 +481,7 @@ export interface CompactCrew {
  * This interface inherits from both CrewMember and CompactCrew
  */
 export interface PlayerCrew
-  extends CrewMember,
-    CompactCrew,
-    IntermediateSkillData {
+  extends CrewMember, CompactCrew, IntermediateSkillData {
   id: number
   symbol: string
   name: string

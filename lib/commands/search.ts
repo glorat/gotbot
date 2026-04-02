@@ -1,9 +1,9 @@
 import * as API from '../Interfaces'
 import * as chars from '../chars'
-const Clapp = require('../modules/clapp-discord')
+import * as Clapp from '../modules/clapp-discord'
 import * as _ from 'underscore'
 
-module.exports = new Clapp.Command({
+export default new Clapp.Command({
   name: 'search',
   desc: 'search for crew',
 
