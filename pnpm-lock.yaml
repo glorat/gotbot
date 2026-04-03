@@ -57,6 +57,9 @@ importers:
       '@eslint/js':
         specifier: ^9.23.0
         version: 9.39.4
+      '@types/body-parser':
+        specifier: ^1.19.5
+        version: 1.19.6
       '@types/node':
         specifier: ^22.0.0
         version: 22.19.15
