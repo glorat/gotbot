@@ -1,4 +1,4 @@
-export function promisefy<T>(name: string, args: IArguments): Promise<T[] | T> {
+export function promisefy<T>(name: string, args: any[]): Promise<T[] | T> {
   return new Promise((rs, rj) => {
     /**
      * Check if the last argument is
@@ -16,8 +16,7 @@ export function promisefy<T>(name: string, args: IArguments): Promise<T[] | T> {
        * callback is not passed
        * to them.
        */
-      // @ts-ignore
-      const cursor = this[name](...arg)
+      const cursor = (this as any)[name](...arg)
       let count = 1
 
       for (const [method, value] of modifies) {
@@ -43,15 +42,15 @@ export function promisefy<T>(name: string, args: IArguments): Promise<T[] | T> {
         count++
       }
     } else {
-      // @ts-ignore
-      this[name](...arg, (err: any, docs: any) => (err ? rj(err) : rs(docs)))
+      ;(this as any)[name](...arg, (err: any, docs: any) =>
+        err ? rj(err) : rs(docs)
+      )
     }
   })
 }
-export function justPromise(name: string, arg: IArguments) {
+export function justPromise(name: string, args: any[]) {
   return new Promise((rs, rj) => {
-    // @ts-ignore
-    this[name](...arg, (err: any, docs: any) => {
+    ;(this as any)[name](...args, (err: any, docs: any) => {
       if (err) {
         rj(err)
       } else {

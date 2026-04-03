@@ -129,7 +129,7 @@ export function sendCommand(
   cmd: string,
   context: API.Context
 ): Promise<string> {
-  let msgPromise = new Promise<string>((resolve) => {
+  const msgPromise = new Promise<string>((resolve) => {
     if (app.isCliSentence(cmd)) {
       context.callback = (m) => resolve(m)
       logCommand(cmd, context)

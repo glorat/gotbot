@@ -8,14 +8,14 @@ interface AppLike {
   prefix: string
 }
 
-export interface CommandOptions {
+export interface CommandOptions<TContext = unknown> {
   name: string
   desc: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   fn: (
     argv: Argv,
-    context: any
-  ) => string | Promise<string> | { message: string; context?: unknown }
+    context: TContext
+  ) => string | Promise<string> | { message: string; context?: TContext }
   args?: (Argument | ArgumentOptions)[]
   flags?: (Flag | FlagOptions)[]
   caseSensitive?: boolean
@@ -33,17 +33,17 @@ export interface Argv {
  * single purpose. The command can receive arguments and flags, and can return a string that will be
  * redirected to the app output (See: {@link onReply}).
  */
-class Command {
+class Command<TContext = unknown> {
   name: string
   desc: string
-  fn: CommandOptions['fn']
+  fn: CommandOptions<TContext>['fn']
   async: boolean
   caseSensitive: boolean
   suppressDeprecationWarnings?: boolean
   args: Argument[]
   flags: Record<string, Flag>
 
-  constructor(options: CommandOptions) {
+  constructor(options: CommandOptions<TContext>) {
     if (
       typeof options.name !== 'string' || // name is required
       options.name === '' ||
@@ -157,7 +157,7 @@ class Command {
 
     // Add every flag, only if there are flags to add
     if (Object.keys(this.flags).length > 0) {
-      let flags_table = new Table({
+      const flags_table = new Table({
         chars: {
           top: '',
           'top-mid': '',

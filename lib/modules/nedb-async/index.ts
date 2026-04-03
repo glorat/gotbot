@@ -5,39 +5,35 @@ export class AsyncNedb<G> extends Nedb<G> {
   constructor(pathOrOptions?: string | Nedb.DataStoreOptions | undefined) {
     super(pathOrOptions)
   }
-  public asyncFind<T extends G>(query: any, projection?: T) {
-    return promisefy.call(this, 'find', arguments) as Promise<T[]>
+  public asyncFind<T extends G>(...args: any[]) {
+    return promisefy.call(this, 'find', args) as Promise<T[]>
   }
-  public asyncCount(query: any) {
-    return promisefy.call(this, 'count', arguments)
-  }
-
-  public asyncFindOne<T extends G>(query: any, projection?: T) {
-    return promisefy.call(this, 'findOne', arguments) as Promise<T>
+  public asyncCount(...args: any[]) {
+    return promisefy.call(this, 'count', args)
   }
 
-  public asyncInsert<T extends G>(newDoc: T) {
-    return justPromise.call(this, 'insert', arguments) as Promise<T>
+  public asyncFindOne<T extends G>(...args: any[]) {
+    return promisefy.call(this, 'findOne', args) as Promise<T>
   }
 
-  public asyncUpdate(
-    query: any,
-    updateQuery: any,
-    options?: Nedb.UpdateOptions
-  ) {
-    return justPromise.call(this, 'update', arguments)
+  public asyncInsert<T extends G>(...args: any[]) {
+    return justPromise.call(this, 'insert', args) as Promise<T>
   }
 
-  public asyncRemove(query: any, options?: Nedb.RemoveOptions) {
-    return justPromise.call(this, 'remove', arguments)
+  public asyncUpdate(...args: any[]) {
+    return justPromise.call(this, 'update', args)
   }
 
-  public asyncEnsureIndex(options: Nedb.EnsureIndexOptions) {
-    return justPromise.call(this, 'ensureIndex', arguments) as Promise<void>
+  public asyncRemove(...args: any[]) {
+    return justPromise.call(this, 'remove', args)
   }
 
-  public asyncRemoveIndex(fieldName: string) {
-    return justPromise.call(this, 'removeIndex', arguments) as Promise<void>
+  public asyncEnsureIndex(...args: any[]) {
+    return justPromise.call(this, 'ensureIndex', args) as Promise<void>
+  }
+
+  public asyncRemoveIndex(...args: any[]) {
+    return justPromise.call(this, 'removeIndex', args) as Promise<void>
   }
 
   public asyncLoadDatabase() {

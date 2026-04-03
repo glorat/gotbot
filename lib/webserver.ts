@@ -65,7 +65,7 @@ export const dummyChannel: DummyChannel = {
   },
 }
 http.post('/command', function (req, res) {
-  let context: api.Context = {
+  const context: api.Context = {
     author: { username: 'test', id: '-1' },
     channel: dummyChannel,
     isEntitled: function () {
@@ -77,7 +77,7 @@ http.post('/command', function (req, res) {
     sender: dummyChannel,
   }
 
-  let cmd = cfg.prefix + ' ' + req.body.command
+  const cmd = cfg.prefix + ' ' + req.body.command
 
   cli.sendCommand(cmd, context).then(function (msg: any) {
     res.json({ message: msg, embed: context.embed })

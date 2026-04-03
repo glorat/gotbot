@@ -8,7 +8,7 @@ function btoa(str: string): string {
 export class NetworkFetch implements NetworkInterface {
   _weirdUrlify(form: any): string {
     // Arrays on DB's severs don't work with the usual "ids=1,2", they need the special "ids[]=1&ids[]=2" form
-    let searchParams: URLSearchParams = new URLSearchParams()
+    const searchParams: URLSearchParams = new URLSearchParams()
     for (const prop of Object.keys(form)) {
       if (Array.isArray(form[prop])) {
         form[prop].forEach((entry: any): void => {
@@ -28,7 +28,7 @@ export class NetworkFetch implements NetworkInterface {
     bearerToken: string | undefined = undefined,
     getjson: boolean = true
   ): Promise<any> {
-    let headers: any = {
+    const headers: any = {
       'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
     }
 
@@ -38,7 +38,7 @@ export class NetworkFetch implements NetworkInterface {
 
     console.log(`POST: ${uri}`)
 
-    let response = await fetch(uri, {
+    const response = await fetch(uri, {
       method: 'post',
       headers: headers,
       body: this._weirdUrlify(form),
@@ -51,7 +51,7 @@ export class NetworkFetch implements NetworkInterface {
         return response.text()
       }
     } else {
-      let data = await response.text()
+      const data = await response.text()
       throw new Error(
         `Network error; status ${response.status}; reply ${data}.`
       )
@@ -61,7 +61,6 @@ export class NetworkFetch implements NetworkInterface {
   async get(uri: string, qs: any, json: boolean = true): Promise<any> {
     let uriFetch
 
-    let response
     if (qs) {
       uriFetch = uri + '?' + this._weirdUrlify(qs)
     } else {
@@ -69,7 +68,7 @@ export class NetworkFetch implements NetworkInterface {
     }
     console.log(`GET:  ${uriFetch}`)
 
-    response = await fetch(uriFetch)
+    const response = await fetch(uriFetch)
 
     if (response.ok) {
       if (json) {
@@ -78,7 +77,7 @@ export class NetworkFetch implements NetworkInterface {
         return response.text()
       }
     } else {
-      let data = await response.text()
+      const data = await response.text()
       throw new Error(
         `Network error; status ${response.status}; reply ${data}.`
       )
@@ -86,11 +85,11 @@ export class NetworkFetch implements NetworkInterface {
   }
 
   async postjson(uri: string, form: any): Promise<any> {
-    let headers: any = {
+    const headers: any = {
       'Content-type': 'application/json',
     }
 
-    let response = await fetch(uri, {
+    const response = await fetch(uri, {
       method: 'post',
       headers: headers,
       body: JSON.stringify(form),

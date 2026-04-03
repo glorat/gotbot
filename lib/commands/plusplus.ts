@@ -6,7 +6,7 @@ export default new Clapp.Command({
   desc: 'give karma',
   fn: (argv: any, context: any) => {
     return new Promise((fulfill) => {
-      let ret = `<@${cfg.adminId}> ++ deserves the karma for creating me\n`
+      const ret = `<@${cfg.adminId}> ++ deserves the karma for creating me\n`
       fulfill(ret)
     })
   },

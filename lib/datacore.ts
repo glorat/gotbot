@@ -1,6 +1,6 @@
 import CONFIG from './dcmodel/CONFIG'
 import { CrewMember } from './dcmodel/crew'
-import * as fs from 'async-file'
+import * as fs from 'fs/promises'
 
 export const STATIC_URL = `https://datacore.app/structured/`
 export const DATACORE_ASSETS_URL = `https://assets.datacore.app/`
@@ -146,6 +146,6 @@ async function main() {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   // When executed via ts-node, perform download and caching into ./data
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+
   main()
 }

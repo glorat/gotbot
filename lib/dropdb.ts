@@ -3,8 +3,7 @@ import Datastore from './modules/nedb-async'
 import * as _ from 'underscore'
 import * as missions from './missions'
 
-// @ts-ignore
-var drops = new Datastore({
+const drops = new Datastore<DropEntry>({
   filename: cfg.dataPath + 'dropdb.json',
   autoload: true,
 })
@@ -62,7 +61,7 @@ function reduceEntries(recs: Array<DropEntry>): Array<DropEntry> {
     )
     if (!entry) {
       // Haven't included this mission yet. Templatise from wiki
-      let more = missions.findByMissionCode(rec.code, rec.level).map(_.clone)
+      const more = missions.findByMissionCode(rec.code, rec.level).map(_.clone)
       more.forEach((e: any) => {
         e.itemUnits = 0
         e.runs = 0
@@ -109,15 +108,15 @@ async function findByMissionCodeAndUser(
 }
 
 async function findByStarItem(itemStars: number, itemName: string) {
-  let recs = (await drops.asyncFind(
+  const recs = (await drops.asyncFind(
     { itemStars: +itemStars, itemName: itemName },
     {}
   )) as DropEntry[]
-  let a = reduceEntries(recs)
+  const a = reduceEntries(recs)
   return a.filter((e) => e.itemStars === +itemStars && e.itemName === itemName)
 }
 
 async function allEntries() {
-  let recs = (await drops.asyncFind({}, {})) as DropEntry[]
+  const recs = (await drops.asyncFind({}, {})) as DropEntry[]
   return reduceEntries(recs)
 }

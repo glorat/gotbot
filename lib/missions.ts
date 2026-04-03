@@ -1,5 +1,5 @@
 import cfg from '../config'
-import * as fs from 'async-file'
+import * as fs from 'fs/promises'
 import * as _ from 'underscore'
 import * as matcher from './matcher'
 
@@ -32,9 +32,8 @@ interface MissionTableItem {
 type MissionEntry = any
 
 // FIXME: later
-// @ts-ignore
-let wikidb: MissionDB = {}
-let ready = fs
+let wikidb = {} as MissionDB & Record<string, any>
+const ready = fs
   .readFile(cfg.missionsdbpath, 'utf8')
   .then(JSON.parse)
   .then(function (obj: MissionDB) {
@@ -52,7 +51,7 @@ let ready = fs
     wikidb.missionCodes = _.uniq(wikidb.missions.map((mission) => mission.code))
 
     wikidb.entries = []
-    let entries = wikidb.entries
+    const entries = wikidb.entries
     wikidb.missions.forEach((mission) => {
       const name = mission.name
       const wiki = mission.wiki

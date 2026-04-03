@@ -186,7 +186,7 @@ export interface BaseSkills {
 }
 
 export function getSkillsRanked(skills: BaseSkills) {
-  let mskills = Object.keys(skills)
+  const mskills = Object.keys(skills)
     .filter(
       (skill) =>
         skills[skill as keyof BaseSkills] !== undefined &&

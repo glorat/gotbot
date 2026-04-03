@@ -3,38 +3,44 @@ import Datastore from './modules/nedb-async'
 import * as chars from './chars'
 import * as api from './Interfaces'
 
-// @ts-ignore
-const users = new Datastore({ filename: cfg.nedbpath, autoload: true })
+const users = new Datastore<chars.CrewDoc>({
+  filename: cfg.nedbpath,
+  autoload: true,
+})
+
+function vivify(doc: any, userid: string, username: string) {
+  if (doc === null) {
+    doc = {
+      _id: userid,
+      username: username,
+      crew: [],
+    }
+  }
+  if (!doc.base) {
+    doc.base = { cmd: 0, dip: 0, eng: 0, sec: 0, med: 0, sci: 0 }
+  }
+  if (!doc.prof) {
+    doc.prof = { cmd: 0, dip: 0, eng: 0, sec: 0, med: 0, sci: 0 }
+  }
+  return doc
+}
 
 function update(userid: any, fn: (x: any) => any) {
   const qry = { _id: userid }
-  // @ts-ignore
-  return get(userid).then((doc) => {
-    const newDoc = fn(doc)
+  return users.asyncFindOne(qry).then((doc: any) => {
+    const newDoc = fn(vivify(doc, userid, 'unknown'))
     users.asyncUpdate(qry, newDoc, { upsert: true })
     return newDoc
   })
 }
 
 function get(userid: any, context?: api.Context) {
-  function vivify(doc: any) {
-    if (doc === null) {
-      doc = {
-        _id: userid,
-        username: context?.author.username ?? 'unknown',
-        crew: [],
-      }
-    }
-    if (!doc.base) {
-      doc.base = { cmd: 0, dip: 0, eng: 0, sec: 0, med: 0, sci: 0 }
-    }
-    if (!doc.prof) {
-      doc.prof = { cmd: 0, dip: 0, eng: 0, sec: 0, med: 0, sci: 0 }
-    }
-    return doc
-  }
   const qry = { _id: userid }
-  return users.asyncFindOne(qry).then(vivify)
+  return users
+    .asyncFindOne(qry)
+    .then((doc: any) =>
+      vivify(doc, userid, context?.author.username ?? 'unknown')
+    )
 }
 
 // Enrich the crew in the doc with bonus adjusted skills

@@ -1,7 +1,7 @@
 import * as chars from './chars'
 import { Char, CharInfo } from './chars'
 import { createDefaultTable } from './utils'
-import * as fs from 'async-file'
+import * as fs from 'fs/promises'
 import cfg from '../config'
 import * as _ from 'underscore'
 import STTApiLite from './modules/STTApiLite/lib/STTApiLite'
@@ -18,11 +18,11 @@ export interface BossCmdFlags {
 async function downloadBossBattles() {
   const { createRequire } = await import('module')
   const require = createRequire(import.meta.url)
-  let password = require(cfg.dataPath + 'password')
+  const password = require(cfg.dataPath + 'password')
 
-  let STTApi = new STTApiLite()
+  const STTApi = new STTApiLite()
 
-  let token = password.stttoken
+  const token = password.stttoken
     ? password.stttoken
     : await STTApi.login(password.sttuser, password.sttpass, true)
 
@@ -30,7 +30,7 @@ async function downloadBossBattles() {
 
   console.log('Using OAuth token ' + token)
 
-  let boss = await STTApi.executeGetRequest('fleet_boss_battles/refresh')
+  const boss = await STTApi.executeGetRequest('fleet_boss_battles/refresh')
   await fs.writeFile(
     cfg.dataPath + 'boss.json',
     JSON.stringify(boss.fleet_boss_battles_root)
@@ -38,7 +38,7 @@ async function downloadBossBattles() {
 }
 
 async function parseBossJson(): Promise<BossData[]> {
-  const bossJson = await fs.readFile(cfg.dataPath + 'boss.json')
+  const bossJson = await fs.readFile(cfg.dataPath + 'boss.json', 'utf8')
   const boss = JSON.parse(bossJson)
   const out: BossData[] = []
   boss.statuses.forEach((level: any) => {
@@ -59,7 +59,7 @@ async function parseBossJson(): Promise<BossData[]> {
 }
 
 export async function bossJson() {
-  const dataJson = await fs.readFile(cfg.dataPath + 'boss2.json')
+  const dataJson = await fs.readFile(cfg.dataPath + 'boss2.json', 'utf8')
   return dataJson
 }
 
@@ -203,11 +203,11 @@ function combinations(arr: string[], n: number): string[][] {
     return arr.map((x) => [x])
   }
 
-  let result: string[][] = []
+  const result: string[][] = []
   let prefixes: string[][] = []
 
   arr.forEach((x) => {
-    let newPrefixes = [[x]]
+    const newPrefixes = [[x]]
     prefixes.forEach((prefix) => {
       newPrefixes.push(_.clone(prefix))
       prefix.push(x)
@@ -231,23 +231,23 @@ function computeBossSolution(
 ) {
   const difficultToMaxStars = [0, 2, 3, 4, 4, 5, 5]
   const myMaxStars = difficultToMaxStars[level.difficulty_id]
-  let allCrew: CharInfo[] = chars
+  const allCrew: CharInfo[] = chars
     .allCrewEntries()
     .filter((c: CharInfo) => c.stars <= myMaxStars)
-  let excludeCrew = allCrew.filter((crew) => excludeChar.includes(crew.name))
+  const excludeCrew = allCrew.filter((crew) => excludeChar.includes(crew.name))
 
   // stats for each crew member to cacluclate `narvinExcluded`
-  let initialRecs = new Map<
+  const initialRecs = new Map<
     string,
     { reqMatchNodes: number[]; optMatchTraits: string[] }
   >()
 
   // Find all potential solutions for each node
-  let nodes = level.nodes.map((node, nodeIdx) => {
+  const nodes = level.nodes.map((node, nodeIdx) => {
     if (node.unlocked_character) {
       // skip, node is already solved
       // console.log(`init: skip node ${node.unlocked_character}`)
-      let solutions = new Map<string, CharInfo[]>()
+      const solutions = new Map<string, CharInfo[]>()
       solutions.set(node.hidden_traits.join(':'), [])
       return {
         solutions,
@@ -256,7 +256,7 @@ function computeBossSolution(
 
     // map from "list of traits that can be solution for hidden part" to "list of crew who would match this solution"
     // we use string of traits joined by ':' because map doesn't allow string[] as keys
-    let solutions = new Map<string, CharInfo[]>()
+    const solutions = new Map<string, CharInfo[]>()
     allCrew.forEach((crew) => {
       // console.log(`checking crew ${crew.name}`)
       if (!isSubsetOf(node.open_traits, crew.traits_int)) {
@@ -266,8 +266,8 @@ function computeBossSolution(
       }
 
       // make sure trait can't be both open and hidden
-      let unusedTraits = _.difference(crew.traits_int, node.open_traits)
-      let traits = _.intersection(unusedTraits, possibleTraits)
+      const unusedTraits = _.difference(crew.traits_int, node.open_traits)
+      const traits = _.intersection(unusedTraits, possibleTraits)
       // console.log(`checking crew ${crew.name} traits ${traits}`)
       if (traits.length < node.hidden_traits.length) {
         // skip, not enough crew traits are in possible list to solve the node
@@ -278,14 +278,14 @@ function computeBossSolution(
       traits.sort() // sort, we rely on traits order for map keys
       combinations(traits, node.hidden_traits.length).forEach((hiddenPart) => {
         // console.log(`init: node ${node.open_traits} crew ${crew.name} adding ${hiddenPart}`)
-        let solutionKey = hiddenPart.join(':')
-        let matches = solutions.get(solutionKey) || []
+        const solutionKey = hiddenPart.join(':')
+        const matches = solutions.get(solutionKey) || []
         matches.push(crew)
         solutions.set(solutionKey, matches)
       })
 
       // save crew to calculate `narvinExcluded` later
-      let initialRec = initialRecs.get(crew.name) || {
+      const initialRec = initialRecs.get(crew.name) || {
         reqMatchNodes: [] as number[],
         optMatchTraits: [] as string[],
       }
@@ -308,7 +308,7 @@ function computeBossSolution(
 
       // exclude if traits are covered by an already attempted crew
       // todo: also do this check for crew that are `unlocked_character` for other nodes
-      let hiddenPart = solutionKey.split(':')
+      const hiddenPart = solutionKey.split(':')
       if (
         _.any(excludeCrew, (crew) =>
           isSubsetOf(_.union(node.open_traits, hiddenPart), crew.traits_int)
@@ -325,14 +325,14 @@ function computeBossSolution(
     }
   })
 
-  let recsMap = new Map<
+  const recsMap = new Map<
     string,
     { hiddenMatches: string[]; nodeMatches: number[] }
   >()
   nodes.forEach((node, idx) => {
     node.solutions.forEach((crews, hiddenPart) => {
       crews.forEach((crew) => {
-        let rec = recsMap.get(crew.name) || {
+        const rec = recsMap.get(crew.name) || {
           hiddenMatches: [] as string[],
           nodeMatches: [] as number[],
         }
@@ -354,7 +354,7 @@ function computeBossSolution(
     score: number
   }[] = []
   recsMap.forEach((rec, name) => {
-    let optMatchNodes = rec.hiddenMatches.map((trait) =>
+    const optMatchNodes = rec.hiddenMatches.map((trait) =>
       possibleTraits.indexOf(trait)
     )
     rec.nodeMatches.sort((a, b) => a - b)
@@ -369,7 +369,7 @@ function computeBossSolution(
     })
   })
 
-  let narvinExcluded: {
+  const narvinExcluded: {
     reqMatches: number
     reqMatchNodes: number[]
     name: string
@@ -379,7 +379,7 @@ function computeBossSolution(
   }[] = []
   initialRecs.forEach((initialRec, name) => {
     if (!recsMap.has(name)) {
-      let optMatchNodes = initialRec.optMatchTraits.map((trait) =>
+      const optMatchNodes = initialRec.optMatchTraits.map((trait) =>
         possibleTraits.indexOf(trait)
       )
       narvinExcluded.push({
@@ -512,7 +512,7 @@ export async function reportBoss(
       reportBossSummary(strs, level, possibleTraits)
     }
     if (flags.solve) {
-      let { recs, narvinExcluded, nodeTotalHits } = computeBossSolution(
+      const { recs, narvinExcluded, nodeTotalHits } = computeBossSolution(
         level,
         possibleTraits,
         excludeChar,

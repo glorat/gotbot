@@ -7,15 +7,15 @@ angular.module('myApp').controller('GotCtrl', function ($scope, $http, $sce) {
   vm.commandResult = { message: '', error: '' };
 
   vm.onCmdChange = function (name) {
-    let args = _.values(vm.commands[name].args).map((x) => x.value);
-    let flags = _.values(vm.commands[name].flags)
+    const args = _.values(vm.commands[name].args).map((x) => x.value);
+    const flags = _.values(vm.commands[name].flags)
       .filter((x) => x.value)
       .map((x) => `-${x.alias} ${x.value}`);
     vm.command = (name + ' ' + args.join(' ') + ' ' + flags.join(' ')).trim();
   };
 
   vm.sendCommand = function () {
-    let cmd = vm.command;
+    const cmd = vm.command;
 
     $http({
       method: 'POST',

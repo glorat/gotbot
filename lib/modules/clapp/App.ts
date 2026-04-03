@@ -5,19 +5,19 @@ import defaultStr from './strings/en.js'
 import parseSentence from './parseSentence.js'
 import { StringsObject } from './strings/en.js'
 
-export interface OnReplyFunction {
-  (msg: string, context: unknown): void
+export interface OnReplyFunction<TContext = unknown> {
+  (msg: string, context: TContext): void
 }
 
-export interface AppOptions {
+export interface AppOptions<TContext = unknown> {
   name: string
   desc: string
   prefix: string
-  onReply: OnReplyFunction
+  onReply: OnReplyFunction<TContext>
   caseSensitive?: boolean
   version?: string
   separator?: string
-  commands?: Command[]
+  commands?: Command<TContext>[]
   strings?: Partial<StringsObject>
 }
 
@@ -51,7 +51,7 @@ export interface ParsedArgv {
  * refers to an existing command and provides the required options), the command will be executed.
  * An App needs an onReply function to be able to communicate with the user.
  */
-class App {
+class App<TContext = unknown> {
   name: string
   desc: string
   prefix: string
@@ -59,10 +59,10 @@ class App {
   version?: string
   separator: string
   str: StringsObject
-  reply: OnReplyFunction
-  commands: Record<string, Command>
+  reply: OnReplyFunction<TContext>
+  commands: Record<string, Command<TContext>>
 
-  constructor(options: AppOptions) {
+  constructor(options: AppOptions<TContext>) {
     if (
       typeof options === 'undefined' || // options is required
       typeof options.name !== 'string' || // name is required
@@ -118,7 +118,7 @@ class App {
    *  }
    * })):
    */
-  addCommand(cmd: Command): void {
+  addCommand(cmd: Command<TContext>): void {
     if (!(cmd instanceof Command)) {
       throw new Error(
         'Error adding a command to ' +
@@ -156,7 +156,7 @@ class App {
    * app.parseInput("Not a CLI sentence");  // Throws an error. Make sure to validate
    *                                        // user input with App.isCliSentence();
    */
-  parseInput(input: string, context?: unknown): void {
+  parseInput(input: string, context?: TContext): void {
     if (typeof input !== 'string') {
       throw new Error("Input must be a string! Don't forget to sanitize it.")
     }
@@ -175,7 +175,7 @@ class App {
     ) as ParsedArgv
 
     // Find whether or not the requested command exists
-    let cmd: Command | null = null
+    let cmd: Command<TContext> | null = null
     const userInputCommand = String(argv._[0] ?? '')
     for (const name in this.commands) {
       const command = this.commands[name]
@@ -199,10 +199,10 @@ class App {
       if (argv.help || validInput === validPrefix) {
         // The help flag was passed OR the user typed just the command prefix.
         // Show app help.
-        this.reply(this._getHelp(), context)
+        this.reply(this._getHelp(), context!)
       } else if (argv.version) {
         // The user asked for the app version
-        this.reply('v' + this.version, context)
+        this.reply('v' + this.version, context!)
       } else {
         // The user made a mistake. Let them know.
         this.reply(
@@ -210,14 +210,14 @@ class App {
             this.str.err_unknown_command.replace('%CMD%', String(argv._[0])) +
             ' ' +
             this.str.err_type_help.replace('%PREFIX%', this.prefix),
-          context
+          context!
         )
       }
     } else {
       // The command exists. Three scenarios possible:
       if (argv.help) {
         // The user requested the command specific help.
-        this.reply(cmd._getHelp(this), context)
+        this.reply(cmd._getHelp(this), context!)
       } else {
         // Find whether or not it supplies every required argument.
         const unfulfilled_args: Argument[] = []
@@ -242,7 +242,7 @@ class App {
               this.prefix + ' ' + argv._[0]
             )
 
-          this.reply(r, context)
+          this.reply(r, context!)
         } else {
           const final_argv: Argv = { args: {}, flags: {} }
           const errors: string[] = []
@@ -386,7 +386,7 @@ class App {
           if (errors.length === 0) {
             // The property async is deprecated, but we still give support to it
             if (!cmd.async) {
-              response = cmd.fn(final_argv, context)
+              response = cmd.fn(final_argv, context as TContext)
 
               if (response instanceof Promise) {
                 // Even though the async attribute is set to false, the command
@@ -397,7 +397,7 @@ class App {
                     // response is a Promise that will eventually return a value
                     // actualResponse is the value that was returned by the promise
                     if (typeof actualResponse === 'string') {
-                      this.reply(actualResponse, context)
+                      this.reply(actualResponse, context!)
                     } else if (
                       typeof actualResponse === 'object' &&
                       actualResponse !== null &&
@@ -406,20 +406,23 @@ class App {
                     ) {
                       const respObj = actualResponse as {
                         message?: string
-                        context?: unknown
+                        context?: TContext
                       }
-                      this.reply(respObj.message ?? '', respObj.context)
+                      this.reply(
+                        respObj.message ?? '',
+                        respObj.context ?? (context as TContext)
+                      )
                     }
                   })
                   .catch((err) => {
                     this.reply(
                       this.str.err_internal_error.replace('%CMD%', cmd!.name),
-                      context
+                      context!
                     )
                     console.error(err)
                   })
               } else if (typeof response === 'string') {
-                this.reply(response, context)
+                this.reply(response, context!)
               } else if (
                 typeof response === 'object' &&
                 response !== null &&
@@ -427,27 +430,30 @@ class App {
               ) {
                 const respObj = response as {
                   message?: string
-                  context?: unknown
+                  context?: TContext
                 }
-                this.reply(respObj.message ?? '', respObj.context)
+                this.reply(
+                  respObj.message ?? '',
+                  respObj.context ?? (context as TContext)
+                )
               }
             } else {
               const self = this
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
               const fn = cmd.fn as (
                 argv: Argv,
-                context: unknown,
-                cb: (response: string, newContext?: unknown) => void
+                context: TContext,
+                cb: (response: string, newContext?: TContext) => void
               ) => void
               fn(
                 final_argv,
-                context,
-                function cb(response: string, newContext?: unknown) {
+                context!,
+                function cb(response: string, newContext?: TContext) {
                   if (typeof response === 'string') {
                     if (typeof newContext !== 'undefined') {
-                      self.reply(response, newContext)
+                      self.reply(response, newContext ?? context!)
                     } else {
-                      self.reply(response, context)
+                      self.reply(response, context!)
                     }
                   }
                 }
@@ -468,7 +474,7 @@ class App {
             for (let i = 0; i < errors.length; i++) {
               response += errors[i] + '\n'
             }
-            this.reply(response as string, context)
+            this.reply(response as string, context!)
           }
         }
       }

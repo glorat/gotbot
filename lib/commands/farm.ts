@@ -45,7 +45,7 @@ export default new Clapp.Command({
           (e) => (adjCost(e.cost) * e.runs) / e.itemUnits
         )
 
-        let table = new Table({
+        const table = new Table({
           chars: {
             top: '',
             'top-mid': '',
@@ -78,7 +78,7 @@ export default new Clapp.Command({
           } else {
             let lines: string[] = []
 
-            let entrys = missions.findByStarItem(args.stars, name)
+            const entrys = missions.findByStarItem(args.stars, name)
             lines.push('```')
             lines.push(name + starStr(args.stars))
             lines.push('Wiki farm rates')

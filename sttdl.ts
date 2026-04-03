@@ -16,23 +16,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import * as fs from 'async-file'
-import cfg from './config'
+import * as fs from 'fs/promises'
+import { createRequire } from 'module'
+import cfg from './config.js'
 
-import STTApiLite from './lib/modules/STTApiLite/lib/STTApiLite'
-let password = require(cfg.dataPath + 'password')
+import STTApiLite from './lib/modules/STTApiLite/lib/STTApiLite.js'
 
-let STTApi = new STTApiLite()
+const require = createRequire(import.meta.url)
+const STTApi = new STTApiLite()
 
 async function main() {
-  let token = password.stttoken
+  const password = require(cfg.dataPath + 'password')
+
+  const token = password.stttoken
     ? password.stttoken
     : await STTApi.login(password.sttuser, password.sttpass, true)
 
   STTApi.loginWithToken(token)
 
   console.log('Using OAuth token ' + token)
-  let crew = await STTApi.executeGetRequest(
+  const crew = await STTApi.executeGetRequest(
     'character/get_avatar_crew_archetypes'
   )
   // Post-process the data so that gotcron handle this better
@@ -49,7 +52,7 @@ async function main() {
     JSON.stringify(crew.crew_avatars)
   )
 
-  let gauntlet = await STTApi.executeGetRequest('gauntlet/status')
+  const gauntlet = await STTApi.executeGetRequest('gauntlet/status')
   await fs.writeFile(
     cfg.dataPath + 'gauntlet.json',
     JSON.stringify(gauntlet.character.gauntlets[0].contest_data)

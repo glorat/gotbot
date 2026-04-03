@@ -1,5 +1,5 @@
 import * as API from './Interfaces'
-import * as fs from 'async-file'
+import * as fs from 'fs/promises'
 import * as fssync from 'fs'
 import * as _ from 'underscore'
 import { Dictionary } from 'underscore'
@@ -32,12 +32,22 @@ export interface Char {
   [index: string]: any
 }
 
+export interface SkillStats {
+  cmd: number
+  dip: number
+  eng: number
+  sec: number
+  med: number
+  sci: number
+  [key: string]: number // Allow other skills if needed
+}
+
 export interface CrewDoc {
   _id: string
   username: string
   crew: Array<Char>
-  base: any
-  prof: any
+  base: SkillStats
+  prof: SkillStats
 }
 
 // From wiki/wikidb
@@ -83,8 +93,6 @@ export interface StatsOpts {
   textonly?: boolean
   table?: boolean
 }
-
-var wikidb: WikiDB
 
 function mapSkillFieldToShort(field: string): string | undefined {
   switch (field) {
@@ -202,27 +210,28 @@ const crewentries: CharInfo[] = datacoreCrew.map((c) => {
   return entry
 })
 
-wikidb = { crewentries } as any
-// @ts-ignore
-wikidb.charstars = _.object(
-  wikidb.crewentries.map((x) => x.name),
-  wikidb.crewentries.map((x) => x.stars)
-)
-wikidb.charToCrew = _.groupBy(wikidb.crewentries, (x) => x.char)
+const charstars = _.object(
+  crewentries.map((x: CharInfo) => x.name),
+  crewentries.map((x: CharInfo) => x.stars)
+) as Dictionary<number>
 
-var traitsSet = new Set<string>()
+const charToCrew = _.groupBy(crewentries, (x: CharInfo) => x.char)
+
+const traitsSet = new Set<string>()
 // Add vanilla traits
-wikidb.crewentries.forEach((x) =>
+crewentries.forEach((x: CharInfo) =>
   x.traits
     .split(',')
     .map((x) => x.trim())
     .forEach((x: string) => traitsSet.add(x))
 )
 // Add hidden traits
-wikidb.crewentries.forEach((x) =>
-  x.traits_hidden.forEach((y) => traitsSet.add(y))
+crewentries.forEach((x: CharInfo) =>
+  x.traits_hidden.forEach((y: string) => traitsSet.add(y))
 )
-wikidb.traits = Array.from(traitsSet)
+const traits = Array.from(traitsSet)
+
+const wikidb: WikiDB = { crewentries, charstars, charToCrew, traits }
 
 export function allCrewEntries(): CharInfo[] {
   return _.clone(wikidb.crewentries)
@@ -505,19 +514,22 @@ const rating_cal = [
   },
 ]
 
-// @ts-ignore
-Number.prototype.between = function (a, i, r) {
-  var e = Math.min(a, i),
+;(Number.prototype as any).between = function (
+  a: number,
+  i: number,
+  r?: boolean
+) {
+  const e = Math.min(a, i),
     o = Math.max(a, i)
   return r ? this >= e && this <= o : this > e && this < o
 }
 
 export function generateDifficulty(a: any, i?: any, r?: any) {
-  var e = a.difficulty,
-    o = '',
+  const e = a.difficulty
+  let o = '',
     n = ''
   if (isNaN(a.difficulty) || null === a.difficulty) return 'Incomplete'
-  var s = rating_cal[a.stars - 1].median,
+  const s = rating_cal[a.stars - 1].median,
     t = rating_cal[a.stars - 1].std / 1.5
   return (
     e.between(s - t, s + t, !0)
@@ -542,10 +554,10 @@ export function generateDifficulty(a: any, i?: any, r?: any) {
 }
 
 export async function ssrLookup(name: string, cb: any) {
-  var wname = name.replace(/"/gi, '!Q!')
+  let wname = name.replace(/"/gi, '!Q!')
   wname = wname.replace(/,/gi, '!C!')
   try {
-    let data = await fs.readFile(
+    const data = await fs.readFile(
       `${cfg.dataPath}/ssr.izausomecreations.com/crew/${wname}.json`,
       'utf8'
     )
@@ -559,7 +571,7 @@ export async function ssrLookup(name: string, cb: any) {
 function shortName(name: string) {
   const re = /(\S+)/g
   let match = re.exec(name)
-  let parts = []
+  const parts = []
   while (match) {
     parts.push(match[0])
     match = re.exec(name)
@@ -581,7 +593,7 @@ export function statsFor(
 
   let mystats: Array<MyStat> = []
   // Get skills into an array
-  let sksrc = char.adj ? char.adj : char // Use adjusted if available!
+  const sksrc = char.adj ? char.adj : char // Use adjusted if available!
   skills.forEach((sk) => {
     if (char[sk]) {
       mystats.push({
@@ -776,7 +788,7 @@ export function createCrewTable(
     -_.max(skills.map((sk) => (x[sk] ? x[sk].base : 0)))
   const sortedRoster = _.first(_.sortBy(matchingRoster, sortFn), 20) // 20 seems a safe arbitrary number
   const totalMatches = matchingRoster.length
-  let table = createDefaultTable()
+  const table = createDefaultTable()
   table.push(['', 'Name', '*', '*', 'Lvl'].concat(skills))
 
   sortedRoster.forEach((char) => {
@@ -799,7 +811,7 @@ export function searchCrewByCharTrait(
   let charsAndTraits = allTraits()
   // Only include chars if we don't already have hidden traits from stt
   cfg.useSttCrewEntries || (charsAndTraits = charsAndTraits.concat(allChars()))
-  let searchParams: Array<string> = []
+  const searchParams: Array<string> = []
   criteria
     .filter((x) => x !== '')
     .forEach((name) => {

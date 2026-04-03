@@ -2,7 +2,7 @@
 // This file is non-unit testable since it is shifting large amounts of data
 'use strict'
 
-import * as fs from 'async-file'
+import * as fs from 'fs/promises'
 import { load } from 'cheerio'
 import type { CheerioAPI, Cheerio } from 'cheerio'
 

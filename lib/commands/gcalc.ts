@@ -23,8 +23,8 @@ export default new Clapp.Command({
           .value()
 
         if (!featuredSkill) {
-          let rawdata = readFileSync(cfg.dataPath + 'gauntlet.json', 'utf8')
-          let gauntlet_data = JSON.parse(rawdata)
+          const rawdata = readFileSync(cfg.dataPath + 'gauntlet.json', 'utf8')
+          const gauntlet_data = JSON.parse(rawdata)
           featuredSkill = gauntlet_data.featured_skill.substring(0, 3)
           featuredSkill = featuredSkill === 'com' ? 'cmd' : featuredSkill
           traits = gauntlet_data.traits
@@ -42,7 +42,7 @@ export default new Clapp.Command({
           return
         }
 
-        let featuredTraits: Array<string> = []
+        const featuredTraits: Array<string> = []
         _.forEach(traits, (name: string) => {
           matcher.matchOne(
             function (err, val) {
@@ -78,7 +78,7 @@ export default new Clapp.Command({
           }
 
           const featuredSkillWeight = Gauntlet.featuredSkillWeight
-          let charTraits: any = {}
+          const charTraits: any = {}
           chars.allCrewEntries().forEach((x) => {
             charTraits[x.name] = x.traits.split(',').map((x) => x.trim())
           })
@@ -106,7 +106,7 @@ export default new Clapp.Command({
             _.contains(bestNames, char.name)
           )
 
-          let res = Gauntlet.analyseCharCombos(
+          const res = Gauntlet.analyseCharCombos(
             best,
             featuredSkill,
             featuredSkillWeight

@@ -59,8 +59,8 @@ export interface FleetDoc {
   _id: any
   eventChar: Array<string>
   eventTrait: Array<Array<string>>
-  starbase: Object
-  starprof: Object
+  starbase: object
+  starprof: object
   bossDifficulty: number
   bossSpec?: unknown
   bossExclude?: string[]

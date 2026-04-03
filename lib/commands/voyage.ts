@@ -10,15 +10,15 @@ import * as API from '../Interfaces'
 
 const voyageSkills = ['cmd', 'dip', 'sec', 'eng', 'sci', 'med']
 
-let calcTotalSkills = function (crewList: Array<any>, skillList: Array<any>) {
-  let totalSkills = [0, 0, 0, 0, 0, 0]
+const calcTotalSkills = function (crewList: Array<any>, skillList: Array<any>) {
+  const totalSkills = [0, 0, 0, 0, 0, 0]
   crewList.forEach((ch) => {
     for (let i = 0; i < skillList.length; i++) {
-      let sk = skillList[i]
+      const sk = skillList[i]
 
       if (ch.adj[sk] && ch.adj[sk].base) {
         const rl = ch.adj[sk]
-        let avg = rl.base + rl.minroll + (rl.maxroll - rl.minroll) / 2
+        const avg = rl.base + rl.minroll + (rl.maxroll - rl.minroll) / 2
         totalSkills[i] += Math.round(avg)
       }
     }
@@ -101,13 +101,14 @@ export default new Clapp.Command({
         const handleAdjustedCrew = function (crew: any, fleet: any) {
           const starbase = fleet.starbase
 
-          let sortedByVoyage = function (availCrew: Array<any>) {
+          const sortedByVoyage = function (availCrew: Array<any>) {
             availCrew.forEach((ch) => {
               let score = 0
               sks.forEach((sk) => {
                 if (ch[sk] && ch.adj[sk]) {
                   const rl = ch.adj[sk]
-                  let avg = rl.base + rl.minroll + (rl.maxroll - rl.minroll) / 2
+                  const avg =
+                    rl.base + rl.minroll + (rl.maxroll - rl.minroll) / 2
                   let mult = 1
                   if (sk === argv.args.primary) {
                     mult = 3.5
@@ -124,7 +125,7 @@ export default new Clapp.Command({
             return availCrew.sort((a, b) => b.score - a.score)
           }
 
-          let recurseFit = function (crew: Array<any>, avail: any): any {
+          const recurseFit = function (crew: Array<any>, avail: any): any {
             // Base cases - none to fit or out of crew
             if (avail.crew.length >= 12) {
               return avail
@@ -143,7 +144,7 @@ export default new Clapp.Command({
                 newAvail[sk].push(head)
                 newAvail.crew = _.clone(newAvail.crew)
                 newAvail.crew.push(head)
-                let ret = recurseFit(_.rest(crew), newAvail)
+                const ret = recurseFit(_.rest(crew), newAvail)
                 if (ret.score > best.score) {
                   best = ret // Found improvement
                 }
@@ -157,7 +158,7 @@ export default new Clapp.Command({
             }
           }
 
-          let fitCrewToSlots = function (crew: any) {
+          const fitCrewToSlots = function (crew: any) {
             const avail = {
               dip: [],
               cmd: [],
@@ -172,12 +173,12 @@ export default new Clapp.Command({
             return best
           }
 
-          let bestCrew = sortedByVoyage(crew)
+          const bestCrew = sortedByVoyage(crew)
           let constrainedCrew = fitCrewToSlots(bestCrew)
 
           function replaceConstrainedCrew(obj: any, before: any, after: any) {
             // copy on write
-            let ret: any = _.clone(obj)
+            const ret: any = _.clone(obj)
 
             // Replace the main crew area
             ret.crew = ret.crew.map(function (item: any) {
@@ -192,7 +193,7 @@ export default new Clapp.Command({
             return ret
           }
 
-          let crewList = constrainedCrew.crew
+          const crewList = constrainedCrew.crew
           let totalSkills = calcTotalSkills(crewList, skillList)
           const startArg = parseInt(args.start)
           const refillArg = parseInt(args.refill)
@@ -217,12 +218,12 @@ export default new Clapp.Command({
                   if (after[sk]) {
                     // Matching skill to attempt into
                     constrainedCrew[sk].forEach((before: any) => {
-                      let maybe = replaceConstrainedCrew(
+                      const maybe = replaceConstrainedCrew(
                         constrainedCrew,
                         before,
                         after
                       )
-                      let maybeSkills = calcTotalSkills(maybe.crew, skillList)
+                      const maybeSkills = calcTotalSkills(maybe.crew, skillList)
                       const maybeHours =
                         voyage.solveTime(maybeSkills, startAm) ?? 0
                       if (maybeHours > bestReplaceHours) {
@@ -255,25 +256,25 @@ export default new Clapp.Command({
 
           let hrsMsg = ''
           for (let refill = 0; refill <= refillArg + 1; refill++) {
-            let targetHours =
+            const targetHours =
               voyage.solveTime(totalSkills, startArg * (refill + 1)) ?? 0
             hrsMsg += `${refill} refills: ${formatHrs(targetHours)}\n`
           }
 
-          let names: Array<string> = []
+          const names: Array<string> = []
           voyageSkills.forEach((sk) => {
             constrainedCrew[sk].forEach((x: any) => {
-              let name = x.vaulted ? `(${x.name})` : x.name
+              const name = x.vaulted ? `(${x.name})` : x.name
               names.push(`${emojify(sk)} ${name} (${Math.round(x.score)})`)
             })
           })
 
           let msg
           if (names) {
-            let baseBonuses = sks
+            const baseBonuses = sks
               .map((sk) => `${emojify(sk)}+${starbase[sk]}%`)
               .join('  ')
-            let profBonuses = sks
+            const profBonuses = sks
               .map((sk) => `${emojify(sk)}+${fleet.starprof[sk]}%`)
               .join('  ')
 

@@ -21,12 +21,12 @@ export default new Clapp.Command({
         const emojify = context.emojify
         const boldify = context.boldify
 
-        let appendEventTraitChars = function (
+        const appendEventTraitChars = function (
           lines: Array<string>,
           doc: any,
           fleet: API.FleetDoc
         ) {
-          let charsToSearch = doc.crew
+          const charsToSearch = doc.crew
           let entries: Array<CharInfo> = chars.allCrewEntries()
           entries = entries.filter((e) => {
             return _.contains(
@@ -40,12 +40,12 @@ export default new Clapp.Command({
           let matchEntries: Array<any> = [] // Collate an OR query
           let searchParams: Array<string> = []
           fleet.eventTrait.forEach((criteria) => {
-            let res = chars.searchCrewByCharTrait(criteria, entries)
+            const res = chars.searchCrewByCharTrait(criteria, entries)
             searchParams = searchParams.concat(res.searchParams)
             matchEntries = matchEntries.concat(res.entries)
           })
 
-          let charEntries = entries.filter((x) =>
+          const charEntries = entries.filter((x) =>
             _.contains(fleet.eventChar, x.name)
           )
           const tb1 = chars.createCrewTable(
@@ -73,12 +73,12 @@ export default new Clapp.Command({
         }
 
         let fleetProm
-        let lines: Array<string> = []
+        const lines: Array<string> = []
         const criteria = [args.name1, args.name2, args.name3]
         if (args.type === 'add') {
           // Try by char/trait
-          let entries = chars.allCrewEntries()
-          let res = chars.searchCrewByCharTrait(criteria, entries)
+          const entries = chars.allCrewEntries()
+          const res = chars.searchCrewByCharTrait(criteria, entries)
           if (res.entries.length > 0) {
             fleetProm = fleets.addEventTrait(fleetId, criteria)
             fleetProm.then((fleet: API.FleetDoc) => {

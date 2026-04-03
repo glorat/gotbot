@@ -6,8 +6,8 @@ import {
   Flag as ClappFlag,
   Argument as ClappArgument,
   ArgumentOptions,
-  Argv,
   FlagOptions,
+  type AppOptions,
 } from '../clapp/index.js'
 import Table from 'cli-table3'
 import str from './str-en'
@@ -15,16 +15,7 @@ import str from './str-en'
 export const Flag = ClappFlag
 export const Argument = ClappArgument
 
-interface ClappAppArguments {
-  name: string
-  desc: string
-  prefix: string
-  onReply: (msg: string, context: unknown) => void
-  caseSensitive?: boolean
-  version?: string
-  separator?: string
-  commands?: ClappCommand[]
-}
+import type { Context, ClappArgs } from '../../Interfaces.js'
 
 interface ClappCommandOpts {
   exclude?: boolean
@@ -35,9 +26,9 @@ interface ClappCommandOptions {
   name: string
   desc: string
   fn: (
-    argv: import('../../Interfaces.js').ClappArgs,
-    context: import('../../Interfaces.js').Context
-  ) => string | Promise<string> | { message: string; context?: unknown }
+    argv: ClappArgs,
+    context: Context
+  ) => string | Promise<string> | { message: string; context?: Context }
   args?: (ClappArgument | ArgumentOptions)[]
   flags?: (ClappFlag | FlagOptions)[]
   caseSensitive?: boolean
@@ -80,8 +71,8 @@ const discordTable = () => {
   return table
 }
 
-export class App extends ClappApp {
-  constructor(options: ClappAppArguments) {
+export class App extends ClappApp<Context> {
+  constructor(options: AppOptions<Context>) {
     super(options)
   }
 
@@ -120,23 +111,14 @@ export class App extends ClappApp {
   }
 }
 
-export class Command extends ClappCommand {
+export class Command extends ClappCommand<Context> {
   opts?: ClappCommandOpts
   declare fn: ClappCommandOptions['fn']
   declare args: ClappArgument[]
   declare flags: Record<string, ClappFlag>
 
   constructor(options: ClappCommandOptions) {
-    super(
-      options as unknown as {
-        name: string
-        desc: string
-        fn: (argv: Argv, context: unknown) => Promise<string> | string
-        args?: (ClappArgument | ArgumentOptions)[]
-        flags?: (ClappFlag | FlagOptions)[]
-        caseSensitive?: boolean
-      }
-    )
+    super(options)
     this.opts = options.opts
   }
 

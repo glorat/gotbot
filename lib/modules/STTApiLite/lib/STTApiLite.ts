@@ -30,7 +30,7 @@ export default class STTApiLite {
     password: string,
     autoLogin: boolean
   ): Promise<string> {
-    let data = await this._net.post(
+    const data = await this._net.post(
       STTApiConfig.URL_PLATFORM + 'oauth2/token',
       {
         username: username,

@@ -43,14 +43,14 @@ function calcAntiMatter(skills: Array<number>, start: number, time: number) {
 }
 
 function calcSkillSuccess(skills: Array<number>, time: number) {
-  let ret = []
+  const ret = []
   for (let m = 0; m < 6; m++) {
-    let good = Math.round(
+    const good = Math.round(
       Math.min(time, (skills[m] - baseSkill) / difficultyPerHr) *
         hazardsPerHr *
         mult[m]
     )
-    let bad = Math.round(
+    const bad = Math.round(
       Math.max(0, time - (skills[m] - baseSkill) / difficultyPerHr) *
         hazardsPerHr *
         mult[m]

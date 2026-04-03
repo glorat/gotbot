@@ -26,12 +26,26 @@ export default new Clapp.Command({
       }
 
       const qry = { _id: userid }
-      let statsOpt = { textonly: argv.flags.textonly }
+      const statsOpt = { textonly: argv.flags.textonly }
 
       crewdb.get(userid, context).then((doc: CrewDoc) => {
         // Create a default doc if user is new
         if (doc === null) {
-          doc = { _id: userid, username: author, crew: [], base: {}, prof: {} }
+          const defaultStats: chars.SkillStats = {
+            cmd: 0,
+            dip: 0,
+            eng: 0,
+            sec: 0,
+            med: 0,
+            sci: 0,
+          }
+          doc = {
+            _id: userid,
+            username: author,
+            crew: [],
+            base: defaultStats,
+            prof: defaultStats,
+          }
         }
         if (args.cmd === 'add') {
           chars.matchOne(
@@ -43,8 +57,7 @@ export default new Clapp.Command({
                   doc.crew = []
                 }
                 // Vivify
-                // @ts-ignore
-                const char: Char = { name: name }
+                const char = { name: name } as Char
 
                 enrichChar(char, function () {
                   doc.crew.push(char)
@@ -96,7 +109,7 @@ export default new Clapp.Command({
               if (err) {
                 fulfill(err)
               } else {
-                var charOpt = _.find(
+                const charOpt = _.find(
                   doc.crew,
                   (x: any) => x.name === name && !x.vaulted
                 )
@@ -130,7 +143,7 @@ export default new Clapp.Command({
               if (err) {
                 fulfill(err)
               } else {
-                let char = _.find(
+                const char = _.find(
                   doc.crew,
                   (x: any) => x.name === name && x.vaulted
                 )
@@ -172,7 +185,7 @@ export default new Clapp.Command({
             entries = entries.filter((e) => e.stars === argv.flags.stars)
           }
 
-          let searchCb = function (res: any) {
+          const searchCb = (res: any) => {
             const ret = chars.createCrewTable(
               res.entries,
               res.searchParams,
@@ -188,14 +201,14 @@ export default new Clapp.Command({
             fleets.get(fleetId).then((fleet: any) => {
               doc.crew = charsToSearch // Shove it back in so we can access the bonuses
               crewdb.calcAdjustedSkill(doc, fleet)
-              let res = chars.searchCrewByCharTrait(
+              const res = chars.searchCrewByCharTrait(
                 [args.name1, args.name2, args.name3],
                 entries
               )
               searchCb(res)
             })
           } else {
-            let res = chars.searchCrewByCharTrait(
+            const res = chars.searchCrewByCharTrait(
               [args.name1, args.name2, args.name3],
               entries
             )
@@ -214,11 +227,11 @@ export default new Clapp.Command({
             )
           }
           // Filter by any supplied traits etc.
-          let criteria = [args.name1, args.name2, args.name3]
-          let res = chars.searchCrewByCharTrait(criteria, charsToSearch)
+          const criteria = [args.name1, args.name2, args.name3]
+          const res = chars.searchCrewByCharTrait(criteria, charsToSearch)
           // Random sorting?!
           const count = res.entries.length
-          let ordered: Array<CharInfo> = _.first(_.shuffle(res.entries), 5)
+          const ordered: Array<CharInfo> = _.first(_.shuffle(res.entries), 5)
 
           const lines = ordered
             .map((info) => {
@@ -245,8 +258,8 @@ export default new Clapp.Command({
       })
 
       function enrichChar(char: Char, cb: () => void) {
-        var stars = argv.flags.ff ? 999 : argv.flags.stars
-        var level = argv.flags.level
+        let stars = argv.flags.ff ? 999 : argv.flags.stars
+        let level = argv.flags.level
         // Use supplied, 100 if ff/stars flag, else just 1
         level = level ? level : stars ? 100 : 1
         if (stars == 0) {

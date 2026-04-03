@@ -48,14 +48,14 @@ export default new Clapp.Command({
       //const guild = context.channel.guild;
       const guildOwner = context.guild?.ownerId ?? NaN
 
-      let doSend = async function (s: string) {
+      const doSend = async function (s: string) {
         await context.sender.send(s)
       }
 
       if (context.author.id === guildOwner) {
         let i = 0
 
-        let doNext = function () {
+        const doNext = function () {
           doSend(`__${manual[i]}__`).then((x) => {
             doSend(cfg.prefix + ' ' + manual[i + 1]).then((y) => {
               i += 2

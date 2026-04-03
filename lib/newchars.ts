@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 
-import * as fs from 'async-file'
+import * as fs from 'fs/promises'
 import * as _ from 'underscore'
 import { load } from 'cheerio'
 import type { CheerioAPI } from 'cheerio'

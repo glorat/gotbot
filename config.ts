@@ -6,8 +6,8 @@ const nodeEnv = process.env.NODE_ENV || 'development'
 const isProd = nodeEnv === 'production'
 const isTest = nodeEnv === 'test'
 
-let dataPath = path.resolve(isTest ? './test-data/' : './data/') + '/'
-let password = isTest ? { prod: '', dev: '' } : require(dataPath + 'password')
+const dataPath = path.resolve(isTest ? './test-data/' : './data/') + '/'
+const password = isTest ? { prod: '', dev: '' } : require(dataPath + 'password')
 
 export default class Config {
   // The bot's command prefix. The bot will recognize as command any message that begins with it.

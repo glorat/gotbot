@@ -1,16 +1,29 @@
 import cfg from '../config'
 import Datastore from './modules/nedb-async'
 
-// @ts-ignore
-const cmds = new Datastore({ filename: cfg.clilogpath, autoload: true })
+interface CmdLogDoc {
+  cmd: string
+  authorId: string
+  authorName: string
+  channelId: string
+  channelType: string | number
+  channelName?: string
+  guildId?: string
+  guildName?: string
+}
+
+const cmds = new Datastore<CmdLogDoc>({
+  filename: cfg.clilogpath,
+  autoload: true,
+})
 
 export { cmds, logCommand }
 
-function logCommand(cmd: any, context: any) {
-  let doc: any = {
+function logCommand(cmd: string, context: any) {
+  const doc: CmdLogDoc = {
     cmd: cmd,
     authorId: context.author.id,
-    authorName: context.author.name,
+    authorName: context.author.username,
     channelId: context.channel.id,
     channelType: context.channel.type,
   }

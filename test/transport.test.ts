@@ -248,7 +248,6 @@ describe('discord runtime transport', () => {
     vi.doMock('fs', () => ({
       createWriteStream: vi.fn(() => ({ write: vi.fn() })),
     }))
-    vi.doMock('longjohn', () => ({}))
     vi.doMock('discord.js', () => {
       class Client {
         constructor() {

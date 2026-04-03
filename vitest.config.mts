@@ -12,6 +12,9 @@ export default defineConfig({
     sequence: {
       concurrent: false,
     },
+    typecheck: {
+      enabled: true,
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json-summary'],

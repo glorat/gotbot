@@ -17,8 +17,8 @@ export type PolestarCombo = {
 export function categorizeKeystones(
   data: KeystoneBase[]
 ): [Constellation[], Polestar[]] {
-  let cons = [] as Constellation[]
-  let pols = [] as Polestar[]
+  const cons = [] as Constellation[]
+  const pols = [] as Polestar[]
 
   data.forEach((k) => {
     if (k.type === 'keystone') {

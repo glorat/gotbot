@@ -396,7 +396,7 @@ describe('missions', function () {
   })
 
   it('should have an item list', async function () {
-    let all = missions.allMissionItems()
+    const all = missions.allMissionItems()
     expect(all.length).toBeGreaterThan(200)
     expect(all).toContain('Polyalloy')
   })

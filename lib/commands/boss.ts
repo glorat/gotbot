@@ -24,7 +24,7 @@ export default new Clapp.Command({
         userid: string,
         author: string
       ) {
-        let refreshMsg = await refreshBossBattleData(fleetId)
+        const refreshMsg = await refreshBossBattleData(fleetId)
 
         const flags: BossCmdFlags = argv.flags
         flags.summary = true

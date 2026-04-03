@@ -22,13 +22,12 @@ import { mkdirp } from 'mkdirp'
 import * as API from './Interfaces'
 import { keys } from 'underscore'
 import { dummyChannel } from './webserver'
-import 'longjohn'
 import schedule from 'node-schedule'
 import { spawn } from 'child_process'
 import * as fs from 'fs'
 
 function isEntitled(id: string): boolean {
-  let got = bot.guilds.cache.get(cfg.gotServer)
+  const got = bot.guilds.cache.get(cfg.gotServer)
   return got ? got.members.cache.has(id) : false
 }
 
@@ -52,9 +51,9 @@ bot.on('messageCreate', (msg) => {
     bot: bot,
   }
 
-  let serverName = msg.inGuild() ? msg.channel.guild.name : 'direct'
+  const serverName = msg.inGuild() ? msg.channel.guild.name : 'direct'
   const channelName = msg.inGuild() ? msg.channel.name : 'DM'
-  let channelTag = msg.inGuild() ? `${serverName}/${channelName}` : 'DM'
+  const channelTag = msg.inGuild() ? `${serverName}/${channelName}` : 'DM'
   if (!winston.loggers.has(channelTag)) {
     console.log(`Creating logger for ${channelTag}`)
 
@@ -89,7 +88,7 @@ bot.on('messageCreate', (msg) => {
     .get(channelTag)
     .info(`${msg.author.username} - ${msg.content}`)
 
-  let onReply = function (msg: string) {
+  const onReply = function (msg: string) {
     if (msg && context.channel) {
       if (msg === 'EMBED') {
         if (context.embed) {
@@ -101,7 +100,7 @@ bot.on('messageCreate', (msg) => {
     }
   }
 
-  let trimMessage = function (msg: string) {
+  const trimMessage = function (msg: string) {
     if (msg.length > 1995) {
       msg = msg.substr(0, 1990) + '...'
       console.log('Trimming excessively long message')
@@ -208,7 +207,9 @@ bot.on(Discord.Events.InteractionCreate, async (msg) => {
           ) ?? clappArg.default) as API.CommandArgValue
         }
       })
-      let cmdHandler = handler.args.find((h: ClappArgument) => h.name === 'cmd')
+      const cmdHandler = handler.args.find(
+        (h: ClappArgument) => h.name === 'cmd'
+      )
       if (cmdHandler) {
         args['cmd'] =
           args['cmd'] ?? msg.options.getSubcommand(cmdHandler.required)
@@ -252,10 +253,10 @@ bot.on('resume', function () {
 // We subscribe to raw because the messageDelete event doesn't work on "old" messages
 bot.on('raw', async (packet: any) => {
   if (packet.t === 'MESSAGE_DELETE') {
-    let messageID = packet.d.id
-    let channelID = packet.d.channel_id
+    const messageID = packet.d.id
+    const channelID = packet.d.channel_id
     await bot.channels.fetch(channelID)
-    let channel = bot.channels.cache.get(channelID)
+    const channel = bot.channels.cache.get(channelID)
     if (channel && channel.isTextBased()) {
       channel.messages
         .fetch({ limit: 1, after: messageID })
@@ -278,7 +279,7 @@ bot.on('raw', async (packet: any) => {
 })
 
 // Schedule the gotcron
-let crontab = '02 1,5,9,13,17,20 * * *'
+const crontab = '02 1,5,9,13,17,20 * * *'
 
 console.log(`Scheduling gotcron at ${crontab}`)
 

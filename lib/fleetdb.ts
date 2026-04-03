@@ -6,13 +6,15 @@ import * as _ from 'underscore'
 import * as chars from './chars'
 import * as api from './Interfaces'
 type FleetDoc = api.FleetDoc
-// @ts-ignore
-const fleets = new Datastore({
+const fleets = new Datastore<FleetDoc>({
   filename: cfg.dataPath + 'fleetdb.json',
   autoload: true,
 })
 
-async function update(fleetId: string, fn: any): Promise<FleetDoc> {
+async function update(
+  fleetId: string,
+  fn: (doc: FleetDoc) => FleetDoc
+): Promise<FleetDoc> {
   const qry = { _id: fleetId }
   const doc = await get(fleetId)
   const newDoc: FleetDoc = fn(doc)
@@ -21,7 +23,7 @@ async function update(fleetId: string, fn: any): Promise<FleetDoc> {
 }
 
 function updateStarbase(fleetId: string, stats: any) {
-  let filtered = _.pick(stats, chars.skills)
+  const filtered = _.pick(stats, chars.skills)
   const f = (doc: FleetDoc) => {
     doc.starbase = filtered
     return doc
@@ -30,7 +32,7 @@ function updateStarbase(fleetId: string, stats: any) {
 }
 
 function updateStarprof(fleetId: string, stats: any) {
-  let filtered = _.pick(stats, chars.skills)
+  const filtered = _.pick(stats, chars.skills)
   const f = (doc: FleetDoc) => {
     doc.starprof = filtered
     return doc

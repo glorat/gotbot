@@ -78,7 +78,7 @@ new moon
             const skill = info.skill
             const char = info.char
 
-            let starStat = function (s: number) {
+            const starStat = function (s: number) {
               const starStr = _.range(s)
                 .map((x) => emojify('1star'))
                 .join('')
@@ -110,10 +110,10 @@ new moon
 
             // Char rankings
             // Override filter to do exact match
-            let allChars = chars
+            const allChars = chars
               .allCrewEntries()
               .filter((x) => x.stars === stars)
-            let baseBest = chars.bestChars(
+            const baseBest = chars.bestChars(
               allChars,
               info.stars,
               starsArg > 0 && starsArg < stars ? starsArg : info.stars,
@@ -122,9 +122,9 @@ new moon
               '',
               ''
             )
-            let baseRank =
+            const baseRank =
               _.findIndex(baseBest, (x) => x.name === info.name) + 1
-            let gauntletBest = chars.bestChars(
+            const gauntletBest = chars.bestChars(
               allChars,
               info.stars,
               starsArg > 0 && starsArg < stars ? starsArg : info.stars,
@@ -133,9 +133,9 @@ new moon
               '',
               ''
             )
-            let gauntletRank =
+            const gauntletRank =
               _.findIndex(gauntletBest, (x) => x.name === info.name) + 1
-            let voyageBest = chars.bestChars(
+            const voyageBest = chars.bestChars(
               allChars,
               info.stars,
               starsArg > 0 && starsArg < stars ? starsArg : info.stars,
@@ -144,7 +144,7 @@ new moon
               '',
               ''
             )
-            let voyageRank =
+            const voyageRank =
               _.findIndex(voyageBest, (x) => x.name === info.name) + 1
 
             // Useful links
@@ -153,7 +153,7 @@ new moon
               ? `${DATACORE_CREW_URL}/${symbol}`
               : undefined
 
-            let embed = {
+            const embed = {
               color: 3447003,
               /*author: {
               name: name,
@@ -227,7 +227,7 @@ new moon
           if (err) {
             fulfill(err)
           } else {
-            let nm = <string>name
+            const nm = <string>name
             chars.ssrLookup(nm, (ssr: any) => {
               handleName(nm, argv.flags.stars, argv.flags.level, ssr)
             })

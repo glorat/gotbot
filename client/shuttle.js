@@ -57,7 +57,7 @@ angular.module('myApp').directive('shuttleCalc', function () {
       vm.addShuttle();
 
       vm.success = function () {
-        let totalSkill = _.chain(vm.shuttles)
+        const totalSkill = _.chain(vm.shuttles)
           .map((x) => shuttleSkill(x, vm.boost))
           .reduce(function (a, b) {
             return a + b;

@@ -35,8 +35,8 @@ export function matchOne(
 export function matchAll(origNames: Array<string>, ...args: string[]) {
   let names = _.uniq(origNames)
 
-  let perfect = args.join(' ').trim().toLowerCase()
-  let perfectMatch = names.filter((nm) => nm.toLowerCase() === perfect)
+  const perfect = args.join(' ').trim().toLowerCase()
+  const perfectMatch = names.filter((nm) => nm.toLowerCase() === perfect)
   if (perfectMatch.length === 1) {
     return perfectMatch
   }

@@ -326,7 +326,7 @@ export default class CONFIG {
   ]
 
   static readonly getSlotSkill = (slot: string, short?: boolean) => {
-    let sidx = CONFIG.VOYAGE_CREW_SLOTS.findIndex((fi) => fi === slot)
+    const sidx = CONFIG.VOYAGE_CREW_SLOTS.findIndex((fi) => fi === slot)
     if (sidx === -1) return ''
     if (short) return CONFIG.VOYAGE_SLOT_SKILLS[sidx]
     else return shortToSkill(CONFIG.VOYAGE_SLOT_SKILLS[sidx])!
