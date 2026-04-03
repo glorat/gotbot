@@ -3,7 +3,6 @@ import * as chars from '../chars'
 import * as Clapp from '../modules/clapp-discord'
 import * as db from '../crewdb'
 import * as _ from 'underscore'
-import { MatchCB } from '../matcher'
 
 export default new Clapp.Command({
   name: 'equip',
@@ -32,33 +31,31 @@ export default new Clapp.Command({
           return
         }
 
-        const matchCallback: MatchCB = function (err, name) {
-          if (err) {
-            fulfill(err)
-          } else if (name) {
-            const char = _.find(doc.crew, (x) => x.name === name)
-            if (char) {
-              chars.wikiLookup(name, function (err: string | null, info: any) {
-                if (err) {
-                  fulfill(err)
-                } else {
-                  const stars =
-                    argv.flags.stars == 0 ? info.stars : argv.flags.stars
-                  const level: number = argv.flags.level
-                  chars.fullyEquip(char, info, stars, level)
-                  db.users.update(qry, doc, { upsert: true })
-                  fulfill(
-                    `${author}, I have updated stats for ${chars.statsFor(char, emojify, boldify, {})}`
-                  )
-                }
-              })
-            } else {
-              fulfill(`Sorry ${author}, I cannot find ${name} in your crew`)
-            }
+        const result = chars.matchOne(args.name1, args.name2, args.name3)
+        if (!result.success) {
+          fulfill(result.message)
+        } else {
+          const name = result.name
+          const char = _.find(doc.crew, (x) => x.name === name)
+          if (char) {
+            chars.wikiLookup(name, function (err: string | null, info: any) {
+              if (err) {
+                fulfill(err)
+              } else {
+                const stars =
+                  argv.flags.stars == 0 ? info.stars : argv.flags.stars
+                const level: number = argv.flags.level
+                chars.fullyEquip(char, info, stars, level)
+                db.users.update(qry, doc, { upsert: true })
+                fulfill(
+                  `${author}, I have updated stats for ${chars.statsFor(char, emojify, boldify, {})}`
+                )
+              }
+            })
+          } else {
+            fulfill(`Sorry ${author}, I cannot find ${name} in your crew`)
           }
         }
-
-        chars.matchOne(matchCallback, args.name1, args.name2, args.name3)
       })
     }),
   args: [

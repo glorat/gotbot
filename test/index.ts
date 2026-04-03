@@ -402,28 +402,19 @@ describe('missions', function () {
   })
 
   it('should match items', async function () {
-    const name = await new Promise<string>((resolve) => {
-      missions.matchItem(
-        function (err: any, name: string) {
-          expect(err).toBeNull()
-          resolve(name)
-        },
-        'desktop',
-        'monitor',
-        'tng'
-      )
-    })
-    expect(name).toBe('Desktop Monitor (TNG)')
+    const result = missions.matchItem('desktop', 'monitor', 'tng')
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.name).toBe('Desktop Monitor (TNG)')
+    }
   })
 
   it('should fuzzy search items', async function () {
-    const name = await new Promise<string>((resolve) => {
-      missions.matchItem(function (err: any, name: any) {
-        expect(err).toBeNull()
-        resolve(name)
-      }, 'polya')
-    })
-    expect(name).toBe('Polyalloy')
+    const result = missions.matchItem('polya')
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.name).toBe('Polyalloy')
+    }
   })
 
   it('should query for an item', async function () {

@@ -3,7 +3,7 @@ import * as fs from 'fs/promises'
 import * as fssync from 'fs'
 import * as _ from 'underscore'
 import { Dictionary } from 'underscore'
-import { MatchCB, matchOne as matcherMatchOne } from './matcher'
+import { MatchResult, matchOne as matcherMatchOne } from './matcher'
 import { CrewMember } from './dcmodel/crew'
 import {
   DATACORE_ASSETS_URL,
@@ -248,8 +248,8 @@ export function charStars() {
   return wikidb.charstars
 }
 
-export function matchOne(cb: MatchCB, ...args: string[]) {
-  return matcherMatchOne(cb, _.keys(wikidb.charstars), 'character', ...args)
+export function matchOne(...args: string[]): MatchResult {
+  return matcherMatchOne(_.keys(wikidb.charstars), 'character', ...args)
 }
 
 export function wikiLookup(name: string, cb: any) {
@@ -816,31 +816,24 @@ export function searchCrewByCharTrait(
   criteria
     .filter((x) => x !== '')
     .forEach((name) => {
-      matcherMatchOne(
-        function (err: any, res: string | null) {
-          if (err) {
-            throw err
-          }
-          if (res) {
-            searchParams.push(res)
-            entries = entries.filter((entry) => {
-              const matchTraits = entry.traits
-                .split(',')
-                .map((x: string) => x.trim())
-                .concat(entry.traits_hidden)
+      const result = matcherMatchOne(charsAndTraits, 'char or trait', name)
+      if (!result.success) {
+        throw new Error(result.message)
+      }
+      const res = result.name
+      searchParams.push(res)
+      entries = entries.filter((entry) => {
+        const matchTraits = entry.traits
+          .split(',')
+          .map((x: string) => x.trim())
+          .concat(entry.traits_hidden)
 
-              return (
-                _.contains(matchTraits, res) ||
-                entry.char === res ||
-                _.contains(entry.moreChar, res)
-              )
-            })
-          }
-        },
-        charsAndTraits,
-        'char or trait',
-        name
-      )
+        return (
+          _.contains(matchTraits, res) ||
+          entry.char === res ||
+          _.contains(entry.moreChar, res)
+        )
+      })
     })
   return { searchParams: searchParams, entries: entries }
 }

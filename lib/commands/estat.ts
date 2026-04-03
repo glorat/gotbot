@@ -222,19 +222,15 @@ new moon
         ? argv.flags.names.split(' ')
         : [args.name1, args.name2, args.name3]
 
-      chars.matchOne(
-        function (err, name) {
-          if (err) {
-            fulfill(err)
-          } else {
-            const nm = <string>name
-            chars.ssrLookup(nm, (ssr: any) => {
-              handleName(nm, argv.flags.stars, argv.flags.level, ssr)
-            })
-          }
-        },
-        ...matchArgs
-      )
+      const result = chars.matchOne(...matchArgs)
+      if (!result.success) {
+        fulfill(result.message)
+      } else {
+        const nm = result.name
+        chars.ssrLookup(nm, (ssr: any) => {
+          handleName(nm, argv.flags.stars, argv.flags.level, ssr)
+        })
+      }
     }),
   args: [
     {

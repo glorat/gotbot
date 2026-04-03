@@ -186,22 +186,20 @@ export default new Clapp.Command({
         const search = missions
           .allMissionCodes()
           .concat(missions.allMissionNames())
-        matcher.matchOne(
-          function (err: string | null, res: string | null) {
-            if (err) {
-              fulfill(err)
-            } else if (res) {
-              let code = res
-              if (_.contains(missions.allMissionNames(), code)) {
-                code = missions.missionNameToCode(code)
-              }
-              handleMission(code)
-            }
-          },
+        const result = matcher.matchOne(
           search,
           'mission name or code',
           args.mission
         )
+        if (!result.success) {
+          fulfill(result.message)
+        } else {
+          let code = result.name
+          if (_.contains(missions.allMissionNames(), code)) {
+            code = missions.missionNameToCode(code)
+          }
+          handleMission(code)
+        }
       } catch (e: any) {
         fulfill(e.message)
       }

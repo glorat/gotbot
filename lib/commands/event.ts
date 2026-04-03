@@ -93,19 +93,14 @@ export default new Clapp.Command({
           }
         } else if (args.type === 'char') {
           // Try by specific char
-          chars.matchOne(
-            function (oneErr: string | null, name: string | null) {
-              if (oneErr) {
-                fulfill(oneErr)
-              } else if (name) {
-                fleets.addEventChar(fleetId, name)
-                fulfill(`Added ${name} to event char list`)
-              }
-            },
-            args.name1,
-            args.name2,
-            args.name3
-          )
+          const result = chars.matchOne(args.name1, args.name2, args.name3)
+          if (!result.success) {
+            fulfill(result.message)
+          } else {
+            const name = result.name
+            fleets.addEventChar(fleetId, name)
+            fulfill(`Added ${name} to event char list`)
+          }
         } else if (args.type === 'reset') {
           fleets.resetEvent(fleetId).then(() => fulfill('Event crew reset'))
         } else {

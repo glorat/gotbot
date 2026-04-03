@@ -2,7 +2,6 @@ import * as API from '../Interfaces'
 import * as chars from '../chars'
 import * as Clapp from '../modules/clapp-discord'
 import * as _ from 'underscore'
-import { MatchCB } from '../matcher'
 import * as crewdb from '../crewdb'
 
 export default new Clapp.Command({
@@ -29,24 +28,22 @@ export default new Clapp.Command({
           return
         }
 
-        const matchCallback: MatchCB = function (err, name) {
-          if (err) {
-            fulfill(err)
-          } else if (name) {
-            const char = _.find(doc.crew, (x: any) => x.name === name)
-            if (char) {
-              char[args.stat] = _.pick(args, 'base', 'minroll', 'maxroll')
-              crewdb.users.update(qry, doc, { upsert: true })
-              fulfill(
-                `${author}, I have updated ${context.emojify(args.stat)} for ${char.name} to ${args.base}+(${args.minroll}-${args.maxroll})`
-              )
-            } else {
-              fulfill(`Sorry ${author}, I cannot find ${name} in your crew`)
-            }
+        const result = chars.matchOne(args.name1, args.name2, args.name3)
+        if (!result.success) {
+          fulfill(result.message)
+        } else {
+          const name = result.name
+          const char = _.find(doc.crew, (x: any) => x.name === name)
+          if (char) {
+            char[args.stat] = _.pick(args, 'base', 'minroll', 'maxroll')
+            crewdb.users.update(qry, doc, { upsert: true })
+            fulfill(
+              `${author}, I have updated ${context.emojify(args.stat)} for ${char.name} to ${args.base}+(${args.minroll}-${args.maxroll})`
+            )
+          } else {
+            fulfill(`Sorry ${author}, I cannot find ${name} in your crew`)
           }
         }
-
-        chars.matchOne(matchCallback, args.name1, args.name2, args.name3)
       })
     }),
   args: [

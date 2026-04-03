@@ -6,30 +6,36 @@ function reSafe(str: string) {
   return (str + '').replace(/[.?*+^$[\]\\(){}|-]/g, '\\$&')
 }
 
-// FIXME: How to declare cb in typescript?
+export type MatchResult =
+  | { success: true; name: string }
+  | { success: false; message: string }
+
+/** @deprecated Use MatchResult instead */
 export type MatchCB = (err: string | null, name: string | null) => void
 
 export function matchOne(
-  cb: MatchCB,
   allNames: Array<string>,
   desc: string,
   ...args: string[]
-) {
+): MatchResult {
   let names = matchAll(allNames, ...args)
 
-  if (names.length === 0) {
-    cb(`Sorry don't know any matching ${desc} from ${args.join()}`, null)
-  } else if (names.length === 1) {
-    const name = names[0]
-    cb(null, name)
-  } else {
-    const n = names.length
-    if (n > 5) {
-      names = _.sample(names, 5)
-    }
-    const nameStr = names.join(', ')
-    cb(`${n} ${desc} matches. Did you mean ${nameStr}?`, null)
+  if (names.length === 1) {
+    return { success: true, name: names[0] }
   }
+
+  const n = names.length
+  if (n > 5) {
+    names = _.sample(names, 5)
+  }
+  const nameStr = names.join(', ')
+
+  const message =
+    n === 0
+      ? `Sorry don't know any matching ${desc} from ${args.join()}`
+      : `${n} ${desc} matches. Did you mean ${nameStr}?`
+
+  return { success: false, message }
 }
 
 export function matchAll(origNames: Array<string>, ...args: string[]) {

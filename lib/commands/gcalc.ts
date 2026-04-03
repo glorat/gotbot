@@ -44,15 +44,11 @@ export default new Clapp.Command({
 
         const featuredTraits: Array<string> = []
         _.forEach(traits, (name: string) => {
-          matcher.matchOne(
-            function (err, val) {
-              if (err) throw err
-              featuredTraits.push(<string>val)
-            },
-            chars.allTraits(),
-            'trait',
-            name
-          )
+          const result = matcher.matchOne(chars.allTraits(), 'trait', name)
+          if (!result.success) {
+            throw new Error(result.message)
+          }
+          featuredTraits.push(result.name)
         })
 
         db.get(userid).then(function (doc: any) {

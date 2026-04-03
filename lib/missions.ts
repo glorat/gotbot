@@ -132,13 +132,10 @@ function findByMissionCode(code: string, level: string): Array<MissionEntry> {
   )
 }
 
-function matchItem(cb: any, one: string, two?: string, three?: string) {
-  return matcher.matchOne(
-    cb,
-    wikidb.itemList,
-    'items',
-    one,
-    two ?? '',
-    three ?? ''
-  )
+function matchItem(
+  one: string,
+  two?: string,
+  three?: string
+): matcher.MatchResult {
+  return matcher.matchOne(wikidb.itemList, 'items', one, two ?? '', three ?? '')
 }

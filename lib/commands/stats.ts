@@ -71,18 +71,12 @@ ${emojify('1star')}${emojify('1star')}${emojify('1star')}${emojify('1star')}${em
         return
       }
 
-      chars.matchOne(
-        function (err: string | null, name: string | null) {
-          if (err) {
-            fulfill(err)
-          } else if (name) {
-            handleName(name, argv.flags.stars, argv.flags.level)
-          }
-        },
-        args.name1,
-        args.name2,
-        args.name3
-      )
+      const result = chars.matchOne(args.name1, args.name2, args.name3)
+      if (!result.success) {
+        fulfill(result.message)
+      } else if (result.name) {
+        handleName(result.name, argv.flags.stars, argv.flags.level)
+      }
     }),
   args: [
     {

@@ -71,41 +71,34 @@ export default new Clapp.Command({
         return table.toString()
       }
 
-      missions.matchItem(
-        function (err: string, name: string) {
-          if (err) {
-            fulfill(err)
-          } else {
-            let lines: string[] = []
+      const result = missions.matchItem(args.name1, args.name2, args.name3)
+      if (!result.success) {
+        fulfill(result.message)
+      } else {
+        const name = result.name
+        let lines: string[] = []
 
-            const entrys = missions.findByStarItem(args.stars, name)
-            lines.push('```')
-            lines.push(name + starStr(args.stars))
-            lines.push('Wiki farm rates')
-            const table = handleItem(entrys)
-            lines.push(table)
+        const entrys = missions.findByStarItem(args.stars, name)
+        lines.push('```')
+        lines.push(name + starStr(args.stars))
+        lines.push('Wiki farm rates')
+        const table = handleItem(entrys)
+        lines.push(table)
 
-            dropdb
-              .findByStarItem(args.stars, name)
-              .then((botEntries: any[]) => {
-                if (
-                  context.isEntitled(userid) &&
-                  botEntries &&
-                  botEntries.length > 0
-                ) {
-                  lines.push('Discord farm rates')
-                  lines = lines.concat(handleItem(botEntries))
-                }
-
-                lines.push('```')
-                fulfill(lines.join('\n'))
-              })
+        dropdb.findByStarItem(args.stars, name).then((botEntries: any[]) => {
+          if (
+            context.isEntitled(userid) &&
+            botEntries &&
+            botEntries.length > 0
+          ) {
+            lines.push('Discord farm rates')
+            lines = lines.concat(handleItem(botEntries))
           }
-        },
-        args.name1,
-        args.name2,
-        args.name3
-      )
+
+          lines.push('```')
+          fulfill(lines.join('\n'))
+        })
+      }
     }),
   args: [
     {

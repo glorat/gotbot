@@ -86,20 +86,15 @@ export default new Clapp.Command({
             ? argv.flags.names.split(' ')
             : [args.arg1, args.arg2, args.arg3]
 
-        chars.matchOne(
-          async function (err: any, name: any) {
-            if (err) {
-              throw err
-            } else {
-              const fleet = await fleets.get(fleetId)
-              await fleets.addBossExclude(fleetId, name)
-              const msg = `Hi ${author}. ${name} will be excluded (with ${(fleet.bossExclude ?? []).length} others)`
-              console.log(msg)
-            }
-          },
-          ...matchArgs
-        )
-        return 'Adding to exclude list...'
+        const result = chars.matchOne(...matchArgs)
+        if (!result.success) {
+          throw new Error(result.message)
+        }
+        const name = result.name
+        const fleet = await fleets.get(fleetId)
+        await fleets.addBossExclude(fleetId, name)
+        const msg = `Hi ${author}. ${name} will be excluded (with ${(fleet.bossExclude ?? []).length} others)`
+        return msg
       } else if (args.cmd === 'help') {
         const str = `
 help           - Show this text

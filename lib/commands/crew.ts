@@ -48,119 +48,101 @@ export default new Clapp.Command({
           }
         }
         if (args.cmd === 'add') {
-          chars.matchOne(
-            function (err: any, name: any) {
-              if (err) {
-                fulfill(err)
-              } else {
-                if (!doc.crew) {
-                  doc.crew = []
-                }
-                // Vivify
-                const char = { name: name } as Char
+          const result = chars.matchOne(args.name1, args.name2, args.name3)
+          if (!result.success) {
+            fulfill(result.message)
+          } else {
+            const name = result.name
+            if (!doc.crew) {
+              doc.crew = []
+            }
+            // Vivify
+            const char = { name: name } as Char
 
-                enrichChar(char, function () {
-                  doc.crew.push(char)
+            enrichChar(char, function () {
+              doc.crew.push(char)
 
-                  crewdb.users.update(qry, doc, { upsert: true })
+              crewdb.users.update(qry, doc, { upsert: true })
 
-                  const msg = `Hi ${author}. I have added ${chars.statsFor(char, emojify, boldify, statsOpt)}\nYou now have ${doc.crew.length} crew`
-                  fulfill(msg)
-                })
-              }
-            },
-            args.name1,
-            args.name2,
-            args.name3
-          )
+              const msg = `Hi ${author}. I have added ${chars.statsFor(char, emojify, boldify, statsOpt)}\nYou now have ${doc.crew.length} crew`
+              fulfill(msg)
+            })
+          }
         } else if (args.cmd === 'remove') {
           if (!doc.crew) {
             doc.crew = []
           } // Vivify
           const myNames = doc.crew.map((x) => x.name)
-          matcher.matchOne(
-            function (err: any, name: any) {
-              if (err) {
-                fulfill(err)
-              } else {
-                const newcrew = _.filter(doc.crew, (x) => x.name !== name)
-                if (newcrew.length < doc.crew.length) {
-                  doc.crew = newcrew
-                  crewdb.users.update(qry, doc, { upsert: true })
-                  const msg = `Hi ${author}, I have removed ${name} from your crew list`
-                  fulfill(msg)
-                } else {
-                  fulfill(`Sorry ${author}, ${name} wasn't in your crew list`)
-                }
-              }
-            },
+          const result = matcher.matchOne(
             myNames,
             'character',
             args.name1,
             args.name2,
             args.name3
           )
+          if (!result.success) {
+            fulfill(result.message)
+          } else {
+            const name = result.name
+            const newcrew = _.filter(doc.crew, (x) => x.name !== name)
+            if (newcrew.length < doc.crew.length) {
+              doc.crew = newcrew
+              crewdb.users.update(qry, doc, { upsert: true })
+              const msg = `Hi ${author}, I have removed ${name} from your crew list`
+              fulfill(msg)
+            } else {
+              fulfill(`Sorry ${author}, ${name} wasn't in your crew list`)
+            }
+          }
         } else if (args.cmd === 'vault') {
           if (!doc.crew) {
             doc.crew = []
           } // Vivify
-          chars.matchOne(
-            function (err: string | null, name: string | null) {
-              if (err) {
-                fulfill(err)
-              } else {
-                const charOpt = _.find(
-                  doc.crew,
-                  (x: any) => x.name === name && !x.vaulted
-                )
-                let char: Char
-                if (!charOpt) {
-                  fulfill(
-                    `There is no ${name} in your roster to vault. Add first?`
-                  )
-                } else {
-                  char = charOpt
-                  char.vaulted = true
-                  argv.flags.ff = true // For enrich char
-                  enrichChar(char, function () {
-                    crewdb.users.update(qry, doc, { upsert: true })
-                    const msg = `Hi ${author}, ${name} has been added to your vault`
-                    fulfill(msg)
-                  })
-                }
-              }
-            },
-            args.name1,
-            args.name2,
-            args.name3
-          )
+          const result = chars.matchOne(args.name1, args.name2, args.name3)
+          if (!result.success) {
+            fulfill(result.message)
+          } else {
+            const name = result.name
+            const charOpt = _.find(
+              doc.crew,
+              (x: any) => x.name === name && !x.vaulted
+            )
+            let char: Char
+            if (!charOpt) {
+              fulfill(`There is no ${name} in your roster to vault. Add first?`)
+            } else {
+              char = charOpt
+              char.vaulted = true
+              argv.flags.ff = true // For enrich char
+              enrichChar(char, function () {
+                crewdb.users.update(qry, doc, { upsert: true })
+                const msg = `Hi ${author}, ${name} has been added to your vault`
+                fulfill(msg)
+              })
+            }
+          }
         } else if (args.cmd === 'unvault') {
           if (!doc.crew) {
             doc.crew = []
           } // Vivify
-          chars.matchOne(
-            function (err: string | null, name: string | null) {
-              if (err) {
-                fulfill(err)
-              } else {
-                const char = _.find(
-                  doc.crew,
-                  (x: any) => x.name === name && x.vaulted
-                )
-                if (!char) {
-                  fulfill(`${name} is not in your vault`)
-                } else {
-                  char.vaulted = false
-                  crewdb.users.update(qry, doc, { upsert: true }) // Async updated
-                  const msg = `Hi ${author}, ${name} has been taken out of your vault`
-                  fulfill(msg)
-                }
-              }
-            },
-            args.name1,
-            args.name2,
-            args.name3
-          )
+          const result = chars.matchOne(args.name1, args.name2, args.name3)
+          if (!result.success) {
+            fulfill(result.message)
+          } else {
+            const name = result.name
+            const char = _.find(
+              doc.crew,
+              (x: any) => x.name === name && x.vaulted
+            )
+            if (!char) {
+              fulfill(`${name} is not in your vault`)
+            } else {
+              char.vaulted = false
+              crewdb.users.update(qry, doc, { upsert: true }) // Async updated
+              const msg = `Hi ${author}, ${name} has been taken out of your vault`
+              fulfill(msg)
+            }
+          }
         } else if (args.cmd === 'list') {
           const names = doc.crew.map((x) => x.name)
           const msg = `Hi ${author}, you have these ${doc.crew.length} crew: ${names}`
