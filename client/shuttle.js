@@ -19,7 +19,6 @@ angular.module('myApp').directive('shuttleCalc', function () {
       vm.vpToDifficulty = {
         1500: 1000,
         1800: 1100,
-        1800: 1100,
         2250: 1300,
         2750: 1500,
         3500: 1700,

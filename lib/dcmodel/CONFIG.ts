@@ -1,7 +1,7 @@
 type SupportedLanguage = 'en' | 'sp' | 'de' | 'fr'
 
-export function shortToSkill(short: string) {
-  CONFIG.SKILLS_SHORT.find((f) => f.short === short)?.name
+export function shortToSkill(short: string): string | undefined {
+  return CONFIG.SKILLS_SHORT.find((f) => f.short === short)?.name
 }
 
 export interface Rarity {

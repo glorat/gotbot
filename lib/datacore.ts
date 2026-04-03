@@ -24,7 +24,7 @@ export function getShortNameFromTrait(
   preferEnglish = true
 ) {
   switch (trait) {
-    case 'dax':
+    case 'dax': {
       let daxname = ''
       if (Array.isArray(crewGroup)) {
         daxname =
@@ -37,6 +37,7 @@ export function getShortNameFromTrait(
       }
       if (daxname === 'Ezri') return daxname
       return 'Dax'
+    }
     case 'tpring':
       return "T'Pring"
     case 'mbenga':

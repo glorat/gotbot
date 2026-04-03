@@ -1575,6 +1575,7 @@ export interface Cwin {
   close: number
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface Chats {}
 
 export interface Environment {

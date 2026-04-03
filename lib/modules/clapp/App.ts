@@ -438,6 +438,7 @@ class App<TContext = unknown> {
                 )
               }
             } else {
+              // eslint-disable-next-line @typescript-eslint/no-this-alias
               const self = this
 
               const fn = cmd.fn as (

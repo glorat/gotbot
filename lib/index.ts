@@ -16,7 +16,7 @@ import './webserver'
 import * as cli from './cli'
 import * as fleets from './fleetdb'
 import winston from 'winston'
-const format = (winston as any).format
+const format = winston.format
 import * as path from 'path'
 import { mkdirp } from 'mkdirp'
 import * as API from './Interfaces'
@@ -62,7 +62,7 @@ bot.on('messageCreate', (msg) => {
       .then(() => {
         console.log(`${dir} directory made`)
       })
-      .catch((err: any) => {
+      .catch((err: unknown) => {
         if (err) console.error(err)
       })
 

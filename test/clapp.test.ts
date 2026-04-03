@@ -235,12 +235,13 @@ describe('Clapp.App', () => {
           new Clapp.Command({
             name: 'without-message',
             desc: 'desc',
-            fn: ((_argv: Clapp.Argv, context: unknown) => {
+            fn: (_argv, context) => {
               ;(context as string[]).push('c')
               return {
+                message: '',
                 context,
               }
-            }) as any,
+            },
           }),
         ],
       })

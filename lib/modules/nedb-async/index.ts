@@ -39,7 +39,11 @@ export class AsyncNedb<G> extends Nedb<G> {
   public asyncLoadDatabase() {
     return new Promise((resolve, reject) => {
       this.loadDatabase((err) => {
-        err ? reject(err) : resolve(true)
+        if (err) {
+          reject(err)
+        } else {
+          resolve(true)
+        }
       })
     })
   }

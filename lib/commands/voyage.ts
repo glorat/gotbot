@@ -10,7 +10,18 @@ import * as API from '../Interfaces'
 
 const voyageSkills = ['cmd', 'dip', 'sec', 'eng', 'sci', 'med']
 
-const calcTotalSkills = function (crewList: Array<any>, skillList: Array<any>) {
+interface VoyageAvail {
+  dip: chars.Char[]
+  cmd: chars.Char[]
+  sec: chars.Char[]
+  eng: chars.Char[]
+  sci: chars.Char[]
+  med: chars.Char[]
+  score: number
+  crew: chars.Char[]
+}
+
+const calcTotalSkills = function (crewList: chars.Char[], skillList: string[]) {
   const totalSkills = [0, 0, 0, 0, 0, 0]
   crewList.forEach((ch) => {
     for (let i = 0; i < skillList.length; i++) {
@@ -60,22 +71,22 @@ export default new Clapp.Command({
           _.without(allSkills, args.primary, args.secondary)
         )
 
-        const handleUserDoc = function (doc: any) {
+        const handleUserDoc = function (doc: chars.CrewDoc | null) {
           if (argv.flags.best) {
             const allInfo: CharInfo[] = chars.allCrewEntries()
-            const allNms: Array<string> = allInfo.map((x: any) => x.name)
+            const allNms: Array<string> = allInfo.map((x) => x.name)
 
             const fullCrew = allNms
               .map((nm) => {
-                return { name: nm }
+                return { name: nm } as unknown as chars.Char
               })
-              .map((char: any) =>
+              .map((char) =>
                 chars.fullyEquip(
                   char,
                   _.find(allInfo, (info) => info.name === char.name)
                 )
               )
-            doc = { crew: fullCrew }
+            doc = { crew: fullCrew } as chars.CrewDoc
           }
           // Create a default doc if user is new
           if (doc === null || !doc.crew || doc.crew.length < 13) {
@@ -88,20 +99,21 @@ export default new Clapp.Command({
           let crew = doc.crew
           if (!argv.flags.vault) {
             // excluded vaulted chars
-            crew = crew.filter((e: any) => !e.vaulted === true)
+            crew = crew.filter((e) => !e.vaulted === true)
           }
 
           // TODO: check fleetId from crew doc
-          fleets.get(fleetId).then((fleet: any) => {
+          fleets.get(fleetId).then((fleet: API.FleetDoc) => {
             crewdb.calcAdjustedSkill(doc, fleet)
             handleAdjustedCrew(crew, fleet)
           })
         }
 
-        const handleAdjustedCrew = function (crew: any, fleet: any) {
-          const starbase = fleet.starbase
-
-          const sortedByVoyage = function (availCrew: Array<any>) {
+        const handleAdjustedCrew = function (
+          crew: chars.Char[],
+          fleet: API.FleetDoc
+        ) {
+          const sortedByVoyage = function (availCrew: chars.Char[]) {
             availCrew.forEach((ch) => {
               let score = 0
               sks.forEach((sk) => {
@@ -125,7 +137,10 @@ export default new Clapp.Command({
             return availCrew.sort((a, b) => b.score - a.score)
           }
 
-          const recurseFit = function (crew: Array<any>, avail: any): any {
+          const recurseFit = function (
+            crew: chars.Char[],
+            avail: VoyageAvail
+          ): VoyageAvail {
             // Base cases - none to fit or out of crew
             if (avail.crew.length >= 12) {
               return avail
@@ -137,11 +152,18 @@ export default new Clapp.Command({
             const head = crew[0]
             let best = avail
             sks.forEach((sk) => {
-              if (head[sk] && avail[sk].length < 2 && head.score > 0) {
-                const newAvail: any = _.clone(avail) // copy on write
+              if (
+                head[sk] &&
+                (avail as unknown as Record<string, chars.Char[]>)[sk].length <
+                  2 &&
+                head.score > 0
+              ) {
+                const newAvail: VoyageAvail = _.clone(avail) as VoyageAvail // copy on write
                 newAvail.score += head.score
-                newAvail[sk] = _.clone(newAvail[sk])
-                newAvail[sk].push(head)
+                ;(newAvail[sk as keyof VoyageAvail] as chars.Char[]) = _.clone(
+                  newAvail[sk as keyof VoyageAvail]
+                ) as chars.Char[]
+                ;(newAvail[sk as keyof VoyageAvail] as chars.Char[]).push(head)
                 newAvail.crew = _.clone(newAvail.crew)
                 newAvail.crew.push(head)
                 const ret = recurseFit(_.rest(crew), newAvail)
@@ -158,7 +180,7 @@ export default new Clapp.Command({
             }
           }
 
-          const fitCrewToSlots = function (crew: any) {
+          const fitCrewToSlots = function (crew: chars.Char[]) {
             const avail = {
               dip: [],
               cmd: [],
@@ -176,19 +198,26 @@ export default new Clapp.Command({
           const bestCrew = sortedByVoyage(crew)
           let constrainedCrew = fitCrewToSlots(bestCrew)
 
-          function replaceConstrainedCrew(obj: any, before: any, after: any) {
+          function replaceConstrainedCrew(
+            obj: VoyageAvail,
+            before: chars.Char,
+            after: chars.Char
+          ): VoyageAvail {
             // copy on write
-            const ret: any = _.clone(obj)
+            const ret: VoyageAvail = _.clone(obj)
 
             // Replace the main crew area
-            ret.crew = ret.crew.map(function (item: any) {
+            ret.crew = ret.crew.map(function (item: chars.Char) {
               return item === before ? after : item
             })
             // Replace the skills
-            chars.skills.forEach((sk: string) => {
-              ret[sk] = ret[sk].map(function (item: any) {
-                return item === before ? after : item
-              })
+            chars.skills.forEach((sk) => {
+              const skillArray = ret[sk as keyof VoyageAvail] as chars.Char[]
+              ;(ret[sk as keyof VoyageAvail] as chars.Char[]) = skillArray.map(
+                function (item: chars.Char) {
+                  return item === before ? after : item
+                }
+              )
             })
             return ret
           }
@@ -211,13 +240,17 @@ export default new Clapp.Command({
             // console.log(`Iteration ${iters} of swapping`);
             bestCrew.forEach((after) => {
               if (!_.contains(constrainedCrew.crew, after)) {
-                let bestReplace = { name: 'NA' }
+                let bestReplace: chars.Char = {
+                  name: 'NA',
+                } as unknown as chars.Char
                 let bestReplaceHours = bestHours
                 // Let's try to swap in somewhere
                 skillList.forEach((sk) => {
                   if (after[sk]) {
                     // Matching skill to attempt into
-                    constrainedCrew[sk].forEach((before: any) => {
+                    ;(
+                      constrainedCrew[sk as keyof VoyageAvail] as chars.Char[]
+                    ).forEach((before: chars.Char) => {
                       const maybe = replaceConstrainedCrew(
                         constrainedCrew,
                         before,
@@ -263,19 +296,27 @@ export default new Clapp.Command({
 
           const names: Array<string> = []
           voyageSkills.forEach((sk) => {
-            constrainedCrew[sk].forEach((x: any) => {
-              const name = x.vaulted ? `(${x.name})` : x.name
-              names.push(`${emojify(sk)} ${name} (${Math.round(x.score)})`)
-            })
+            ;(constrainedCrew[sk as keyof VoyageAvail] as chars.Char[]).forEach(
+              (x: chars.Char) => {
+                const name = x.vaulted ? `(${x.name})` : x.name
+                names.push(`${emojify(sk)} ${name} (${Math.round(x.score)})`)
+              }
+            )
           })
 
           let msg
           if (names) {
             const baseBonuses = sks
-              .map((sk) => `${emojify(sk)}+${starbase[sk]}%`)
+              .map(
+                (sk) =>
+                  `${emojify(sk)}+${(fleet.starbase as Record<string, number>)[sk]}%`
+              )
               .join('  ')
             const profBonuses = sks
-              .map((sk) => `${emojify(sk)}+${fleet.starprof[sk]}%`)
+              .map(
+                (sk) =>
+                  `${emojify(sk)}+${(fleet.starprof as Record<string, number>)[sk]}%`
+              )
               .join('  ')
 
             msg = `Your best crew for ${emojify(argv.args.primary)}/${emojify(argv.args.secondary)}
@@ -296,8 +337,8 @@ ${hrsMsg}
         }
 
         crewdb.get(userid).then(handleUserDoc)
-      } catch (e: any) {
-        fulfill('Failed: ' + e.message)
+      } catch (e: unknown) {
+        fulfill('Failed: ' + (e instanceof Error ? e.message : String(e)))
       }
     }),
   args: [

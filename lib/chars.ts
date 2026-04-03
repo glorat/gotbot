@@ -810,6 +810,7 @@ export function searchCrewByCharTrait(
 ) {
   let charsAndTraits = allTraits()
   // Only include chars if we don't already have hidden traits from stt
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   cfg.useSttCrewEntries || (charsAndTraits = charsAndTraits.concat(allChars()))
   const searchParams: Array<string> = []
   criteria

@@ -52,5 +52,6 @@ declare module 'cheerio' {
 
   export function load(html: string | Buffer, options?: any): CheerioAPI
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   export interface Root extends CheerioAPI {}
 }

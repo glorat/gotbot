@@ -67,20 +67,24 @@ describe('slash deployment transport', () => {
 describe('webserver transport', () => {
   it('registers command and user routes and forwards command requests', async () => {
     const routes = {
-      get: new Map<string, Function>(),
-      post: new Map<string, Function>(),
+      get: new Map<string, (req: unknown, res: unknown) => void>(),
+      post: new Map<string, (req: unknown, res: unknown) => void>(),
     }
     const use = vi.fn()
     const listen = vi.fn((_port: number, cb: () => void) => cb())
 
     const expressApp = {
       use,
-      get: vi.fn((path: string, handler: Function) => {
-        routes.get.set(path, handler)
-      }),
-      post: vi.fn((path: string, handler: Function) => {
-        routes.post.set(path, handler)
-      }),
+      get: vi.fn(
+        (path: string, handler: (req: unknown, res: unknown) => void) => {
+          routes.get.set(path, handler)
+        }
+      ),
+      post: vi.fn(
+        (path: string, handler: (req: unknown, res: unknown) => void) => {
+          routes.post.set(path, handler)
+        }
+      ),
       listen,
     }
 
@@ -153,13 +157,15 @@ describe('webserver transport', () => {
 
 describe('discord runtime transport', () => {
   async function loadIndexHarness() {
-    const handlers = new Map<string, Function>()
+    const handlers = new Map<string, (arg: unknown) => void>()
     const login = vi.fn().mockResolvedValue(undefined)
     const helloFn = vi.fn().mockResolvedValue('slash-response')
-    const estatsFn = vi.fn(async (_argv: unknown, context: any) => {
-      context.embed = { title: 'embed-title' }
-      return 'EMBED'
-    })
+    const estatsFn = vi.fn(
+      async (_argv: unknown, context: { embed?: { title: string } }) => {
+        context.embed = { title: 'embed-title' }
+        return 'EMBED'
+      }
+    )
     const commandsMap = {
       hello: {
         fn: helloFn,
@@ -180,7 +186,7 @@ describe('discord runtime transport', () => {
       },
     }
     const clientInstance = {
-      on: vi.fn((event: string, handler: Function) => {
+      on: vi.fn((event: string, handler: (arg: unknown) => void) => {
         handlers.set(event, handler)
       }),
       login,
@@ -202,7 +208,9 @@ describe('discord runtime transport', () => {
       user: { id: 'bot-user' },
     }
 
-    vi.spyOn(globalThis, 'setTimeout').mockImplementation(() => 0 as any)
+    vi.spyOn(globalThis, 'setTimeout').mockImplementation(
+      () => 0 as unknown as ReturnType<typeof setTimeout>
+    )
 
     vi.doMock('../lib/webserver.js', () => ({
       dummyChannel: {
