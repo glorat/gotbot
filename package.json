@@ -28,32 +28,28 @@
     "format:check": "prettier \"**/*.{ts,js,json,md,css,html}\" --check"
   },
   "devDependencies": {
+    "@eslint/js": "^9.23.0",
     "@types/node": "^22.0.0",
     "@vitest/coverage-v8": "^3.2.4",
-    "eslint": "^5.16.0",
-    "eslint-config-xo-space": "^0.21.0",
+    "eslint": "^9.23.0",
+    "globals": "^16.0.0",
     "prettier": "^3.1.0",
     "source-map-support": "^0.5.21",
     "ts-node": "^10.9.1",
-    "tslint": "^5.20.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.29.0",
     "vitest": "^3.0.0"
-  },
-  "eslintConfig": {
-    "extends": "xo-space"
   },
   "license": "Apache-2.0",
   "dependencies": {
     "@seald-io/nedb": "^4.1.2",
     "@types/express": "^4.17.2",
     "@types/nedb": "^1.8.12",
-    "@types/node-fetch": "^2.5.4",
     "@types/underscore": "^1.9.4",
     "@types/ws": "^8.18.1",
     "async-file": "^2.0.2",
     "body-parser": "^1.19.0",
-    "btoa": "^1.2.1",
     "cheerio": "^1.2.0",
     "cli-table3": "^0.6.5",
     "discord.js": "^14.6.0",
@@ -62,9 +58,8 @@
     "longjohn": "^0.2.12",
     "mkdirp": "^3.0.1",
     "moment": "^2.27.0",
-    "node-fetch": "^2.7.0",
     "node-schedule": "^2.1.1",
     "underscore": "^1.13.1",
-    "winston": "^2.4.5"
+    "winston": "^3.17.0"
   }
 }

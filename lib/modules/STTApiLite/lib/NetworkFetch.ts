@@ -1,8 +1,9 @@
-// an implemention of NetworkInterface using the native browser fetch functionality
+// an implementation of NetworkInterface using the native browser fetch functionality
 import { NetworkInterface } from './NetworkInterface'
 
-import fetch from 'node-fetch'
-import btoa from 'btoa'
+function btoa(str: string): string {
+  return Buffer.from(str).toString('base64')
+}
 
 export class NetworkFetch implements NetworkInterface {
   _weirdUrlify(form: any): string {

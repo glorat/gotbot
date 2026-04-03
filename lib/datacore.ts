@@ -1,7 +1,6 @@
 import CONFIG from './dcmodel/CONFIG'
 import { CrewMember } from './dcmodel/crew'
 import * as fs from 'async-file'
-import fetch from 'node-fetch'
 
 export const STATIC_URL = `https://datacore.app/structured/`
 export const DATACORE_ASSETS_URL = `https://assets.datacore.app/`

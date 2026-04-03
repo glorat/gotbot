@@ -16,8 +16,8 @@ import './webserver'
 import * as cli from './cli'
 import * as fleets from './fleetdb'
 import winston from 'winston'
+const format = (winston as any).format
 import * as path from 'path'
-import moment from 'moment'
 import { mkdirp } from 'mkdirp'
 import * as API from './Interfaces'
 import { keys } from 'underscore'
@@ -74,10 +74,12 @@ bot.on('messageCreate', (msg) => {
             dirname: dir,
             filename: `${channelName}.log`,
             level: 'info',
-            json: false,
-            timestamp: (x: any) =>
-              moment().format('YYYY-MM-DD hh:mm:ss').trim(),
-            formatter: (opts: any) => `${opts.timestamp()} - ${opts.message}`,
+            format: format.combine(
+              format.timestamp({ format: 'YYYY-MM-DD hh:mm:ss' }),
+              format.printf(
+                (info: any) => `${info.timestamp} - ${info.message}`
+              )
+            ),
           }),
         ],
       })
