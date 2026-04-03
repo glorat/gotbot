@@ -16,10 +16,14 @@ function update(userid: any, fn: (x: any) => any) {
   })
 }
 
-function get(userid: any, context: api.Context) {
+function get(userid: any, context?: api.Context) {
   function vivify(doc: any) {
     if (doc === null) {
-      doc = { _id: userid, username: context.author.username, crew: [] }
+      doc = {
+        _id: userid,
+        username: context?.author.username ?? 'unknown',
+        crew: [],
+      }
     }
     if (!doc.base) {
       doc.base = { cmd: 0, dip: 0, eng: 0, sec: 0, med: 0, sci: 0 }

@@ -39,7 +39,7 @@ export default new Clapp.Command({
         const solveMsg = await reportBoss(
           fleet.bossDifficulty,
           crewdoc.crew,
-          fleet.bossExclude,
+          fleet.bossExclude ?? [],
           argv.flags
         )
         const msg = `${solveMsg}\n${refreshMsg}`
@@ -70,7 +70,7 @@ export default new Clapp.Command({
           const msg = await performRefresh(fleetId, userid, author)
           fulfill(msg)
         } else if (args.cmd === 'difficulty') {
-          const diff = parseInt(args.arg1)
+          const diff = parseInt(args.arg1, 10)
           if (diff) {
             await fleets.setBossDifficulty(fleetId, diff)
             const msg = await performRefresh(fleetId, userid, author)
@@ -83,9 +83,10 @@ export default new Clapp.Command({
           const str = await bossJson()
           fulfill('```' + str + '```')
         } else if (args.cmd === 'add') {
-          const matchArgs = argv.flags?.names
-            ? argv.flags.names.split(' ')
-            : [args.arg1, args.arg2, args.arg3]
+          const matchArgs =
+            typeof argv.flags?.names === 'string' && argv.flags.names
+              ? argv.flags.names.split(' ')
+              : [args.arg1, args.arg2, args.arg3]
 
           chars.matchOne(
             async function (err: any, name: any) {
@@ -94,7 +95,7 @@ export default new Clapp.Command({
               } else {
                 const fleet = await fleets.get(fleetId)
                 await fleets.addBossExclude(fleetId, name)
-                const msg = `Hi ${author}. ${name} will be excluded (with ${fleet.bossExclude.length} others)`
+                const msg = `Hi ${author}. ${name} will be excluded (with ${(fleet.bossExclude ?? []).length} others)`
                 fulfill(msg)
               }
             },
@@ -134,7 +135,7 @@ json           - Debug information
           const str = await reportBoss(
             fleet.bossDifficulty,
             crewdoc.crew,
-            fleet.bossExclude,
+            fleet.bossExclude ?? [],
             argv.flags
           )
           fulfill(str)

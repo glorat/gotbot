@@ -3,30 +3,36 @@ import { Guild } from 'discord.js'
 
 export type EmojiFn = (x: string) => string | Discord.Emoji
 export type BoldifyFn = (x: string) => string
+export type CommandArgValue = string | number | boolean | null | undefined
+export type CommandArgs = Record<string, CommandArgValue>
+export type CommandFlags = Record<string, CommandArgValue>
+export type CommandCallback = (message: string) => void
+export type CommandAuthor = Discord.User | { username: string; id: string }
+export type CommandChannel = Discord.SendableChannels | DummyChannel
 
 export interface DummyChannel {
   id: string
   name: string
-  send: () => {}
+  send: (message?: unknown) => unknown
 }
 
 export interface ClappArgs {
-  args: Record<string, any>
-  flags: Record<string, any>
+  args: CommandArgs
+  flags: CommandFlags
 }
 
 export interface Context {
   emojify: EmojiFn
   boldify: BoldifyFn
   fleetId: string // Snowflake
-  author: any
+  author: CommandAuthor
   bot?: Discord.Client
-  channel: Discord.SendableChannels | DummyChannel
-  embed?: any
+  channel: CommandChannel
+  embed?: Discord.APIEmbed | Discord.EmbedBuilder
   // msg? : Discord.Message;
   guild?: Guild
-  sender: Discord.SendableChannels | DummyChannel
-  callback?: any // FIXME
+  sender: CommandChannel
+  callback?: CommandCallback
   isEntitled(userid: string): boolean
 }
 

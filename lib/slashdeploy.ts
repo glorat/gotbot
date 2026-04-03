@@ -1,5 +1,9 @@
 import { slashCommands } from './cli'
-import { REST, Routes } from 'discord.js'
+import {
+  REST,
+  RESTGetAPIApplicationGuildCommandsResult,
+  Routes,
+} from 'discord.js'
 import cfg from '../config'
 
 // Construct and prepare an instance of the REST module
@@ -15,10 +19,10 @@ export const deploySlash = async (guildId: string): Promise<string> => {
 
     const clientId = cfg.clientId
     // The put method is used to fully refresh all commands in the guild with the current set
-    const data = await rest.put(
+    const data = (await rest.put(
       Routes.applicationGuildCommands(clientId, guildId),
       { body: commands }
-    )
+    )) as unknown[]
 
     return `Successfully reloaded ${data.length} application (/) commands.`
   } catch (error: any) {
@@ -30,11 +34,12 @@ export const deploySlash = async (guildId: string): Promise<string> => {
 
 export const undeploySlash = async (guildId: string): Promise<string> => {
   const clientId = cfg.clientId
-  const data = await rest.get(
+  const data = (await rest.get(
     Routes.applicationGuildCommands(clientId, guildId)
-  )
-  const promises = data.map(async (command: any) => {
-    const deleteUrl = `${Routes.applicationGuildCommands(clientId, guildId)}/${command.id}`
+  )) as RESTGetAPIApplicationGuildCommandsResult
+  const promises = data.map(async (command) => {
+    const deleteUrl =
+      `${Routes.applicationGuildCommands(clientId, guildId)}/${command.id}` as `/${string}`
     console.log(deleteUrl)
     await rest.delete(deleteUrl)
     console.log(`${command.id} deleted`)

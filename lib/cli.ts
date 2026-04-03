@@ -29,22 +29,15 @@ import voyage from './commands/voyage'
 import voytime from './commands/voytime'
 import where from './commands/where'
 
-interface ClappApp {
-  isCliSentence(cmd: string): boolean
-  commands: any[]
-  addCommand(cmd: any): void
-  parseInput(cmd: any, context: any): void
-}
-
 const app = new App({
   name: cfg.botName,
   desc: pkg.description,
   prefix: cfg.prefix,
   version: pkg.version,
-  onReply: (msg: any, context: API.Context) => {
-    context.callback(msg)
+  onReply: (msg, context) => {
+    ;(context as API.Context | undefined)?.callback?.(msg)
   },
-}) as unknown as ClappApp
+})
 
 export function isCliSentence(cmd: string) {
   return app.isCliSentence(cmd)
@@ -136,9 +129,9 @@ export function sendCommand(
   cmd: string,
   context: API.Context
 ): Promise<string> {
-  let msgPromise = new Promise<string>((resolve, reject) => {
+  let msgPromise = new Promise<string>((resolve) => {
     if (app.isCliSentence(cmd)) {
-      context.callback = (m: any) => resolve(m)
+      context.callback = (m) => resolve(m)
       logCommand(cmd, context)
       app.parseInput(cmd, context)
     } else {

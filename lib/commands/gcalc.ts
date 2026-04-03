@@ -13,17 +13,17 @@ export default new Clapp.Command({
   desc: 'gauntlet crew calculator',
 
   // Command function
-  fn: (argv: API.ClappArgs, context: API.Context) =>
+  fn: (argv: any, context: API.Context) =>
     new Promise((fulfill) => {
       try {
         const args = argv.args
-        let featuredSkill = args.skill
+        let featuredSkill = args.skill as string
         let traits: string[] = _.chain([args.trait1, args.trait2, args.trait3])
-          .filter((x) => x != undefined && x != '')
+          .filter((x): x is string => typeof x === 'string' && x !== '')
           .value()
 
         if (!featuredSkill) {
-          let rawdata = readFileSync(cfg.dataPath + 'gauntlet.json')
+          let rawdata = readFileSync(cfg.dataPath + 'gauntlet.json', 'utf8')
           let gauntlet_data = JSON.parse(rawdata)
           featuredSkill = gauntlet_data.featured_skill.substring(0, 3)
           featuredSkill = featuredSkill === 'com' ? 'cmd' : featuredSkill

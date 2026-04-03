@@ -66,7 +66,7 @@ export const dummyChannel: DummyChannel = {
 }
 http.post('/command', function (req, res) {
   let context: api.Context = {
-    author: { username: 'test', id: -1 },
+    author: { username: 'test', id: '-1' },
     channel: dummyChannel,
     isEntitled: function () {
       return false

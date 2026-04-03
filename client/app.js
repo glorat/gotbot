@@ -1,5 +1,17 @@
+import Combinatorics from './combinatorics.js';
+import Gauntlet from './gauntlet.js';
+
+const angular = window.angular;
+const _ = window._;
+
 angular
   .module('myApp', ['ui.bootstrap', 'mobile-angular-ui', 'ngRoute'])
+  .factory('Combinatorics', function () {
+    return Combinatorics;
+  })
+  .factory('Gauntlet', function () {
+    return Gauntlet;
+  })
   .config([
     '$routeProvider',
     '$locationProvider',
@@ -22,11 +34,11 @@ angular
         .otherwise({
           templateUrl: 'views/main.html',
           reloadOnSearch: false,
-        })
+        });
     },
   ])
   .directive('gauntletCalc', function () {
-    var vm = this
+    var vm = this;
 
     return {
       restrict: 'E',
@@ -34,12 +46,12 @@ angular
       templateUrl: 'views/gauntlet.html',
       controllerAs: 'vm',
       controller: GauntletCtrl,
-    }
+    };
   })
-  .controller('GauntletCtrl', GauntletCtrl)
+  .controller('GauntletCtrl', GauntletCtrl);
 
 function GauntletCtrl($scope, $http, Combinatorics, Gauntlet) {
-  var charIdx = 0
+  var charIdx = 0;
   function newChar() {
     return {
       name: 'Char ' + ++charIdx,
@@ -50,90 +62,90 @@ function GauntletCtrl($scope, $http, Combinatorics, Gauntlet) {
         { name: 'dip', min: 0, max: 0 },
         { name: 'sec', min: 0, max: 0 },
       ],
-    }
+    };
   }
 
-  var vm = this
-  vm.skills = ['cmd', 'dip', 'eng', 'sec', 'med', 'sci']
-  vm.featuredSkillWeight = 2.0
+  var vm = this;
+  vm.skills = ['cmd', 'dip', 'eng', 'sec', 'med', 'sci'];
+  vm.featuredSkillWeight = 2.0;
 
   var saved =
-    typeof localStorage === 'object' ? localStorage.getItem('crew') : ''
+    typeof localStorage === 'object' ? localStorage.getItem('crew') : '';
   if (!saved) {
-    saved = ''
+    saved = '';
   }
   if (saved !== '') {
-    vm.chars = JSON.parse(saved)
+    vm.chars = JSON.parse(saved);
   } else {
-    resetCrew()
+    resetCrew();
   }
 
-  vm.reset = resetCrew
+  vm.reset = resetCrew;
 
   $http({
     method: 'GET',
     url: '/users',
   }).then(
     function successCallback(response) {
-      vm.users = response.data
+      vm.users = response.data;
     },
     function errorCallback(response) {
       // called asynchronously if an error occurs
       // or server returns response with an error status.
     }
-  )
+  );
 
   function resetCrew() {
-    vm.chars = [0, 1, 2, 3, 4].map(newChar)
+    vm.chars = [0, 1, 2, 3, 4].map(newChar);
   }
 
   function save() {
-    localStorage.setItem('crew', JSON.stringify(vm.chars))
+    localStorage.setItem('crew', JSON.stringify(vm.chars));
   }
 
-  vm.comboAvg = Gauntlet.comboAvg
+  vm.comboAvg = Gauntlet.comboAvg;
 
   vm.analyse = function () {
-    save()
-    var selectedChars = _.filter(vm.chars, (c) => c.selected)
+    save();
+    var selectedChars = _.filter(vm.chars, (c) => c.selected);
 
     var res = Gauntlet.analyseChars(
       selectedChars,
       vm.featuredSkill,
       vm.featuredSkillWeight
-    )
-    vm.result = res.result
-    vm.total = res.total
-  }
+    );
+    vm.result = res.result;
+    vm.total = res.total;
+  };
 
   vm.addChar = function () {
-    vm.chars.push(newChar())
-  }
+    vm.chars.push(newChar());
+  };
 
   vm.removeChar = function () {
-    vm.chars.pop()
-  }
+    vm.chars.pop();
+  };
 
   vm.analyseAll = function () {
-    save()
-    var selectedChars = _.filter(vm.chars, (c) => c.selected)
+    save();
+    var selectedChars = _.filter(vm.chars, (c) => c.selected);
     var res = Gauntlet.analyseCharCombos(
       selectedChars,
       vm.featuredSkill,
       vm.featuredSkillWeight
-    )
-    vm.fullRes = res
-  }
+    );
+    vm.fullRes = res;
+  };
 
   vm.selectBest = function () {
     var best = Gauntlet.topChars(
       vm.chars,
       vm.featuredSkill,
       vm.featuredSkillWeight
-    )
+    );
 
-    _.each(vm.chars, (char) => (char.selected = _.contains(best, char.name)))
-  }
+    _.each(vm.chars, (char) => (char.selected = _.contains(best, char.name)));
+  };
 
   vm.onSelectedUserChange = function () {
     $http({
@@ -141,17 +153,17 @@ function GauntletCtrl($scope, $http, Combinatorics, Gauntlet) {
       url: `/user/${vm.selectedUser._id}`,
     }).then(
       function successCallback(response) {
-        const user = response.data
+        const user = response.data;
 
         function dbCharToChar(dbChar) {
-          var char = {}
-          char.name = dbChar.name
-          char.crit = 5
-          char.selected = true
+          var char = {};
+          char.name = dbChar.name;
+          char.crit = 5;
+          char.selected = true;
 
           char.skills = _.chain(vm.skills)
             .filter(function (sk) {
-              return !!dbChar[sk.toLowerCase()]
+              return !!dbChar[sk.toLowerCase()];
             })
             .map(function (sk) {
               return {
@@ -159,24 +171,24 @@ function GauntletCtrl($scope, $http, Combinatorics, Gauntlet) {
                 min: dbChar[sk.toLowerCase()].minroll,
                 max: dbChar[sk.toLowerCase()].maxroll,
                 base: dbChar[sk.toLowerCase()].base,
-              }
+              };
             })
             .sortBy((x) => -x.base)
-            .value()
+            .value();
 
-          return char
+          return char;
         }
 
         if (user.crew.length > 0) {
-          vm.chars = _.map(user.crew, dbCharToChar)
+          vm.chars = _.map(user.crew, dbCharToChar);
         }
       },
       function errorCallback(response) {
         // called asynchronously if an error occurs
         // or server returns response with an error status.
       }
-    )
-  }
+    );
+  };
 }
 
 angular.module('myApp').directive('selectOnClick', [
@@ -188,10 +200,10 @@ angular.module('myApp').directive('selectOnClick', [
         element.on('click', function () {
           if (!$window.getSelection().toString()) {
             // Required for mobile Safari
-            this.setSelectionRange(0, this.value.length)
+            this.setSelectionRange(0, this.value.length);
           }
-        })
+        });
       },
-    }
+    };
   },
-])
+]);

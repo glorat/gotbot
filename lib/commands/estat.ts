@@ -30,7 +30,7 @@ const flags = [
     type: 'number',
     default: 100,
   },
-]
+] as const
 
 export default new Clapp.Command({
   name: 'estats',
@@ -259,7 +259,7 @@ new moon
       required: false,
     },
   ],
-  flags,
+  flags: flags as unknown as any[],
   opts: {
     slashCommandBuilder: () => {
       const b = new SlashCommandBuilder()

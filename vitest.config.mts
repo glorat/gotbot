@@ -8,8 +8,13 @@ export default defineConfig({
     setupFiles: ['vitest.setup.ts'],
     testTimeout: 30000,
     pool: 'forks',
+    fileParallelism: false,
     sequence: {
       concurrent: false,
+    },
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json-summary'],
     },
   },
   esbuild: {

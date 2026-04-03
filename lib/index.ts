@@ -90,7 +90,9 @@ bot.on('messageCreate', (msg) => {
   let onReply = function (msg: string) {
     if (msg && context.channel) {
       if (msg === 'EMBED') {
-        context.channel.send({ embeds: [context.embed] })
+        if (context.embed) {
+          context.channel.send({ embeds: [context.embed] })
+        }
       } else {
         context.channel.send(msg)
       }
@@ -146,9 +148,9 @@ bot.on('messageCreate', (msg) => {
 interface ClappArgument {
   name: string
   desc: string
-  type: 'string' | 'number'
+  type: string
   required: boolean
-  default: any
+  default?: unknown
 }
 
 bot.on(Discord.Events.InteractionCreate, async (msg) => {
@@ -178,12 +180,9 @@ bot.on(Discord.Events.InteractionCreate, async (msg) => {
     }
 
     const commands = cli.commands()
-    // FIXME: type bug here being masked
-    const handler = commands[msg.commandName as any]
+    const handler = commands[msg.commandName]
     if (handler) {
-      const fn: (argv: API.ClappArgs, context: API.Context) => Promise<string> =
-        handler.fn
-      const args: Record<string, any> = {}
+      const args: API.CommandArgs = {}
       handler.args.forEach((clappArg: ClappArgument) => {
         if (clappArg.type === 'string') {
           args[clappArg.name] = msg.options.getString(clappArg.name)
@@ -191,18 +190,20 @@ bot.on(Discord.Events.InteractionCreate, async (msg) => {
           args[clappArg.name] = msg.options.getNumber(clappArg.name)
         }
       })
-      const flags: Record<string, any> = {}
+      const flags: API.CommandFlags = {}
       keys(handler.flags).forEach((flagKey) => {
         const clappArg: ClappArgument = handler.flags[flagKey]
         if (clappArg.type === 'string') {
-          flags[clappArg.name] =
-            msg.options.getString(clappArg.name, false) ?? clappArg.default
+          flags[clappArg.name] = (msg.options.getString(clappArg.name, false) ??
+            clappArg.default) as API.CommandArgValue
         } else if (clappArg.type === 'number') {
-          flags[clappArg.name] =
-            msg.options.getNumber(clappArg.name, false) ?? clappArg.default
+          flags[clappArg.name] = (msg.options.getNumber(clappArg.name, false) ??
+            clappArg.default) as API.CommandArgValue
         } else if (clappArg.type === 'boolean') {
-          flags[clappArg.name] =
-            msg.options.getBoolean(clappArg.name, false) ?? clappArg.default
+          flags[clappArg.name] = (msg.options.getBoolean(
+            clappArg.name,
+            false
+          ) ?? clappArg.default) as API.CommandArgValue
         }
       })
       let cmdHandler = handler.args.find((h: ClappArgument) => h.name === 'cmd')
@@ -211,10 +212,16 @@ bot.on(Discord.Events.InteractionCreate, async (msg) => {
           args['cmd'] ?? msg.options.getSubcommand(cmdHandler.required)
       }
 
-      const argv = { flags, args }
-      const resp = await fn(argv, context)
+      const argv: API.ClappArgs = { flags, args }
+      const resp = await handler.fn(argv, context)
       if (resp === 'EMBED') {
-        await msg.editReply({ embeds: [context.embed] })
+        if (context.embed) {
+          await msg.editReply({ embeds: [context.embed] })
+        } else {
+          await msg.editReply(
+            'Command returned an embed response without embed data'
+          )
+        }
       } else {
         await msg.editReply(resp)
       }

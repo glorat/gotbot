@@ -63,6 +63,7 @@ function calcSkillSuccess(skills: Array<number>, time: number) {
 function solveTime(skills: Array<number>, start: number) {
   return goalSeek({
     Func: calcAntiMatter,
+    This: null,
     aFuncParams: [skills, start, 1],
     oFuncArgTarget: {
       Position: 2,

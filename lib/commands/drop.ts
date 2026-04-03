@@ -16,7 +16,6 @@ export default new Clapp.Command({
         const author = context.author.username
         const userid: string = context.author.id
         const args = argv.args
-        const emojify = context.emojify
         const boldify = context.boldify
 
         if (!context.isEntitled(userid)) {
@@ -188,10 +187,10 @@ export default new Clapp.Command({
           .allMissionCodes()
           .concat(missions.allMissionNames())
         matcher.matchOne(
-          function (err: string | null, res: string) {
+          function (err: string | null, res: string | null) {
             if (err) {
               fulfill(err)
-            } else {
+            } else if (res) {
               let code = res
               if (_.contains(missions.allMissionNames(), code)) {
                 code = missions.missionNameToCode(code)

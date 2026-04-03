@@ -31,7 +31,7 @@ export default new Clapp.Command({
           skillSuccess.forEach((s: any) => lines.push(`${s.good}/${s.total}`))
           lines.push(`${am} antimatter`)
         } else {
-          const t = voyage.solveTime(skills, args.start)
+          const t = voyage.solveTime(skills, args.start) ?? 0
           const hrs = Math.floor(t)
           const mins = Math.floor((t - hrs) * 60)
           const skillSuccess = voyage.calcSkillSuccess(skills, t)

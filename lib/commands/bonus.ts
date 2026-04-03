@@ -3,6 +3,7 @@ import * as chars from '../chars'
 import * as Clapp from '../modules/clapp-discord'
 import * as fleets from '../fleetdb'
 import * as crewdb from '../crewdb'
+import * as _ from 'underscore'
 
 export default new Clapp.Command({
   name: 'bonus',
@@ -11,7 +12,6 @@ export default new Clapp.Command({
   fn: (argv: any, context: API.Context) =>
     new Promise((fulfill) => {
       try {
-        const author = context.author.username
         const userid: string = context.author.id
         const fleetId: string = context.fleetId
         const args = argv.args

@@ -41,7 +41,7 @@ export default new Clapp.Command({
           let searchParams: Array<string> = []
           fleet.eventTrait.forEach((criteria) => {
             let res = chars.searchCrewByCharTrait(criteria, entries)
-            searchParams.push(res.searchParams)
+            searchParams = searchParams.concat(res.searchParams)
             matchEntries = matchEntries.concat(res.entries)
           })
 
@@ -94,10 +94,10 @@ export default new Clapp.Command({
         } else if (args.type === 'char') {
           // Try by specific char
           chars.matchOne(
-            function (oneErr: string, name: string) {
+            function (oneErr: string | null, name: string | null) {
               if (oneErr) {
                 fulfill(oneErr)
-              } else {
+              } else if (name) {
                 fleets.addEventChar(fleetId, name)
                 fulfill(`Added ${name} to event char list`)
               }
@@ -118,7 +118,7 @@ export default new Clapp.Command({
           })
         }
       } catch (e) {
-        fulfill(e)
+        fulfill(String(e))
       }
     }),
   args: [

@@ -197,7 +197,7 @@ export default new Clapp.Command({
           const startArg = parseInt(args.start)
           const refillArg = parseInt(args.refill)
           const startAm = startArg * (refillArg + 1)
-          const hours = voyage.solveTime(totalSkills, startAm)
+          const hours = voyage.solveTime(totalSkills, startAm) ?? 0
 
           // Next step, try swapping in and out to improve things
           let improving = true
@@ -223,7 +223,8 @@ export default new Clapp.Command({
                         after
                       )
                       let maybeSkills = calcTotalSkills(maybe.crew, skillList)
-                      const maybeHours = voyage.solveTime(maybeSkills, startAm)
+                      const maybeHours =
+                        voyage.solveTime(maybeSkills, startAm) ?? 0
                       if (maybeHours > bestReplaceHours) {
                         bestReplace = before
                         bestReplaceHours = maybeHours
@@ -254,10 +255,8 @@ export default new Clapp.Command({
 
           let hrsMsg = ''
           for (let refill = 0; refill <= refillArg + 1; refill++) {
-            let targetHours = voyage.solveTime(
-              totalSkills,
-              startArg * (refill + 1)
-            )
+            let targetHours =
+              voyage.solveTime(totalSkills, startArg * (refill + 1)) ?? 0
             hrsMsg += `${refill} refills: ${formatHrs(targetHours)}\n`
           }
 

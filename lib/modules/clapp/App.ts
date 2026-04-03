@@ -2,7 +2,7 @@ import Command, { Argv } from './Command.js'
 import Argument from './Argument.js'
 import Table from 'cli-table3'
 import defaultStr from './strings/en.js'
-import parseSentence from 'minimist-string'
+import parseSentence from './parseSentence.js'
 import { StringsObject } from './strings/en.js'
 
 export interface OnReplyFunction {
@@ -32,10 +32,16 @@ export interface ValidPrefixesResult {
 }
 
 export interface ParsedArgv {
-  _: string[]
+  _: Array<string | number>
   help?: boolean
   version?: boolean
-  [key: string]: string | number | boolean | string[] | undefined
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | Array<string | number | boolean>
+    | Array<string | number>
+    | undefined
 }
 
 /**
@@ -170,7 +176,7 @@ class App {
 
     // Find whether or not the requested command exists
     let cmd: Command | null = null
-    const userInputCommand = argv._[0]
+    const userInputCommand = String(argv._[0] ?? '')
     for (const name in this.commands) {
       const command = this.commands[name]
 
@@ -201,7 +207,7 @@ class App {
         // The user made a mistake. Let them know.
         this.reply(
           this.str.err +
-            this.str.err_unknown_command.replace('%CMD%', argv._[0]) +
+            this.str.err_unknown_command.replace('%CMD%', String(argv._[0])) +
             ' ' +
             this.str.err_type_help.replace('%PREFIX%', this.prefix),
           context

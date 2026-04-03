@@ -6,6 +6,7 @@ import {
   Flag as ClappFlag,
   Argument as ClappArgument,
   ArgumentOptions,
+  Argv,
   FlagOptions,
 } from '../clapp/index.js'
 import Table from 'cli-table3'
@@ -33,7 +34,10 @@ interface ClappCommandOpts {
 interface ClappCommandOptions {
   name: string
   desc: string
-  fn: (argv: unknown, context: unknown) => Promise<string>
+  fn: (
+    argv: import('../../Interfaces.js').ClappArgs,
+    context: import('../../Interfaces.js').Context
+  ) => string | Promise<string> | { message: string; context?: unknown }
   args?: (ClappArgument | ArgumentOptions)[]
   flags?: (ClappFlag | FlagOptions)[]
   caseSensitive?: boolean
@@ -118,9 +122,21 @@ export class App extends ClappApp {
 
 export class Command extends ClappCommand {
   opts?: ClappCommandOpts
+  declare fn: ClappCommandOptions['fn']
+  declare args: ClappArgument[]
+  declare flags: Record<string, ClappFlag>
 
   constructor(options: ClappCommandOptions) {
-    super(options)
+    super(
+      options as unknown as {
+        name: string
+        desc: string
+        fn: (argv: Argv, context: unknown) => Promise<string> | string
+        args?: (ClappArgument | ArgumentOptions)[]
+        flags?: (ClappFlag | FlagOptions)[]
+        caseSensitive?: boolean
+      }
+    )
     this.opts = options.opts
   }
 

@@ -3,11 +3,7 @@ import * as fs from 'async-file'
 import * as fssync from 'fs'
 import * as _ from 'underscore'
 import { Dictionary } from 'underscore'
-import {
-  MatchCB,
-  matchOne as matcherMatchOne,
-  matchAll as matcherMatchAll,
-} from './matcher'
+import { MatchCB, matchOne as matcherMatchOne } from './matcher'
 import { CrewMember } from './dcmodel/crew'
 import {
   DATACORE_ASSETS_URL,
@@ -37,7 +33,7 @@ export interface Char {
 }
 
 export interface CrewDoc {
-  _id: number
+  _id: string
   username: string
   crew: Array<Char>
   base: any
@@ -783,13 +779,13 @@ export function createCrewTable(
   let table = createDefaultTable()
   table.push(['', 'Name', '*', '*', 'Lvl'].concat(skills))
 
-  const lines = sortedRoster.map((char) => {
+  sortedRoster.forEach((char) => {
     const tabOpts = { table: true }
-    let ret = statsFor(char, emojify, boldify, tabOpts)
+    const ret = statsFor(char, emojify, boldify, tabOpts) as any[]
     table.push(ret)
   })
   const ret =
-    `${lines.length}/${totalMatches} matches for ${searchParams.join(', ')}\n` +
+    `${sortedRoster.length}/${totalMatches} matches for ${searchParams.join(', ')}\n` +
     '```' +
     table.toString() +
     '```'
