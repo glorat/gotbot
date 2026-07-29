@@ -49,7 +49,7 @@
     "@types/nedb": "^1.8.12",
     "@types/underscore": "^1.9.4",
     "@types/ws": "^8.18.1",
-    "body-parser": "^1.19.0",
+    "body-parser": "^1.20.6",
     "cheerio": "^1.2.0",
     "cli-table3": "^0.6.5",
     "discord.js": "^14.6.0",
